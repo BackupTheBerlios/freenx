@@ -5,12 +5,13 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.13 2005/02/14 01:52:08 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.14 2005/02/14 07:14:23 jonno Exp $ 
 #
 
 HELP="no"
 INSTALL="no"
 SETUP_NOMACHINE_KEY="no"
+SETUP_UID=""
 CLEAN="no"
 UNINSTALL="no"
 PURGE="no"
@@ -21,6 +22,7 @@ do
 		--help) HELP="yes"; shift ;;
 		--install) INSTALL="yes"; shift ;;
 		--setup-nomachine-key) SETUP_NOMACHINE_KEY="yes"; shift ;;
+		--uid) SETUP_UID=$2; shift 2 ;;
 		--clean) CLEAN="yes"; shift ;;
 		--uninstall) UNINSTALL="yes"; shift ;;
 		--purge) PURGE="yes"; shift ;;
@@ -33,14 +35,14 @@ done
 [ "$INSTALL" = "yes" -a "$UNINSTALL" = "yes" ] && HELP="yes"
 [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
-[ "$UNINSTALL" = "yes" -a "$SETUP_NOMACHINE_KEY" = "yes" ] && HELP="yes"
+[ "$UNINSTALL" = "yes" ] && [ "$SETUP_NOMACHINE_KEY" = "yes" -o -n "$SETUP_UID" -o "$CLEAN" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
 
 if [ "$HELP" = "yes" ]
 then
 	echo "nxsetup - Setup the FreeNX server."
 	echo "Syntax: nxsetup --help"
-	echo "        nxsetup --install [--setup-nomachine-key] [--clean [--purge]]"
+	echo "        nxsetup --install [--setup-nomachine-key] [--uid <nummber>] [--clean [--purge]]"
 	echo "        nxsetup --uninstall [--purge]"
 	echo
 	echo "  --help                 Displays this help message"
@@ -49,6 +51,7 @@ then
 	echo "                         client. This is not as secure, but it simplifies the "
 	echo "                         configuration of clients."
 	echo "                         Use this option at your own risk."
+	echo "  --uid <number>         The nx user will be given the uid <number>."
 	echo "  --clean                Performs an uninstall prior to the installation"
 	echo "  --uninstall            Remove log and session files, as well as the nx user"
 	echo "  --purge                Uninstall will remove extra configuration files and ssh"
@@ -68,8 +71,12 @@ fi
 # Tries to add a system user
 useradd_nx()
 {
+	# Are uid specified
+	if [ -n "$SETUP_UID" ]
+	then
+		useradd -u $SETUP_UID -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
 	# Is it a debian?
-	if [ -f /etc/debian_version ]
+	elif [ -f /etc/debian_version ]
 	then
 		adduser --system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver nx
 	# or is it a SuSE?
