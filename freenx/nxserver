@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.26 2005/03/06 15:45:01 fabianx Exp $
+# CVS: $Id: nxserver,v 1.27 2005/03/07 00:19:39 fabianx Exp $
 #
 
 # Read the config file
@@ -563,7 +563,7 @@ done
 
 server_get_params()
 {
-	SERVER_PARAMS=$(echo "$@" | sed "s/^$1//g; s/ --/\&/g; s/\"//g")
+	SERVER_PARAMS=$(echo "$@" | sed "s/^$1/\"/g; s/\" --/\&/g; s/\"//g")
 	if [ "$SERVER_PARAMS" = "" ]
 	then
 		echo_x -n "NX> 106 Parameters: "

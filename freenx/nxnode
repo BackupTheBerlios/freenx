@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.25 2005/03/06 23:52:48 fabianx Exp $
+# CVS: $Id: nxnode,v 1.26 2005/03/07 00:19:39 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -136,7 +136,7 @@ node_start_applications()
 			STARTX=$COMMAND_START_CDE
 		;;
 		unix-application)
-			STARTX=$(which $application)
+			STARTX=$application
 		;;
 		unix-default)
 			if [ -f "$HOME/.Xclients" ]; then
