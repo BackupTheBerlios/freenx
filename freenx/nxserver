@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.10 2005/02/12 13:49:06 fabianx Exp $
+# CVS: $Id: nxserver,v 1.11 2005/02/12 13:59:25 fabianx Exp $
 #
 
 # Important constants
@@ -57,11 +57,11 @@ passdb_get_crypt_pass()
 passdb_get_pass()
 {
 	PASSDB_CHUSER="$1"
-	PASSDB_PASS=$(egrep "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords | cut -d":" -f2)
+	PASSDB_PASS=$(egrep "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords 2>/dev/null | cut -d":" -f2)
 	if [ "$ENABLE_PASSDB_AUTHENTICATION" = "1" ]
 	then
-		egrep -q "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords && echo $PASSDB_PASS
-		egrep -q "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords || echo "NOT_VALID"
+		egrep -q "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords 2>/dev/null && echo $PASSDB_PASS
+		egrep -q "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords 2>/dev/null || echo "NOT_VALID"
 	else
 		echo "NOT_VALID"
 	fi
@@ -78,7 +78,7 @@ passdb_chpass()
 passdb_user_exists()
 {
 	PASSDB_CHUSER="$1"
-	egrep -q "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords
+	egrep -q "^$PASSDB_CHUSER:" $NX_ETC_DIR/passwords 2>/dev/null
 }
 
 
