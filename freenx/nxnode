@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.37 2005/03/12 12:13:25 jonno Exp $
+# CVS: $Id: nxnode,v 1.38 2005/03/12 16:54:47 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -165,7 +165,7 @@ node_start_applications()
 	elif [ "$mediahelper" = "artsd" ]
 	then
 		# Overwrite users mcoprc
-		echo -n "GlobalComm=Arts::X11GlobalComm" > $USER_FAKE_HOME/.mcoprc
+		echo -n "GlobalComm=Arts::X11GlobalComm" > $HOME/.mcoprc
 		if [ "$ENABLE_ARTSD_PRELOAD" = "1" -a -x $ARTSD_BIN_PRELOAD ]
 		then
 			STARTX="$ARTSD_BIN_PRELOAD $STARTX"
