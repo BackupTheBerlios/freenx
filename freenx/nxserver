@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.19 2005/02/12 22:46:15 fabianx Exp $
+# CVS: $Id: nxserver,v 1.20 2005/02/13 00:55:53 fabianx Exp $
 #
 
 # Important constants
@@ -601,7 +601,7 @@ server_nxnode_start_wait()
 	server_nxnode_start "$@" | while read CMD
 	do
 		case "$CMD" in 
-			"NX> 1006"*|"NX> 1005"*)
+			"NX> 1006"*|"NX> 1005"*|"NX> 1009"*)
 				case "$CMD" in 
 					*running*)
 						rm -f $WAIT
@@ -613,6 +613,8 @@ server_nxnode_start_wait()
 					*suspended*)
 						session_suspend $uniqueid
 					;;
+					*terminating*)
+						session_status $uniqueid "Terminating"
 				esac
 			;;
 			"NX> 1004"*)

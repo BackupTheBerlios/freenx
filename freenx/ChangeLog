@@ -14,6 +14,8 @@
 	* Added mechanism to forward connection to commercial nxserver.
 	* Added "floating window" support by using rootless nxagent as
 	  it will be standard in NX 1.5.0.
+	* Added "floating window" support by just nxproxy/nxproxy connection
+	  and added configuration directive to enable rootless mode.
 
 20.11.2004 FreeNX 0.2.7 "Skolelinux Edition"
 	* Fix nxserver to work again with KNX-Client. ('\r' is evil)

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.15 2005/02/12 20:10:57 fabianx Exp $
+# CVS: $Id: nxnode,v 1.16 2005/02/13 00:55:52 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -77,8 +77,6 @@ node_terminate_session()
 	if [ -n "$AGENT_PID" ]
 	then 
 		kill $AGENT_PID 2>/dev/null
-		sleep 1
-		kill -9 $AGENT_PID 2>/dev/null
 		# remove possible leftover display ...
 		display=$(echo $1 | cut -d"-" -f2)
 		rm -f /tmp/.X$display-lock
@@ -186,8 +184,15 @@ node_start_agent()
 		echo "$agent_password" | $PATH_BIN/nxpasswd ~/.nx/C-$sess_id/scripts/.passwd doit
 		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
 	else
-	# "normal" nxagent session
-		$PATH_BIN/nxagent -persistent $R -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
+		# "normal" nxagent session
+		if [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
+		then
+			# nxproxy single application mode session
+			$PATH_BIN/nxproxy -C :$display 2>>~/.nx/C-$sess_id/session &
+		else
+			# nxagent session
+			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
+		fi
 	fi
 	fi
 	PID=$!
@@ -285,7 +290,12 @@ node_start_monitor()
 		# Session end
 		#
 		
-		#if stringinstring "Info: End of session requested by agent termination." "$line"
+		if stringinstring "Info: End of session requested by " "$line" && [ "$RECONNECT" = "0" ]
+		then
+			echo "NX> 1009 Session status: terminating"
+			kill $PROXY_PID 2>/dev/null
+		fi
+		
 		# TODO: Kill also waiting smbmount processes
 		if stringinstring "Info: Waiting for a further signal to complete." "$line" && [ "$RECONNECT" = "0" ]
 		then
@@ -296,6 +306,7 @@ node_start_monitor()
 			kill $PROXY_PID 2>/dev/null
 			sleep 2
 			kill -9 $PROXY_PID 2>/dev/null
+			
 			break
 		fi
 
