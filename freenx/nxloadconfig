@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.10 2005/03/10 14:52:45 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.11 2005/03/10 23:55:28 fabianx Exp $
 #
 # ========================================================================
 
@@ -15,6 +15,10 @@
 
 HELP="no"
 CHECK="no"
+
+if [ -z "$NX_LOADCONFIG" ]
+then
+
 USERCONF="no"
 
 while [ "$1" ]
@@ -42,6 +46,8 @@ then
 	echo "  --userconf [<username>]  Parse <username>.node.conf as well as node.conf."
 	echo "                           Assume current user if no username is specified."
 	exit 0
+fi
+
 fi
 
 #########################################################################
