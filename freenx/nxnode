@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.48 2005/03/16 13:58:42 jonno Exp $
+# CVS: $Id: nxnode,v 1.49 2005/03/16 14:02:38 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -299,7 +299,7 @@ node_umount_smb()
 	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/mpoint" ] || return
 	cat "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/mpoint" | while read mpoint
 	do
-		smbumount "$mpoint" >/dev/null 2>/dev/null
+		$COMMAND_SMBUMOUNT "$mpoint" >/dev/null 2>/dev/null
 	done
 }
 
