@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.12 2005/02/12 17:58:58 fabianx Exp $
+# CVS: $Id: nxnode,v 1.13 2005/02/12 19:50:26 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -162,6 +162,8 @@ node_start_agent()
 	[ -n "$backingstore" ] && B="-bs $backingstore"
 	G=""
 	[ -n "$geometry" ] && G="-geometry $geometry"
+	R=""
+	[ "$virtualdesktop" != 1 ] && R="-rootless"
 
 	[ "$NX_NOMACHINE_WAY" = "1" ] && export LD_LIBRARY_PATH="$PATH_LIB:$LD_LIBRARY_PATH"
 
@@ -185,7 +187,7 @@ node_start_agent()
 		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
 	else
 	# "normal" nxagent session
-		$PATH_BIN/nxagent -persistent -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
+		$PATH_BIN/nxagent -persistent $R -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
 	fi
 	fi
 	PID=$!
@@ -381,6 +383,7 @@ node_startsession()
 	images=$(getparam images)
 	cookie=$(getparam cookie)
 	link=$(getparam link)
+	virtualdesktop=$(getparam virtualdesktop)
 	render=$(getparam render)
 	backingstore=$(getparam backingstore)
 	imagecompressionmethod=$(getparam imagecompressionmethod)
