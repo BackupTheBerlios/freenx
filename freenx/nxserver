@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.20 2005/02/13 00:55:53 fabianx Exp $
+# CVS: $Id: nxserver,v 1.21 2005/02/13 22:49:15 fabianx Exp $
 #
 
 # Important constants
@@ -217,8 +217,9 @@ session_list_user_suspended()
 		if egrep -q "^userName=$1$" $i && egrep -q "^status=$2$" $i #&& grep -q "screeninfo=$3" $i
 		then
 			CMDLINE=$(session_get_cmdline $i)
-			options="R----PSA"
+			options="-R---PSA"
 			depth=$(getparam screeninfo | cut -d "x" -f3 | cut -d "+" -f1 )
+			geom=$(getparam screeninfo | cut -d "x" -f1,2) 
 			render=$(getparam screeninfo | cut -d "+" -f2 )
 			available="N/A"
 			udepth=$(echo $3 | cut -d "x" -f3 | cut -d "+" -f1 )
@@ -229,7 +230,7 @@ session_list_user_suspended()
 			then
 				available="Yes"
 			fi
-			echo -e "$(getparam display)\t$(getparam type)\t$(getparam sessionId)\t$options\t$depth\t$(getparam geometry)\t$available\t$(getparam sessionName)" >> $TMPFILE
+			echo -e "$(getparam display)\t$(getparam type)\t$(getparam sessionId)\t$options\t$depth\t$geom\t$available\t$(getparam sessionName)" >> $TMPFILE
 		fi
 	done
 	echo "" >> $TMPFILE
