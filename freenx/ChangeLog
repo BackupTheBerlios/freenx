@@ -19,7 +19,7 @@
 	* Implemented SESSION_LIMIT and SESSION_USER_LIMIT.
 	* Fixed nxviewer commandline for geometry and fullscreen-support
 
-11.03.2005 FreeNX 0.3.1
+XX.03.2005 FreeNX 0.3.1-CVS
 	* Fixed keyboard mapping problems.
 	* Fixed unix-custom mode; now allowing parameters to be passed.
 	* Fixed password prompt detection support in nxnode-login.
