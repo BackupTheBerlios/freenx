@@ -1,0 +1,126 @@
+#!/bin/bash
+#
+# Copyright (c) 2005 by Fabian Franz <freenx@fabian-franz.de>
+#           (c) 2005 by Jon Severinsson <jon@severinsson.net>
+#
+# License: GPL, version 2
+#
+# CVS: $Id: nxloadconfig,v 1.1 2005/02/14 00:43:46 jonno Exp $
+#
+# ========================================================================
+
+#########################################################################
+# INTERNAL STUFF
+# DO NOT TOUCH unless you REALLY know what you are doing
+#########################################################################
+
+NX_VERSION=1.4.0-03-CVS
+NX_LICENSE="OS (GPL)"
+
+# Where can different nx components be found
+NX_DIR=/usr
+PATH_BIN=$NX_DIR/bin
+PATH_LIB=$NX_DIR/lib
+NX_ETC_DIR=/etc/nxserver
+NX_SESS_DIR=/var/lib/nxserver/db
+NX_HOME_DIR=/var/lib/nxserver/home
+
+# adds PATH_LIB to the startup of nxagents
+# Should be set to 1 if PATH_LIB is not a system default library path
+NX_NOMACHINE_WAY="0"
+
+# the name of the authorized keys file for ssh
+SSH_AUTHORIZED_KEYS="authorized_keys2"
+
+#########################################################################
+# Default Values
+# DO NOT EVER TOUCH THIS, edit $NX_ETC_DIR/node.conf instead
+#########################################################################
+
+NX_LOGGING=0
+NX_LOGFILE=/var/log/nxserver.log
+SESSION_HISTORY=2592000
+
+ENABLE_PASSDB_AUTHENTICATION="1"
+ENABLE_SSH_AUTHENTICATION="1"
+ENABLE_SU_AUTHENTICATION="0"
+ENABLE_USER_DB="0"
+
+ENABLE_AUTORECONNECT="0"
+ENABLE_AUTORECONNECT_BEFORE_140="1"
+
+EXPORT_USERIP="0"
+EXPORT_SESSIONID="0"
+NODE_AUTOSTART=""
+
+ENABLE_NOMACHINE_FORWARD="0"
+NOMACHINE_SERVER="/usr/NX/bin/nxserver"
+
+ENABLE_ROOTLESS_MODE="0"
+
+SSHD_CHECK_IP="0"
+SSHD_PORT=22
+
+DISPLAY_BASE=1000
+SESSION_LIMIT=20
+DISPLAY_LIMIT=200
+
+DEFAULT_X_WM=twm
+DEFAULT_X_SESSION=/etc/X11/xdm/Xsession
+COMMAND_START_KDE=startkde
+COMMAND_START_GNOME=gnome-session
+COMMAND_START_CDE=cdwm
+COMMAND_XTERM=xterm
+COMMAND_XAUTH=/usr/X11R6/bin/xauth
+COMMAND_XSET=/usr/X11R6/bin/xset
+COMMAND_XMODMAP=/usr/X11R6/bin/xmodmap
+COMMAND_XKBCOMP=/usr/X11R6/bin/xkbcomp
+XKBCOMP_KEYMAP_FILE=/etc/X11/xkb/keymap/xfree86
+COMMAND_SMBMOUNT=smbmount
+COMMAND_SMBUMOUNT=smbumount
+
+ENABLE_PERSISTENT_SESSION="all"
+DISABLE_PERSISTENT_SESSION="" 
+
+AGENT_EXTRA_OPTIONS_RFB=""
+AGENT_EXTRA_OPTIONS_RDP=""
+AGENT_EXTRA_OPTIONS_X=""
+AGENT_FONT_SERVER=""
+
+PROXY_TCP_NODELAY="0"
+PROXY_EXTRA_OPTIONS=""
+
+CUPS_SUPPORT="0"
+CUPS_BACKEND=""
+CUPS_BIN=""
+CUPS_SBIN=""
+
+#########################################################################
+# Values that will be calculated
+#########################################################################
+
+SERVER_NAME=""
+SESSION_USER_LIMIT=""
+AGENT_LIBRARY_PATH=""
+PROXY_LIBRARY_PATH=""
+APPLICATION_LIBRARY_PATH=""
+APPLICATION_LIBRARY_PRELOAD=""
+
+#########################################################################
+# node.conf file evaluation
+#########################################################################
+
+[ -e $NX_ETC_DIR/node.conf ] && . $NX_ETC_DIR/node.conf
+[ "$1" = "--userconf" -a -e $NX_ETC_DIR/$USER.node.conf ] && . $NX_ETC_DIR/$USER.node.conf
+
+#########################################################################
+# Calculated values
+#########################################################################
+
+[ -z "$SERVER_NAME" ] && SERVER_NAME=$(hostname)
+[ -z "$SESSION_USER_LIMIT" ] && SESSION_USER_LIMIT=$SESSION_LIMIT
+
+[ -z "$AGENT_LIBRARY_PATH" ] && AGENT_LIBRARY_PATH=$PATH_LIB
+[ -z "$PROXY_LIBRARY_PATH" ] && PROXY_LIBRARY_PATH=$PATH_LIB
+[ -z "$APPLICATION_LIBRARY_PATH" ] && APPLICATION_LIBRARY_PATH=$PATH_LIB
+[ -z "$APPLICATION_LIBRARY_PRELOAD" ] && APPLICATION_LIBRARY_PRELOAD="$APPLICATION_LIBRARY_PATH/libX11.so.6.2:$APPLICATION_LIBRARY_PATH/libXext.so.6.4:$APPLICATION_LIBRARY_PATH/libXcomp.so.1:$APPLICATION_LIBRARY_PATH/libXcompext.so.1:$APPLICATION_LIBRARY_PATH/libXrender.so.1.2"

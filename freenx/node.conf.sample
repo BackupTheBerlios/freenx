@@ -5,6 +5,12 @@
 # (NoMachine NX style).
 #
 # It is mostly compatible with NoMachine node.conf.
+# The most important difference is that no spaces are allowed when assigning
+# values (eg "A=value" is allowed, "A = value" is NOT).
+# This file is sourced by bash, so you can do some fancy stuff here if you
+# want to, but be aware that it is sourced 3 times per connection.
+# If you want autostart stuff, se NODE_AUTOSTART instead!
+# 
 #
 # You surely are aware that FreeNX is based on the phantastic results that
 # the hard work by NoMachine.com has achieved. NoMachine.com released the
@@ -30,63 +36,58 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf,v 1.13 2005/02/13 13:04:39 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.1 2005/02/14 00:43:46 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
 #########################################################################
 
-# Path directives
-# These tell FreeNX where various files are to be found
-
-NX_DIR=/usr
-PATH_BIN=$NX_DIR/bin
-PATH_LIB=$NX_DIR/lib
-NX_ETC_DIR=/etc/nxserver
-NX_SESS_DIR=/var/lib/nxserver/db
-NX_HOME_DIR=/var/lib/nxserver/home
-
 # Logfile directives
 # Before turning logging on, please make sure that NX_LOGFILE is 
 # writeable for the "nx" user
-NX_LOGGING=0
-NX_LOGFILE=/var/log/nxserver.log
+#NX_LOGGING=0
+#NX_LOGFILE=/var/log/nxserver.log
+
+# Amount of seconds nxserver is to keep session data. The default of 2592000
+# is equivalent to 30 days. If this is 0 no session history will be kept,
+# and a negative value denotes infinity.
+#SESSION_HISTORY=2592000
 
 # Authentication directives
 # This adds the passdb to the possible authentication methods
-ENABLE_PASSDB_AUTHENTICATION="1"
+#ENABLE_PASSDB_AUTHENTICATION="1"
 
 # This adds SSH to the possible authentication methods. For it to work sshd
 # must be set up at localhost accepting password authentication.
-ENABLE_SSH_AUTHENTICATION="1"
+#ENABLE_SSH_AUTHENTICATION="1"
 
 # This adds SU to the possible authentication methods. For it to work the 
 # "nx" user must be in the wheel (RedHat, Fedora) or the users group (SUSE) 
 # and the user logging in must have a valid shell that accepts the -c 
 # parameter.
-ENABLE_SU_AUTHENTICATION="0"
+#ENABLE_SU_AUTHENTICATION="0"
 
 # Require all users to be in the passdb, regardless of authentication 
 # method
-ENABLE_USER_DB="0"
+#ENABLE_USER_DB="0"
 
 # When set to 1 this will automatically resume started sessions
-ENABLE_AUTORECONNECT="0"
+#ENABLE_AUTORECONNECT="0"
 
 # When set to 1 this will automatically resume started sessions
 # but only if an older client version is used
-ENABLE_AUTORECONNECT_BEFORE_140="1"
+#ENABLE_AUTORECONNECT_BEFORE_140="1"
 
 # When set to 1 exports NXUSERIP / NXSESSIONID in nxnode
-EXPORT_USERIP="0"
-EXPORT_SESSIONID="0"
+#EXPORT_USERIP="0"
+#EXPORT_SESSIONID="0"
 
 # This can be set to any executable, which is started after session startup
 # like: $NODE_AUTOSTART {start|restore}
-NODE_AUTOSTART=""
+#NODE_AUTOSTART=""
 
 
-# When those two lines are enabled FreeNX will automatically forward all
+# FreeNX with ENABLE_NOMACHINE_FORWARD="1" will automatically forward all
 # connections to the commercial NoMachine nxserver installed on the same
 # machine. This feature is introduced to enable the usage of FreeNX adn
 # NoMachine NX side by side on the same machine without conflicts.
@@ -98,70 +99,122 @@ NODE_AUTOSTART=""
 # To make a connection to the NoMachine nxserver, use the unmodified
 # '<user>' username.
 
-#ENABLE_NOMACHINE_FORWARD="1"
+#ENABLE_NOMACHINE_FORWARD="0"
 #NOMACHINE_SERVER="/usr/NX/bin/nxserver"
 
 # When set to 1 will start nxagent in rootless mode.
-ENABLE_ROOTLESS_MODE="0"
+#ENABLE_ROOTLESS_MODE="0"
 
 #########################################################################
 # NoMachine node.conf compatible (almost) directives
 # All might not be implemented as of now, but will be in the near future.
 #########################################################################
 
+# The host name which is used by NX server. It's should be used if it's 
+# different than the default hostname (as returned by `hostname`)
+#SERVER_NAME="$(hostname)"
+
+# Refuse the NX client connection if SSHD does not export the
+# SSH_CONNECTION and SSH_CLIENT variables in the environment
+# passed to the NX server.
+#
+# 1: Will check the remote IP and will not accept the
+# connection if it can't be determined.
+#
+# 0: Will accept the connection even if the remote IP
+# is not provided.
+#SSHD_CHECK_IP="0"
+
+# The port number where local 'sshd' is listening. 
+#SSHD_PORT=22
+
+
 # The base display number from which sessions are started. 
-DISPLAY_BASE=1000
+#DISPLAY_BASE=1000
 
 # The maximum number of contemporary sessions that can be run on FreeNX
-SESSION_LIMIT=20
+#SESSION_LIMIT=20
+
+# The maximum number of contemporary sessions that a single user can run
+# on FreeNX. Defaults to the value of SESSION_LIMIT.
+#SESSION_USER_LIMIT=20
 
 # The number of displays reserved for sessions, it has to be greater or equal
 # to the maximum number of contemporary sessions that a server can run. 
-DISPLAY_LIMIT=200
+#DISPLAY_LIMIT=200
 
-# The font server to be used. If set to "" no font server is used.
-FONT_SERVER=
 
-# The key that contains the name of the complete path of command name 
-# 'xauth'.
-XAUTH_COMMAND=/usr/X11R6/bin/xauth
-
-# The key that contains the name of the complete path of command name 
-# 'xset'. 
-XSET_COMMAND=/usr/X11R6/bin/xset
-
-# The key that contains the name of the complete path of command name 
-# 'smbmount'.
-SMBMOUNT_COMMAND=smbmount
-
-# The key that contains the name of the complete path of command name
-# 'smbumount'.
-SMBUMOUNT_COMMAND=smbumount
-
-# The key that contains the name of the complete path of command name 
-# 'fuser'.
-FUSER_COMMAND=/sbin/fuser
+# The command binary for the default window manager. It is run when a 
+# unix 'custom' session is requested by the NX Client and an application 
+# to run is specified. By default it is set to "twm". If you don't have 
+# twm in the default path or if you want to use another window manager,
+# you have to set it to the absolute file name of the command binary you 
+# want to use.
+#DEFAULT_X_WM=twm
 
 # The key that contains the name of the script that starts a KDE session. 
 # It's run when a unix 'kde' session is requested by the client.
-START_KDE_COMMAND=startkde
+#COMMAND_START_KDE=startkde
 
 # The key that contains the name of the script that starts a gnome session. 
 # It's run when a unix 'gnome' session is requested by the client.
-START_GNOME_COMMAND=gnome-session
+#COMMAND_START_GNOME=gnome-session
+
+# The key that contains the name of the script that starts a CDE session. 
+# It's run when a unix 'cde' session is requested by the client.
+#COMMAND_START_CDE=cdwm
 
 # The key that contains the name of the complete path of command name 
 # 'xterm'. It is run when a unix "xterm" session is requested by the 
 # client.
-XTERM_COMMAND=xterm
+#COMMAND_XTERM=xterm
 
-# The command binaries for the preferred windows manager. It is run when a 
-# unix 'custom' session is requested by the NX Client and an application 
-# to run is specified. By default it is set to "twm". If you don't have 
-# twm in the default path or if you want to use another window manager,
-# you have to set it to the absolute file name of the command binaries you 
-# want to use.
-PREFERRED_WM=twm
+# The key that contains the name of the complete path of command name 
+# 'xauth'.
+#COMMAND_XAUTH=/usr/X11R6/bin/xauth
+
+# The key that contains the name of the complete path of command name 
+# 'xset'. 
+#COMMAND_XSET=/usr/X11R6/bin/xset
+
+# The key that contains the name of the complete path of command name 
+# 'xmodmap'. 
+#COMMAND_XMODMAP=/usr/X11R6/bin/xmodmap
+
+# The key that contains the name of the complete path of command name 
+# 'xkbcomp'. 
+#COMMAND_XKBCOMP=/usr/X11R6/bin/xkbcomp
+
+# The keymap file for xkbcomp
+#XKBCOMP_KEYMAP_FILE=/etc/X11/xkb/keymap/xfree86
+
+# The key that contains the name of the complete path of command name 
+# 'smbmount'.
+#COMMAND_SMBMOUNT=smbmount
+
+# The key that contains the name of the complete path of command name
+# 'smbumount'.
+#COMMAND_SMBUMOUNT=smbumount
+
+
+# User for which sessions should be persistent. Either a comma-separated
+# list of usernames or the word "all".
+#ENABLE_PERSISTENT_SESSION="all"
+
+# Users in the ENABLE_PERSISTENT_SESSION for which persistent should be
+# disabled. Especially usefull if ENABLE_PERSISTENT_SESSION="all"
+#DISABLE_PERSISTENT_SESSION=""
+
+# Extra options sent to the different nx agents. See !M documentation
+# for examples of usefull parameters.
+#AGENT_EXTRA_OPTIONS_RFB=""
+#AGENT_EXTRA_OPTIONS_RDP=""
+#AGENT_EXTRA_OPTIONS_X=""
+
+# The font server the agent will use. If set to "" no font server is used.
+# For this to do any good, the client has to have the same font server set
+# in /etc/X11/XF86Config
+#AGENT_FONT_SERVER=""
 
 # disable or enable use of 'tcp nodelay' on proxy. Old versions of Linux 
 # kernels have problems using this option on sockets that will cause a loss 
@@ -169,20 +222,8 @@ PREFERRED_WM=twm
 # specify whether to enable or disable TCP nodelay. Setting this option to 
 # the value of "0" NX proxy avoids using 'tcp nodelay' but it will cause a 
 # loss of interaction in sessions.
-TCP_NODELAY=
+#PROXY_TCP_NODELAY="0"
 
-# The port number where local 'sshd' is listening. 
-SSHD_PORT=22
+# Extra options to nxproxy. See !M documentation for usefull parameters.
+#PROXY_EXTRA_OPTIONS=""
 
-#########################################################################
-# INTERNAL STUFF
-# DO NOT TOUCH unless you REALLY know what you are doing
-#########################################################################
-
-NX_VERSION=1.4.0-03-CVS
-NX_LICENSE="OS (GPL)"
-
-NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
-
-# adds LD_LIBRARY_PATH to the startup of nxagents
-NX_NOMACHINE_WAY=0

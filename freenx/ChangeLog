@@ -1,14 +1,16 @@
-27.01.2004 FreeNX 0.3.0-WIP
+14.02.2005 FreeNX 0.3.0-WIP
 	* Initial CVS checkin.
 	* Added unix-default as session type - by Kalev Lember 
 	  <kalev@smartlink.ee>
 	* Fixed nxclient loop - by "Neil Wilson" <neil@aldur.co.uk>.
 	* Several fixes by Thorsten Sandfuchs <fux@akk.org>.
-	* Config file support by Jon Severinsson <jonno@users.berlios.de>.
+	* Optional config file support (system- and user-wide)
+		- by Jon Severinsson <jonno@users.berlios.de>.
 	* Moved logfile to /var/log/nxserver.log.
+	* Moved nx homedir to /var/lib/nxserver/home
 	* Complete rewrite of authentication code
-		* su or ssh is now supported.
-	* Added support for user based configs like in !M AR01C00135.
+		* passdb, su or ssh is now supported.
+		- by Jon Severinsson <jonno@users.berlios.de>.
 	* Added NODE_AUTOSTART, EXPORT_{USERIP/SESSIONID} config file
 	  directives.
 	* Added mechanism to forward connection to commercial NoMachine 

@@ -11,14 +11,11 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.21 2005/02/13 22:49:15 fabianx Exp $
+# CVS: $Id: nxserver,v 1.22 2005/02/14 00:43:46 jonno Exp $
 #
 
-# Important constants
-NX_CONFIG_FILE=/etc/nxserver/node.conf
-
 # Read the config file
-. $NX_CONFIG_FILE
+. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig)
 
 # following two functions are Copyright by Klaus Knopper
 
@@ -540,7 +537,8 @@ do
 
 			if [ "$LOGIN_SUCCESS" = "1" ]
 			then
-				[ -f "${NX_ETC_DIR}/${USER}.node.conf" ] && . "${NX_ETC_DIR}/${USER}.node.conf"
+				# Reread the config files (so that $USER.node.conf get sourced)
+				. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --userconf
 				echo_x "NX> 103 Welcome to: $HOSTNAME user: $USER"
 				break
 			else
@@ -662,10 +660,7 @@ server_startrestore_session()
 	if [ "$ACTION" = "start" ]
 	then
 		# start nxnode
-		SESS_DISPLAY=1000
-				
-		# nxnode.conf paramaters
-		[ -n "$DISPLAY_BASE" ] && SESS_DISPLAY=$DISPLAY_BASE
+		SESS_DISPLAY=$DISPLAY_BASE
 	
 		# stupid but working algo ...
 			
@@ -854,7 +849,7 @@ fi
 
 # Policy: All functions and variables need to start with CMD_ / cmd_
 
-# Needed global vars: $NX_VERSION, $NX_LICENSE, $NX_ETC_DIR, $PATH_BIN, $NX_HOME_DIR, $NX_AUTHORIZED_KEYS_FILE
+# Needed global vars: $NX_VERSION, $NX_LICENSE, $NX_ETC_DIR, $PATH_BIN, $NX_HOME_DIR, $SSH_AUTHORIZED_KEYS
 
 # Needed package: passdb
 
@@ -957,23 +952,23 @@ cmd_listuser()
 cmd_start()
 {
 	
-	[ -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE ] && cmd_abort "ERROR: Service already running"
-	mv $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE.disabled $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+	[ -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ] && cmd_abort "ERROR: Service already running"
+	mv $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS.disabled $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS
 	echo "NX> 122 Service started"
 }
 
 cmd_stop()
 {
-	[ -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE ] || cmd_abort "Service was already stopped"
-	mv $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE.disabled
+	[ -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ] || cmd_abort "Service was already stopped"
+	mv $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS.disabled
 	# TODO: Stop all running sessions
 	echo "NX> 123 Service stopped"
 }
 
 cmd_status()
 {
-	[ -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE ] && echo "NX> 110 NX Server is running"
-	[ -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE ] || echo "NX> 110 NX Server is stopped"
+	[ -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ] && echo "NX> 110 NX Server is running"
+	[ -f $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS ] || echo "NX> 110 NX Server is stopped"
 }
 
 cmd_restart()

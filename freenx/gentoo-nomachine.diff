@@ -1,34 +1,23 @@
---- nxserver.old	2005-02-01 01:02:11.000000000 +0100
-+++ nxserver	2005-02-01 01:04:19.000000000 +0100
-@@ -15,7 +15,7 @@
- #
- 
- # Important constants
--NX_CONFIG_FILE=/etc/nxserver/node.conf
-+NX_CONFIG_FILE=/usr/NX/etc/node.conf
- 
- # Read the config file
- . $NX_CONFIG_FILE
---- nxkeygen.old	2005-02-01 01:02:19.000000000 +0100
-+++ nxkeygen	2005-02-01 01:04:39.000000000 +0100
-@@ -52,11 +52,6 @@
+--- nxkeygen.old	2005-02-14 01:09:08.526715360 +0100
++++ nxkeygen	2005-02-14 01:09:40.108914136 +0100
+@@ -51,11 +51,6 @@
  		chown nx:root $x
  	done
  	
 -	# copy the key to the authorized_keys2 file
--	rm -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
--	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"nxserver\" " >$NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
--	cat ${NX_SERVER_KEY} >> $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+-	rm -f $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
+-	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"nxserver\" " >$NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
+-	cat ${NX_SERVER_KEY} >> $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 -
  	# now tell the user what to do
  
  	echo "Unique key generated; your users must install"
---- node.conf.old	2005-02-01 01:02:27.000000000 +0100
-+++ node.conf	2005-02-01 01:04:05.000000000 +0100
-@@ -39,12 +39,12 @@
- # Path directives
- # These tell FreeNX where various files are to be found
+--- nxloadconf.old	2005-02-14 01:08:56.482546352 +0100
++++ nxloadconf	2005-02-14 01:09:40.109913984 +0100
+@@ -18,16 +18,16 @@
+ NX_LICENSE="OS (GPL)"
  
+ # Where can different nx components be found
 -NX_DIR=/usr
 +NX_DIR=/usr/NX
  PATH_BIN=$NX_DIR/bin
@@ -40,11 +29,10 @@
 +NX_SESS_DIR=$NX_DIR/var/db
 +NX_HOME_DIR=$NX_DIR/home/nx
  
- # Logfile directives
- # Before turning logging on, please make sure that NX_LOGFILE is 
-@@ -185,4 +185,4 @@
- NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
+ # adds PATH_LIB to the startup of nxagents
+ # Should be set to 1 if PATH_LIB is not a system default library path
+-NX_NOMACHINE_WAY="0"
++NX_NOMACHINE_WAY="1"
  
- # adds LD_LIBRARY_PATH to the startup of nxagents
--NX_NOMACHINE_WAY=0
-+NX_NOMACHINE_WAY=1
+ # the name of the authorized keys file for ssh
+ SSH_AUTHORIZED_KEYS="authorized_keys2"

@@ -13,14 +13,12 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.19 2005/02/14 00:17:20 fabianx Exp $
+# CVS: $Id: nxnode,v 1.20 2005/02/14 00:43:46 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
 # Read the config file
-export $(grep ^NX_CONFIG_FILE= $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxserver))
-. $NX_CONFIG_FILE
-[ -f "${NX_ETC_DIR}/${USER}.node.conf" ] && . "${NX_ETC_DIR}/${USER}.node.conf"
+. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --userconf
 
 echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"
 
@@ -90,8 +88,7 @@ node_terminate_session()
 	fi
 	
 	# remove cookie
-	[ -z "$XAUTH_COMMAND" ] && XAUTH_COMMAND="/usr/X11R6/bin/xauth"
-	$XAUTH_COMMAND -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
+	$COMMAND_XAUTH -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
 	# FIXME: What to do on errors ... ?
 	# TODO: Add parsing of var ...
 	#mv $HOME/.nx/C-$1/ $HOME/.nx/F-C-$1/
@@ -122,12 +119,13 @@ node_start_applications()
 	STARTX=""
 	case $type in
 		unix-kde)
-			[ -z "$START_KDE_COMMAND" ] && START_KDE_COMMAND=$(which startkde)
-			STARTX=$START_KDE_COMMAND
+			STARTX=$COMMAND_START_KDE
 		;;
 		unix-gnome)
-			[ -z "$START_GNOME_COMMAND" ] && START_GNOME_COMMAND=$(which gnome-session)
-			STARTX=$START_GNOME_COMMAND
+			STARTX=$COMMAND_START_GNOME
+		;;
+		unix-cde)
+			STARTX=$COMMAND_START_CDE
 		;;
 		unix-application)
 			STARTX=$(which $application)
@@ -135,8 +133,8 @@ node_start_applications()
 		unix-default)
 			if [ -f "$HOME/.Xclients" ]; then
 				STARTX="$HOME/.Xclients"
-			elif [ -f "/etc/X11/xdm/Xsession" ]; then
-				STARTX="/etc/X11/xdm/Xsession"
+			elif [ -f "$DEFAULT_X_SESSION" ]; then
+				STARTX="$DEFAULT_X_SESSION"
 			fi
 		;;
 	esac
@@ -465,8 +463,7 @@ add unix:$display MIT-MAGIC-COOKIE-1 $cookie
 exit
 EOF
 
-	[ -z "$XAUTH_COMMAND" ] && XAUTH_COMMAND="/usr/X11R6/bin/xauth"
-	$XAUTH_COMMAND -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
+	$COMMAND_XAUTH -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
 
 cat << EOF >~/.nx/C-$sess_id/scripts/authority
 remove localhost:$display
@@ -539,8 +536,7 @@ cmd_node_smbmount()
 	rdir=$(getparam dir | sed 's|$(SHARES)/||g')
 	display=$(cd $HOME/.nx/; echo C-$HOSTNAME-*-$sessionid | cut -d"-" -f3)
 	mkdir -p $dir
-	[ -z $SMBMOUNT_COMMAND ] && SMBMOUNT_COMMAND="smbmount"
-	$SMBMOUNT_COMMAND //$computername/$rdir $HOME/$dir -o username $username ip 127.0.0.1 port $port
+	$COMMAND_SMBMOUNT //$computername/$rdir $HOME/$dir -o username $username ip 127.0.0.1 port $port
 	if [ $? -eq 0 ]
 	then
 		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display
@@ -568,13 +564,13 @@ case "$1" in
 	;;
 	--setkey)
 		mkdir -m 700 -p $HOME/.ssh
-		if ! grep -q "$(cat $NX_ETC_DIR/users.id_dsa.pub)" $HOME/$NX_AUTHORIZED_KEYS_FILE 2>/dev/null
+		if ! grep -q "$(cat $NX_ETC_DIR/users.id_dsa.pub)" $HOME/.ssh/$SSH_AUTHORIZED_KEYS 2>/dev/null
 		then
-			cat $NX_ETC_DIR/users.id_dsa.pub >> $HOME/$NX_AUTHORIZED_KEYS_FILE
-			chmod 600 $HOME/$NX_AUTHORIZED_KEYS_FILE
-			echo "NX> 716 Public key added to: $HOME/$NX_AUTHORIZED_KEYS_FILE"
+			cat $NX_ETC_DIR/users.id_dsa.pub >> $HOME/.ssh/$SSH_AUTHORIZED_KEYS
+			chmod 600 $HOME/.ssh/$SSH_AUTHORIZED_KEYS
+			echo "NX> 716 Public key added to: $HOME/.ssh/$SSH_AUTHORIZED_KEYS"
 		else
-			echo "NX> 716 Public key is already present in: $HOME/$NX_AUTHORIZED_KEYS_FILE"
+			echo "NX> 716 Public key is already present in: $HOME/.ssh/$SSH_AUTHORIZED_KEYS"
 		fi
 	;;
 	*)
