@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.16 2005/03/12 12:13:25 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.17 2005/03/12 17:55:13 jonno Exp $
 #
 # ========================================================================
 
@@ -60,10 +60,6 @@ NX_ETC_DIR=/etc/nxserver
 NX_SESS_DIR=/var/lib/nxserver/db
 NX_HOME_DIR=/var/lib/nxserver/home
 
-# adds PATH_LIB to the startup of nxagents
-# Should be set to 1 if PATH_LIB is not a system default library path
-NX_NOMACHINE_WAY="0"
-
 # the name of the authorized keys file for ssh
 SSH_AUTHORIZED_KEYS="authorized_keys2"
 
@@ -112,6 +108,8 @@ COMMAND_NETCAT=netcat
 
 ENABLE_USESSION="0"
 COMMAND_SESSREG="sessreg"
+
+SET_LD_LIBRARY_PATH="1"
 
 # NoMachine node.conf compatible vars
 
@@ -204,9 +202,6 @@ then
 	[ ! -d "$NX_HOME_DIR" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NX_HOME_DIR=$NX_HOME_DIR\""
 	
-	[ -z $(echo "$NX_NOMACHINE_WAY" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"NX_NOMACHINE_WAY=$NX_NOMACHINE_WAY\""
-
 	[ -z "$SSH_AUTHORIZED_KEYS" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS\"" 
 	
@@ -361,6 +356,9 @@ then
 	[ "$CUPS_SUPPORT" = "1" -a ! -d "$CUPS_SBIN" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"CUPS_SBIN=$CUPS_SBIN\""
 	
+	[ -z $(echo "$SET_LD_LIBRARY_PATH" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SET_LD_LIBRARY_PATH=$SET_LD_LIBRARY_PATH\""
+		
 	[ ! -d "$AGENT_LIBRARY_PATH" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"AGENT_LIBRARY_PATH=$AGENT_LIBRARY_PATH\""
 	[ ! -d "$PROXY_LIBRARY_PATH" ] && \

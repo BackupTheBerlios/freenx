@@ -1,6 +1,6 @@
 --- nxloadconfig.old	2005-02-14 01:08:56.482546352 +0100
 +++ nxloadconfig	2005-02-14 01:09:40.109913984 +0100
-@@ -18,16 +18,16 @@
+@@ -53,12 +53,12 @@
  NX_LICENSE="OS (GPL)"
  
  # Where can different nx components be found
@@ -14,11 +14,6 @@
 +NX_ETC_DIR=$NX_DIR/etc
 +NX_SESS_DIR=$NX_DIR/var/db
 +NX_HOME_DIR=$NX_DIR/home/nx
- 
- # adds PATH_LIB to the startup of nxagents
- # Should be set to 1 if PATH_LIB is not a system default library path
--NX_NOMACHINE_WAY="0"
-+NX_NOMACHINE_WAY="1"
  
  # the name of the authorized keys file for ssh
  SSH_AUTHORIZED_KEYS="authorized_keys2"
