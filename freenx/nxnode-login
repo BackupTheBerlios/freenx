@@ -3,7 +3,7 @@
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
 #
-# CVS: $Id: nxnode-login,v 1.10 2005/03/17 23:21:14 fux Exp $
+# CVS: $Id: nxnode-login,v 1.11 2005/03/17 23:27:48 fux Exp $
 #
 
 # Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
@@ -14,6 +14,7 @@ set port [lindex $argv 2]
 set executable [lindex $argv 3]
 set command [lindex $argv 4]
 set tosend [lindex $argv 5]
+set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
 
 expect_user -re "(.*)\n" 
