@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.16 2005/02/13 00:55:52 fabianx Exp $
+# CVS: $Id: nxnode,v 1.17 2005/02/13 13:11:38 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -77,6 +77,11 @@ node_terminate_session()
 	if [ -n "$AGENT_PID" ]
 	then 
 		kill $AGENT_PID 2>/dev/null
+		if [ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
+		then
+			sleep 1
+			kill -9 $AGENT_PID 2>/dev/null
+		fi
 		# remove possible leftover display ...
 		display=$(echo $1 | cut -d"-" -f2)
 		rm -f /tmp/.X$display-lock
