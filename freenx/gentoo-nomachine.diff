@@ -6,21 +6,21 @@
  	
 -	# copy the key to the authorized_keys2 file
 -	rm -f $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
--	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"nxserver\" " >$NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
+-	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"$PATH_BIN/nxserver\" " >$NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 -	cat ${NX_SERVER_KEY} >> $NX_KEY_DIR/$SSH_AUTHORIZED_KEYS
 -
  	# now tell the user what to do
  
  	echo "Unique key generated; your users must install"
---- nxloadconf.old	2005-02-14 01:08:56.482546352 +0100
-+++ nxloadconf	2005-02-14 01:09:40.109913984 +0100
+--- nxloadconfig.old	2005-02-14 01:08:56.482546352 +0100
++++ nxloadconfig	2005-02-14 01:09:40.109913984 +0100
 @@ -18,16 +18,16 @@
  NX_LICENSE="OS (GPL)"
  
  # Where can different nx components be found
 -NX_DIR=/usr
 +NX_DIR=/usr/NX
- PATH_BIN=$NX_DIR/bin
+ PATH_BIN=$NX_DIR/bin # if you change that, be sure to also change the public keys
  PATH_LIB=$NX_DIR/lib
 -NX_ETC_DIR=/etc/nxserver
 -NX_SESS_DIR=/var/lib/nxserver/db
