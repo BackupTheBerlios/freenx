@@ -5,6 +5,7 @@
 	* Fixed nxclient loop - by "Neil Wilson" <neil@aldur.co.uk>.
 	* Several fixes by Thorsten Sandfuchs <fux@akk.org>.
 	* Config file support by Jon Severinsson <jonno@users.berlios.de>.
+	* Moved logfile to /var/log/nxserver.log.
 
 20.11.2004 FreeNX 0.2.7 "Skolelinux Edition"
 	* Fix nxserver to work again with KNX-Client. ('\r' is evil)
