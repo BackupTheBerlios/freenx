@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.30 2005/03/10 23:55:28 fabianx Exp $
+# CVS: $Id: nxnode,v 1.31 2005/03/11 00:35:47 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -192,6 +192,7 @@ node_start_agent()
 	# backwards compatibility
 	K=""
 	[ -n "$keyboard" ] && K="-keyboard $keyboard"
+	[ -n "$kbtype" ] && K="-kbtype $kbtype"
 	B=""
 	[ -n "$backingstore" ] && B="-bs $backingstore"
 	G=""
