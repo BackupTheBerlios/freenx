@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.11 2005/02/12 13:59:25 fabianx Exp $
+# CVS: $Id: nxserver,v 1.12 2005/02/12 14:06:48 fabianx Exp $
 #
 
 # Important constants
@@ -958,8 +958,7 @@ cmd_history()
 	fi
 	
 	CMD_PARAMS=$(cmd_parse_2_params "$2")
-	nxnode_start --history "$CMD_PARAMS"
-
+	echo "History mode not yet implemented."
 }
 
 cmd_terminate()
