@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.26 2005/03/07 00:19:39 fabianx Exp $
+# CVS: $Id: nxnode,v 1.27 2005/03/08 12:24:48 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -466,7 +466,6 @@ node_startsession()
 	# write options file
 	[ -z "$samba" ] && samba=0
 	[ -z "$media" ] && media=0
-	[ -z "$sync" ] && sync=0
 
 	CACHE="cache=$cache,"
 	[ -z "$cache" ] && CACHE=""
@@ -477,7 +476,7 @@ node_startsession()
 	umask 0077
 
 cat << EOF > ~/.nx/C-$sess_id/options
-${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media,sync=$sync:$display
+${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}:$display
 EOF
 	umask $OLD_UMASK
 #samba=$samba,
