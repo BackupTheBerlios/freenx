@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.4 2005/03/02 14:17:43 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.5 2005/03/08 14:27:55 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -116,6 +116,17 @@
 
 # When set to 1 will start nxagent in rootless mode.
 #ENABLE_ROOTLESS_MODE="0"
+
+# FreeNX with ENABLE_ESD_PRELOAD="1" will automatically try to setup 
+# the sound with the help of the esd media helper.
+#
+# Currently ESD will be used just by the Windows NX Client.
+#
+# Be sure that $ESD_BIN_PRELOAD is in your path, does exist and work 
+# before enabling this directive.
+
+#ENABLE_ESD_PRELOAD="0"
+#ESD_BIN_PRELOAD="esddsp"
 
 #########################################################################
 # NoMachine node.conf compatible (almost) directives

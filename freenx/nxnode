@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.27 2005/03/08 12:24:48 fabianx Exp $
+# CVS: $Id: nxnode,v 1.28 2005/03/08 14:27:55 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -147,6 +147,27 @@ node_start_applications()
 		;;
 	esac
 	[ -n "$STARTX" ] || return
+
+	if [ "$mediahelper" = "esd" ]
+	then
+		# Set Espeaker variable
+		let ESPEAKER=$display+7000
+		export ESPEAKER="127.0.0.1:$ESPEAKER"
+		
+		# Check for config file directive
+		if [ "$ENABLE_ESD_PRELOAD" = "1" ]
+		then
+			STARTX="$ESD_BIN_PRELOAD $STARTX"
+			
+			# Do not spawn new ESD daemons
+			export ESD_NO_SPAWN="yes"
+			
+			echo "Info: NXNODE - Using $ESD_BIN_PRELOAD wrapper script." >> ~/.nx/C-$sess_id/session
+		fi
+	elif [ "$mediahelper" = "arts" ]
+	then
+		echo "Error: NXNODE - No support for artsd, yet." >> ~/.nx/C-$sess_id/session
+	fi
 
 	DISPLAY=unix:$display $STARTX >>~/.nx/C-$sess_id/session 2>&1 &
 	APP_PID=$!
@@ -436,6 +457,7 @@ node_startsession()
 	keyboard=$(getparam keyboard)
 	kbtype=$(getparam kbtype)
 	media=$(getparam media)
+	mediahelper=$(getparam mediahelper)
 	sync=$(getparam sync)
 	samba=$(getparam samba)
 	agent_server=$(getparam agent_server)

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.5 2005/03/06 13:12:19 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.6 2005/03/08 14:27:55 fabianx Exp $
 #
 # ========================================================================
 
@@ -62,6 +62,11 @@ NOMACHINE_SERVER="/usr/NX/bin/nxserver"
 NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
 
 ENABLE_ROOTLESS_MODE="0"
+
+ENABLE_ESD_PRELOAD="0"
+ESD_BIN_PRELOAD="esddsp"
+
+# NoMachine node.conf compatible vars
 
 SSHD_CHECK_IP="0"
 SSHD_PORT=22
