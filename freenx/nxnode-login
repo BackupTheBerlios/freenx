@@ -3,7 +3,7 @@
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
 #
-# CVS: $Id: nxnode-login,v 1.6 2005/02/12 13:49:06 fabianx Exp $
+# CVS: $Id: nxnode-login,v 1.7 2005/02/12 19:17:18 fabianx Exp $
 #
 
 # Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
@@ -24,7 +24,7 @@ if { "$auth_method"=="ssh" } {
 	set pid [spawn -noecho ssh -2 -l "$user" "127.0.0.1" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $command" ]
 } elseif { "$auth_method"=="su" } {
 	set pid [spawn -noecho su - "$user" -c "$executable $command" ]
-# 	sleep 1
+ 	sleep 0.3
 } else {
 	exit 1
 }
