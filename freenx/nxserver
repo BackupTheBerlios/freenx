@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.44 2005/03/16 13:58:42 jonno Exp $
+# CVS: $Id: nxserver,v 1.45 2005/03/16 15:09:56 jonno Exp $
 #
 
 # Read the config file
@@ -516,7 +516,7 @@ do
 				[ "$ENABLE_AUTORECONNECT_BEFORE_140" = "1" ] && ENABLE_AUTORECONNECT="1"
 			fi
 		;;
-		set*|SET*)
+		set*|SET)
 			if [ "$CMD" = "set auth_mode password" -o "$CMD" = "SET AUTH_MODE PASSWORD" ]
 			then
 				echo_x "Set auth_mode: password"

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.21 2005/03/16 13:58:42 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.22 2005/03/16 15:09:56 jonno Exp $
 #
 # ========================================================================
 
@@ -210,7 +210,7 @@ then
 	[ -z "$SSH_AUTHORIZED_KEYS" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS\"" 
 	
-	[ -z $(echo "$NX_LOG_LEVEL" | egrep "^[0-7]$") ] && \
+	[ -z $(echo "$NX_LOG_LEVEL" | egrep "^[0-6]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NX_LOG_LEVEL=$NX_LOG_LEVEL\""
 	[ "$NX_LOG_LEVEL" != "0" -a ! -e "$NX_LOGFILE" ] && \
 		WARNING="yes" && echo "Warning: Invalid value \"NX_LOGFILE=$NX_LOGFILE\"" \
