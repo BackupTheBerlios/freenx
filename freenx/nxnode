@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.23 2005/02/17 15:59:31 fabianx Exp $
+# CVS: $Id: nxnode,v 1.24 2005/03/06 15:26:01 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -57,6 +57,8 @@ getparam_user()
 getparam_sessionid()
 {
 	sessionid=$(getparam sessionid)
+	
+	[ -n "$sessionid" ] || sessionid=$(getparam session_id)
 	[ -n "$sessionid" ] || node_abort "NX> 500 Error: missing parameter session id"
 	echo $sessionid
 }
@@ -223,6 +225,15 @@ node_kill_proxy()
 	[ -n "$PROXY_PID" ] && kill $PROXY_PID 2>/dev/null
 }
 
+node_umount_smb()
+{
+	[ -e "$HOME/.nx/C-$sess_id/scripts/mpoint" ] || return
+	cat "$HOME/.nx/C-$sess_id/scripts/mpoint" | while read mpoint
+	do
+		smbumount "$mpoint" >/dev/null 2>/dev/null
+	done
+}
+
 #
 # Monitoring the nxagent: Its also kind of a "state-machine" 
 #                         as it has to keep track of different 
@@ -284,7 +295,10 @@ node_start_monitor()
 		if stringinstring "Info: Going to sleep waiting for reconnection." "$line"
 		then
 			kill $TAIL_PID 2>/dev/null
+			
 			echo "NX> 1005 Session status: suspended"
+			# umount shares 
+			node_umount_smb
 			break
 		fi
 
@@ -308,7 +322,6 @@ node_start_monitor()
 			kill $PROXY_PID 2>/dev/null
 		fi
 		
-		# TODO: Kill also waiting smbmount processes
 		if stringinstring "Info: Waiting for a further signal to complete." "$line" && [ "$RECONNECT" = "0" ]
 		then
 			kill $TAIL_PID 2>/dev/null
@@ -318,6 +331,9 @@ node_start_monitor()
 			kill $PROXY_PID 2>/dev/null
 			sleep 2
 			kill -9 $PROXY_PID 2>/dev/null
+
+			# umount shares 
+			node_umount_smb
 
 			# kill the session
 			node_terminate_session "$sess_id"
@@ -549,14 +565,17 @@ cmd_node_smbmount()
 	password=$(getparam password)
 	share=$(getparam share)
 	computername=$(getparam computername)
-	dir=$(getparam dir | sed 's|$(SHARES)|~/MyShares|g')
+	dir=$(getparam dir | sed 's|$(SHARES)|MyShares|g')
 	rdir=$(getparam dir | sed 's|$(SHARES)/||g')
 	display=$(cd $HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
-	mkdir -p $dir
-	$COMMAND_SMBMOUNT //$computername/$rdir $HOME/$dir -o username $username ip 127.0.0.1 port $port
+	mkdir -p "$HOME/$dir"
+	ERROR=$(PASSWD="$password" "$COMMAND_SMBMOUNT" "//$computername/$rdir" "$HOME/$dir" -o username="$username" ip="127.0.0.1" port="$port" 2>&1)
 	if [ $? -eq 0 ]
 	then
-		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display
+		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display &
+		echo "$HOME/$dir" >> "$HOME/.nx/C-$SERVER_NAME-$display-$sessionid/scripts/mpoint"
+	else
+		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' failed to mount: $ERROR" -noautokill -display :$display &
 	fi
 }
 
@@ -574,7 +593,7 @@ case "$1" in
 		cmd_node_suspend
 	;;
 	--smbmount)
-		cmd_node_smbmount
+		cmd_node_smbmount >/dev/null 2>/dev/null
 	;;
 	--check)
 		echo "NX> 716 finished"

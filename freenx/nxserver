@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.24 2005/03/02 14:17:43 fabianx Exp $
+# CVS: $Id: nxserver,v 1.25 2005/03/06 15:26:01 fabianx Exp $
 #
 
 # Read the config file
@@ -825,15 +825,16 @@ do
 				echo_x "NX> 500 ERROR: current password doesn't match"
 			fi
 		;;
-		smbmount*)
+		addmount*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --smbmount "$PARAMS"
+			server_nxnode_start --smbmount "$USER" "$PARAMS" >/dev/null 2>&1
+			echo_x "NX> 719 SMB filesystem: running"
 		;;
 		addprintercups*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --addprintercups "$PARAMS"
+			server_nxnode_start --addprintercups "$USER" "$PARAMS" >/dev/null 2>&1
 		;;
 		*)
 			# disabled for 1.4.0-5 snapshot client
