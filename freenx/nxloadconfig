@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.18 2005/03/13 10:57:36 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.19 2005/03/13 12:57:59 fabianx Exp $
 #
 # ========================================================================
 
@@ -110,6 +110,10 @@ ENABLE_USESSION="0"
 COMMAND_SESSREG="sessreg"
 
 SET_LD_LIBRARY_PATH="1"
+
+# see below for DEFAULT_X_WM directive
+ENABLE_DEFAULT_X_WM="0"
+ENABLE_DEFAULT_X_WM_KILL="0"
 
 # NoMachine node.conf compatible vars
 

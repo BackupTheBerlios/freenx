@@ -15,6 +15,7 @@
 		  enabled by default, as it is now safe to do so
 	* Implemented SSHD_CHECK_IP directive.
 	* Added the SESSION_HISTORY directive. Session history will by default be kept for 30 days.
+	* Implemented DEFAULT_X_WM for unix-application virtual desktop mode.
 
 11.03.2005 FreeNX 0.3.1
 	* Fixed keyboard mapping problems.

@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.13 2005/03/13 10:57:36 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.14 2005/03/13 12:57:59 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -218,6 +218,15 @@
 # twm in the default path or if you want to use another window manager,
 # you have to set it to the absolute file name of the command binary you 
 # want to use.
+
+# FreeNX: To enable this feature set ENABLE_DEFAULT_X_WM="1"
+#         
+#         If ENABLE_DEFAULT_X_WM_KILL is set the WM is terminated
+#         after the started application finishes. Else FreeNX will 
+#         wait for the window manager to complete. 
+
+#ENABLE_DEFAULT_X_WM="0"
+#ENABLE_DEFAULT_X_WM_KILL="0"
 #DEFAULT_X_WM=twm
 
 # The key that contains the name of the script that starts a KDE session. 
