@@ -32,8 +32,8 @@
  PATH_BIN=$NX_DIR/bin
  PATH_LIB=$NX_DIR/lib
 -NX_ETC_DIR=/etc/nxserver
--NX_SESS_DIR=/var/lib/nxserver
--NX_HOME_DIR=/home/.nx
+-NX_SESS_DIR=/var/lib/nxserver/db
+-NX_HOME_DIR=/var/lib/nxserver/home
 +NX_ETC_DIR=$NX_DIR/etc
 +NX_SESS_DIR=$NX_DIR/var/db
 +NX_HOME_DIR=$NX_DIR/home/nx
