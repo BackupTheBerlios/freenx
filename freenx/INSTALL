@@ -45,6 +45,10 @@ cp -a nxdesktop/nxdesktop ${NXPREFIX}/bin
 cp -a nxviewer/nxviewer ${NXPREFIX}/bin
 cp -a nxviewer/nxpasswd ${NXPREFIX}/bin
 
+# windows-keymaps for nxdesktop RDP-sessions and keyboard layout != us
+cd nxdesktop
+make installkeymaps
+
 # scripts
 cp -a freenx*/nxnode ${NXPREFIX}/bin
 cp -a freenx*/nxserver ${NXPREFIX}/bin
