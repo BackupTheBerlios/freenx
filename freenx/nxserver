@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.15 2005/02/12 18:18:04 fabianx Exp $
+# CVS: $Id: nxserver,v 1.16 2005/02/12 19:53:48 fabianx Exp $
 #
 
 # Important constants
@@ -381,7 +381,7 @@ server_forward_nomachine()
 		esac
 	done
 	log "done."
-	cat <&4 | log_tee &
+	cat <&4 &
 	CAT_PID=$!
 	cat - >&3
 	rm -f $SERVER_IN $SERVER_OUT
