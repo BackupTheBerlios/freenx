@@ -498,7 +498,7 @@ server_nxnode_start()
 
 server_nxnode_start_wait()
 {
-	server_nxnode_start $@ | while read CMD
+	server_nxnode_start "$@" | while read CMD
 	do
 		case "$CMD" in 
 			"NX> 1006"*|"NX> 1005"*)
