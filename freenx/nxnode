@@ -19,7 +19,7 @@
 
 # FIXME: move from nxserver binary to config file
 
-export PATH=$PATH:$(cd $(dirname $0) && pwd)
+export PATH=$(cd $(dirname $0) && pwd):$PATH
 export $(grep ^NX_ $(which nxserver))
 
 echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"

@@ -32,7 +32,7 @@ fi
 echo -n "Searching for nxserver binary..."
 
 # add directory from which nxsetup was run to path
-export PATH=$PATH:$(cd $(dirname $0) && pwd)
+export PATH=$(cd $(dirname $0) && pwd):$PATH
 export $(grep ^NX_ $(which nxserver))
 echo "done"
 
