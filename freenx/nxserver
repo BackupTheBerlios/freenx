@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.27 2005/03/07 00:19:39 fabianx Exp $
+# CVS: $Id: nxserver,v 1.28 2005/03/10 11:00:25 fabianx Exp $
 #
 
 # Read the config file
@@ -744,7 +744,7 @@ do
 			if [ "$ENCRYPTION" = "1" ] 
 			then 
 				let PROXY_DISPLAY=$SESS_DISPLAY+4000
-				netcat 127.0.0.1 $PROXY_DISPLAY
+				$COMMAND_NETCAT 127.0.0.1 $PROXY_DISPLAY
 				exit 0
 			else
 				echo_x "NX> 1001 Bye."

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.6 2005/03/08 14:27:55 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.7 2005/03/10 11:00:25 fabianx Exp $
 #
 # ========================================================================
 
@@ -65,6 +65,8 @@ ENABLE_ROOTLESS_MODE="0"
 
 ENABLE_ESD_PRELOAD="0"
 ESD_BIN_PRELOAD="esddsp"
+
+COMMAND_NETCAT=netcat
 
 # NoMachine node.conf compatible vars
 

@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.5 2005/03/08 14:27:55 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.6 2005/03/10 11:00:25 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -127,6 +127,9 @@
 
 #ENABLE_ESD_PRELOAD="0"
 #ESD_BIN_PRELOAD="esddsp"
+
+# The key that contains the name of the complete path of the 'netcat' command. 
+#COMMAND_NETCAT=netcat
 
 #########################################################################
 # NoMachine node.conf compatible (almost) directives
