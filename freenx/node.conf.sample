@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.9 2005/03/11 02:29:14 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.10 2005/03/11 03:47:09 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -142,6 +142,16 @@
 
 # The key that contains the name of the complete path of the 'netcat' command. 
 #COMMAND_NETCAT=netcat
+
+# If enabled writes entries via the COMMAND_SESSREG program into utmp/wtmp/lastlog 
+# database.
+#
+# Note: You have to make sure that you add the nx user to the 
+#       utmp or tty group or how its called on your system
+#       before this directive works.
+
+#ENABLE_USESSION="0"
+#COMMAND_SESSREG="sessreg"
 
 # USER_FAKE_HOME is the base directory for the .nx directory. Use this
 # parameter instead of the users home directory if $HOME is on a NFS share.

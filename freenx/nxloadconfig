@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.12 2005/03/11 02:29:14 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.13 2005/03/11 03:47:09 fabianx Exp $
 #
 # ========================================================================
 
@@ -112,6 +112,9 @@ ENABLE_ARTSD_PRELOAD="0"
 ARTSD_BIN_PRELOAD="artsdsp"
 
 COMMAND_NETCAT=netcat
+
+ENABLE_USESSION="0"
+COMMAND_SESSREG="sessreg"
 
 # NoMachine node.conf compatible vars
 
