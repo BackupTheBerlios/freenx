@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.16 2005/02/12 19:53:48 fabianx Exp $
+# CVS: $Id: nxserver,v 1.17 2005/02/12 22:26:41 fabianx Exp $
 #
 
 # Important constants
@@ -256,6 +256,31 @@ session_list_user()
 	done
 }
 
+session_history()
+{
+	userName=$1
+	sessionId=$2
+	echo "NX> 127 Session list:"
+	echo
+	echo "Display Username        Remote IP       Session ID                       Date                Status"
+	echo "------- --------------- --------------- -------------------------------- ------------------- -----------"
+	for j in $(ls --time-style +%s -la "$NX_SESS_DIR"/{closed,failed} | awk '/sessionId/ { print $6 " " $7 }' | sort -n | cut -d" " -f2)
+	do
+		if [ -n "$sessionId" ]
+		then
+			[ "$j" = "sessionId{$sessionId}" ] || continue
+		fi
+		i="$NX_SESS_DIR"/*/"$j"
+		[ -f $i ] || break
+		CMDLINE=$(session_get_cmdline $i)
+		if [ -n "$userName" ]
+		then
+			[ "$userName" = "$(getparam userName)" ] || continue
+		fi
+		echo -e "$(getparam display)\t$(getparam userName)\t$(getparam foreignAddress)\t$(getparam sessionId)\t$(ls --time-style="+%F %X" -l $i | awk '/sessionId/ { print $6 " " $7 }')\t$(getparam status)"
+	done
+}
+
 session_list_all()
 {
 	echo "NX> 127 Sessions list:"
@@ -299,7 +324,7 @@ session_status()
 session_close()
 {
 	perl -pi -e "s/startTime=\(.*\)/startTime=\1\nendTime=$(date +%s)/" $NX_SESS_DIR/running/sessionId'{'$1'}'
-	session_status $1 "Closed"
+	session_status $1 "Finished"
 	mv -f $NX_SESS_DIR/running/sessionId'{'$1'}' $NX_SESS_DIR/closed/sessionId'{'$1'}'
 }
 
@@ -1035,7 +1060,18 @@ cmd_history()
 	fi
 	
 	CMD_PARAMS=$(cmd_parse_2_params "$2")
-	echo "History mode not yet implemented."
+	user=""
+	sessid=""
+	case $CMD_PARAMS in
+		user=*)
+			user="$2"
+		;;
+		sessionid=*)
+			sessid="$2"
+		;;
+	esac
+
+	session_history "$user" "$sessid"
 }
 
 cmd_terminate()
