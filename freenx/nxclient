@@ -8,7 +8,10 @@
 #       it does check it someday.
 
 # First check if the commercial nxclient is available and use it
-[ -x /usr/NX/bin/nxclient ] && exec /usr/NX/bin/nxclient "$@"
+# but check that it isn't this script to prevent a loop!
+NXCLIENT="/usr/NX/bin/nxclient"
+[ -x "$NXCLIENT" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
+	&& exec ${NXCLIENT} "$@"
 
 TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display: -n $(basename $0) -- "$@"`
 
