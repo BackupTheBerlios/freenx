@@ -1,10 +1,8 @@
 
-INCLUDES = -I../nxcompsh
+INCLUDES = -I../nxcompsh -I../nxdriver
 
 bin_PROGRAMS = nxrun
 
-nxrun_SOURCES = MainUnix.cpp NXSettings.h NXSettings.cpp SettingsToParameters.h \
-				SettingsToParameters.cpp NXConnection.h NXConnection.cpp \
-				Options.h Options.cpp
+nxrun_SOURCES = MainUnix.cpp ConsoleCallback.cpp
 
-LDADD = ../nxcompsh/.libs/libXcompsh.a -lexpat -L/usr/X11R6/lib -lxkbfile -lXext
+LDADD = ../nxcompsh/.libs/libXcompsh.a ../nxriver/.libs/libXdriver.a -lexpat -L/usr/X11R6/lib -lxkbfile -lXext
