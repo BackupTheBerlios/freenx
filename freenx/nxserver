@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.25 2005/03/06 15:26:01 fabianx Exp $
+# CVS: $Id: nxserver,v 1.26 2005/03/06 15:45:01 fabianx Exp $
 #
 
 # Read the config file
@@ -668,6 +668,7 @@ server_startrestore_session()
 	then
 		# start nxnode
 		SESS_DISPLAY=$DISPLAY_BASE
+		let SESS_DISPLAY_LIMIT=$DISPLAY_BASE+$DISPLAY_LIMIT
 	
 		# stupid but working algo ...
 			
@@ -677,7 +678,14 @@ server_startrestore_session()
 		do
 			let SESS_DISPLAY=$SESS_DISPLAY+1
 		done
-	
+		
+		if [ "$SESS_DISPLAY" -gt "$SESS_DISPLAY_LIMIT" ]
+		then
+			# fixme we need the correct error code
+			echo_x "NX> 504 Error: Display limit exceeded. Please remove some files from /tmp/.X*-lock."
+			return
+		fi
+
 		uniqueid=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
 		FULL_PARAMS="user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY&$PARAMS"
 		log "$FULL_PARAMS"
