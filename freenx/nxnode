@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.18 2005/02/13 14:22:59 fabianx Exp $
+# CVS: $Id: nxnode,v 1.19 2005/02/14 00:17:20 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -178,8 +178,8 @@ node_start_agent()
 		U=""
 		P=""
 		[ -n "$agent_user" ] && U="-u $agent_user"
-		[ -n "$agent_password" ] && P="-p $agent_password"
-		$PATH_BIN/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
+		[ -n "$agent_password" ] && P="-p -"
+		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
 	else
 
 	# nxviewer session
