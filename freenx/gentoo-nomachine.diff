@@ -15,30 +15,15 @@
  
  NX_VERSION=1.4.0-02
  NX_LICENSE="OS_(GPL)"
---- nxnode.old	2004-10-14 18:57:21.000000000 +0200
-+++ nxnode	2004-10-14 18:57:24.000000000 +0200
-@@ -162,7 +162,7 @@
- 		P=""
- 		[ -n "$agent_user" ] && U="-u $agent_user"
- 		[ -n "$agent_password" ] && P="-p $agent_password"
--		$NX_DIR/bin/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
-+		LD_LIBRARY_PATH=$NX_DIR/lib $NX_DIR/bin/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
- 	else
+@@ -31,7 +31,7 @@
+ NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
  
- 	# nxviewer session
-@@ -171,10 +171,10 @@
- 	then
- 		mkdir -p ~/.nx/C-$sess_id/scripts/
- 		echo "$agent_password" | $NX_DIR/bin/nxpasswd ~/.nx/C-$sess_id/scripts/.passwd doit
--		$NX_DIR/bin/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
-+		LD_LIBRARY_PATH=$NX_DIR/lib $NX_DIR/bin/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
- 	else
- 	# "normal" nxagent session
--		$NX_DIR/bin/nxagent -persistent -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
-+		LD_LIBRARY_PATH=$NX_DIR/lib $NX_DIR/bin/nxagent -persistent -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
- 	fi
- 	fi
- 	PID=$!
+ # adds LD_LIBRARY_PATH to the startup of nxagents
+-NX_NOMACHINE_WAY=0
++NX_NOMACHINE_WAY=1
+ 
+ # node.conf compatible (almost) vars 
+ 
 --- nxkeygen.old	2004-10-14 18:57:21.000000000 +0200
 +++ nxkeygen	2004-10-14 18:57:24.000000000 +0200
 @@ -13,11 +13,7 @@

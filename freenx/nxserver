@@ -30,6 +30,9 @@ NX_LOGGING=0
 NX_LOGFILE=/tmp/nxserver.log
 NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
 
+# adds LD_LIBRARY_PATH to the startup of nxagents
+NX_NOMACHINE_WAY=0
+
 # node.conf compatible (almost) vars 
 
 # This adds PAM to the possible authentification methods

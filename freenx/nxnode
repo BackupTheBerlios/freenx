@@ -160,6 +160,7 @@ node_start_agent()
 	G=""
 	[ -n "$geometry" ] && G="-geometry $geometry"
 
+	[ "$NX_NOMACHINE_WAY" = "1" ] && export LD_LIBRARY_PATH="$NX_DIR/lib:$LD_LIBRARY_PATH"
 
 	# nxdesktop session
 
