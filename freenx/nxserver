@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.17 2005/02/12 22:26:41 fabianx Exp $
+# CVS: $Id: nxserver,v 1.18 2005/02/12 22:29:13 fabianx Exp $
 #
 
 # Important constants
@@ -873,7 +873,7 @@ cmd_usage()
 		echo "--restart: Restart the nx server and terminate all running sessions" 1>&2
 		echo "" 1>&2
 		echo "--list [ user | sessionid ]: List running sessions of user or sessionid " 1>&2
-		echo "--history [ user | clear ]: Show history [ of user ] or clear the history" 1>&2
+		echo "--history [ user | sessionid | clear ]: Show history [ of user | sessionid ] or clear the history" 1>&2
 		echo "--terminate <user | :display | sessionid>: Terminate the session pointed to by" 1>&2
 		echo "       sessionid or display, or all sessions of the specified user." 1>&2
 		echo "--suspend <user | :display | sessionid>: Suspend the session pointed to by" 1>&2
@@ -1049,7 +1049,8 @@ cmd_list()
 
 cmd_history_clear()
 {
-	cmd_abort "Error: Sorry, Clearing of history is not implemented, yet."
+	rm -f $NX_SESS_DIR/closed/*
+	rm -f $NX_SESS_DIR/failed/*
 }
 
 cmd_history()
