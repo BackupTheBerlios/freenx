@@ -19,6 +19,7 @@
 	  and added configuration directive to enable rootless mode.
 	* Added nxsetup --uninstall and added more feature to nxsetup.
 	  Note: You need to use nxsetup --install for installation now.
+	* Added Disabling of port-forwarding, X11-forwarding, ... to ssh-key.
 
 20.11.2004 FreeNX 0.2.7 "Skolelinux Edition"
 	* Fix nxserver to work again with KNX-Client. ('\r' is evil)

@@ -11,21 +11,23 @@
  . $NX_CONFIG_FILE
 --- nxkeygen.old	2005-02-01 01:02:19.000000000 +0100
 +++ nxkeygen	2005-02-01 01:04:39.000000000 +0100
-@@ -51,9 +51,6 @@
- 		chmod 600 $x
+@@ -52,11 +52,6 @@
  		chown nx:root $x
  	done
--	
+ 	
 -	# copy the key to the authorized_keys2 file
--	cp -af ${NX_SERVER_KEY} $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
- 
+-	rm -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+-	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"nxserver\" " >$NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+-	cat ${NX_SERVER_KEY} >> $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+-
  	# now tell the user what to do
  
+ 	echo "Unique key generated; your users must install"
 --- node.conf.old	2005-02-01 01:02:27.000000000 +0100
 +++ node.conf	2005-02-01 01:04:05.000000000 +0100
-@@ -12,12 +12,12 @@
+@@ -39,12 +39,12 @@
  # Path directives
- # These tells freeNX where various files is to be found
+ # These tell FreeNX where various files are to be found
  
 -NX_DIR=/usr
 +NX_DIR=/usr/NX
@@ -40,7 +42,7 @@
  
  # Logfile directives
  # Before turning logging on, please make sure that NX_LOGFILE is 
-@@ -124,4 +124,4 @@
+@@ -185,4 +185,4 @@
  NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
  
  # adds LD_LIBRARY_PATH to the startup of nxagents

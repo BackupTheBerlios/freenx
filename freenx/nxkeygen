@@ -11,7 +11,7 @@
 # Copyright	(c) 2004 Gentoo Foundation
 #		Released under v2 of the GNU GPL
 #
-# CVS: $Id: nxkeygen,v 1.5 2005/02/12 14:44:21 fabianx Exp $
+# CVS: $Id: nxkeygen,v 1.6 2005/02/13 16:39:16 fabianx Exp $
 #
 # ========================================================================
 
@@ -53,7 +53,9 @@ main ()
 	done
 	
 	# copy the key to the authorized_keys2 file
-	cp -af ${NX_SERVER_KEY} $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+	rm -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+	echo -n "no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command=\"nxserver\" " >$NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+	cat ${NX_SERVER_KEY} >> $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
 
 	# now tell the user what to do
 
