@@ -1,45 +1,17 @@
---- nxserver.old	2004-10-14 18:57:21.000000000 +0200
-+++ nxserver	2004-10-14 18:57:24.000000000 +0200
-@@ -19,10 +19,10 @@
- # do not use any bash scripting in this paths!
- # (sourced by other scripts via export)
- 
--NX_DIR=/usr/
--NX_SESS_DIR=/var/lib/nxserver/
--NX_ETC_DIR=/etc/nxserver/
--NX_HOME_DIR=/home/.nx/
-+NX_DIR=/usr/NX
-+NX_SESS_DIR=/usr/NX/var/db
-+NX_ETC_DIR=/usr/NX/etc
-+NX_HOME_DIR=/usr/NX/home/nx
- 
- NX_VERSION=1.4.0-02
- NX_LICENSE="OS_(GPL)"
-@@ -31,7 +31,7 @@
- NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
- 
- # adds LD_LIBRARY_PATH to the startup of nxagents
--NX_NOMACHINE_WAY=0
-+NX_NOMACHINE_WAY=1
- 
- # node.conf compatible (almost) vars 
- 
---- nxkeygen.old	2004-10-14 18:57:21.000000000 +0200
-+++ nxkeygen	2004-10-14 18:57:24.000000000 +0200
-@@ -13,11 +13,7 @@
+--- nxserver.old	2005-02-01 01:02:11.000000000 +0100
++++ nxserver	2005-02-01 01:04:19.000000000 +0100
+@@ -13,7 +13,7 @@
  #
- # ========================================================================
  
--# Get NX_ configuration variables
--export PATH=$(cd $(dirname $0) && pwd):$PATH
--export $(grep ^NX_ $(which nxserver))
--
--NX_KEY_DIR="$NX_HOME_DIR/.ssh"
-+NX_KEY_DIR="/usr/NX/home/nx/.ssh"
- DATE="`date '+%Y%m%d-%H%M%S'`"
- NX_CLIENT_KEY="${NX_KEY_DIR}/client.id_dsa.key"
- NX_SERVER_KEY="${NX_KEY_DIR}/server.id_dsa.pub.key"
-@@ -49,9 +45,6 @@
+ # Important constants
+-NX_CONFIG_FILE=/etc/nxserver/node.conf
++NX_CONFIG_FILE=/usr/NX/etc/node.conf
+ 
+ # Read the config file
+ . $NX_CONFIG_FILE
+--- nxkeygen.old	2005-02-01 01:02:19.000000000 +0100
++++ nxkeygen	2005-02-01 01:04:39.000000000 +0100
+@@ -53,9 +53,6 @@
  		chmod 600 $x
  		chown nx:root $x
  	done
@@ -49,3 +21,28 @@
  
  	# now tell the user what to do
  
+--- node.conf.old	2005-02-01 01:02:27.000000000 +0100
++++ node.conf	2005-02-01 01:04:05.000000000 +0100
+@@ -10,12 +10,12 @@
+ # Path directives
+ # These tells freeNX where various files is to be found
+ 
+-NX_DIR=/usr
++NX_DIR=/usr/NX
+ NX_BIN_DIR=$NX_DIR/bin
+ NX_LIB_DIR=$NX_DIR/lib
+-NX_ETC_DIR=/etc/nxserver
+-NX_SESS_DIR=/var/lib/nxserver
+-NX_HOME_DIR=/home/.nx
++NX_ETC_DIR=$NX_DIR/etc
++NX_SESS_DIR=$NX_DIR/var/db
++NX_HOME_DIR=$NX_DIR/home/nx
+ 
+ # Logfile directives
+ # Before turning logging on, please make sure that NX_LOGFILE is 
+@@ -117,4 +117,4 @@
+ NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
+ 
+ # adds LD_LIBRARY_PATH to the startup of nxagents
+-NX_NOMACHINE_WAY=0
++NX_NOMACHINE_WAY=1

@@ -16,7 +16,7 @@ set password $expect_out(1,string)
 
 set stty_init "raw icrnl"
 
-set pid [spawn -noecho ssh -2 -l "$user" "$host" -o "NumberOfPasswordPrompts 1" $parameter "$env(NX_DIR)/bin/nxnode $command" ]
+set pid [spawn -noecho ssh -2 -l "$user" "$host" -o "NumberOfPasswordPrompts 1" $parameter "$env(NX_BIN_DIR)/nxnode $command" ]
 
 while {1} {
 	expect {

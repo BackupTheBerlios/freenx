@@ -13,50 +13,13 @@
 #
 
 # Important constants
+NX_CONFIG_FILE=/etc/nxserver/node.conf
 
-# NX runtime vars
+# Read the config file
+. $NX_CONFIG_FILE
 
-# do not use any bash scripting in this paths!
-# (sourced by other scripts via export)
-
-NX_DIR=/usr/
-NX_SESS_DIR=/var/lib/nxserver/
-NX_ETC_DIR=/etc/nxserver/
-NX_HOME_DIR=/home/.nx/
-
-NX_VERSION=1.4.0-02
-NX_LICENSE="OS_(GPL)"
-NX_LOGGING=0
-NX_LOGFILE=/tmp/nxserver.log
-NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
-
-# adds LD_LIBRARY_PATH to the startup of nxagents
-NX_NOMACHINE_WAY=0
-
-# node.conf compatible (almost) vars 
-
-# This adds PAM to the possible authentification methods
-ENABLE_PAM_AUTHENTICATION="1"
-# 0 = all users can login, 1 = only added users can login
-ENABLE_USER_DB="0"
-# When set to 0, auth using internal password database is completely disabled
-ENABLE_PASSDB_AUTHENTICATION="1"
-
-# When set to 1 this will automatically resume started sessions
-ENABLE_AUTORECONNECT="0"
-
-# When set to 1 this will automatically resume started sessions
-# but only if an older client version is used
-ENABLE_AUTORECONNECT_BEFORE_140="1"
-
-#
-# TCP port where the SSHD daemons are running on the
-# NX SSH authentication servers.
-#
-SSHD_AUTH_PORT="22"
-
-# for using NX_DIR in nxnode-login you need to export them first
-export NX_DIR
+# for using NX_BIN_DIR in nxnode-login you need to export them first
+export NX_BIN_DIR
 
 # following two functions are Copyright by Klaus Knopper
 
@@ -82,7 +45,7 @@ return 0
 
 # Policy: Variable and function names _must_ start with passdb_ / PASSDB_
 
-# Needed global vars: $NX_DIR
+# Needed global vars: $NX_ETC_DIR, $NX_BIN_DIR
 
 # Needed nonstd functions: md5sum
 
@@ -133,7 +96,7 @@ passdb_add_user()
 	cp -f $NX_ETC_DIR/passwords $NX_ETC_DIR/passwords.orig
 	echo "$PASSDB_CHUSER:*" >> $NX_ETC_DIR/passwords
 	# deactivated to avoid problems with comm-server
-	su - $PASSDB_CHUSER -c "$NX_DIR/bin/nxnode --setkey"
+	su - $PASSDB_CHUSER -c "$NX_BIN_DIR/nxnode --setkey"
 }
 
 passdb_list_user()
@@ -145,9 +108,12 @@ passdb_list_user()
 # End of passdb Library
 #
 
+############### PACKAGE session.bm #######################
 #
-# package: session management functions
+# Library of session management functions
 #
+
+# Needed global vars: $NX_SESS_DIR
 
 session_list()
 {
@@ -429,7 +395,7 @@ do
 			# Pam based auth
 			if [ "$ENABLE_PAM_AUTHENTICATION" = "1" ]
 			then
-				echo "$PASS" | $NX_DIR/bin/nxnode-login -- "$USER" "127.0.0.1" "-p$SSHD_AUTH_PORT" --check > /dev/null 2>/dev/null
+				echo "$PASS" | $NX_BIN_DIR/nxnode-login -- "$USER" "127.0.0.1" "-p$SSHD_PORT" --check > /dev/null 2>/dev/null
 				if [ $? -eq 0 ]
 				then 
 					REAL_PASS="$ENC_PASS"
@@ -478,7 +444,7 @@ nxnode_start()
 	:
 	#CMD="$1"
 	#shift
-	#echo "$@" | $NX_DIR/bin/nxnode "$CMD"
+	#echo "$@" | $NX_BIN_DIR/nxnode "$CMD"
 }
 
 #NX> 1002 Commit
@@ -493,9 +459,9 @@ server_nxnode_start()
 	# Use nxnode-login?
 	if [ "$PAM_LOGIN_METHOD" = "1" ]
 	then
-	  echo $PAM_PASS | $NX_DIR/bin/nxnode-login -- "$USER" 127.0.0.1 "-p$SSHD_AUTH_PORT" "$CMD" "$@" 2>&1 | log_tee
+	  echo $PAM_PASS | $NX_BIN_DIR/nxnode-login -- "$USER" 127.0.0.1 "-p$SSHD_PORT" "$CMD" "$@" 2>&1 | log_tee
 	else
-	  echo "$@" | ssh -l "$USER" 127.0.0.1 -p $SSHD_AUTH_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $NX_DIR/bin/nxnode "$CMD" | log_tee
+	  echo "$@" | ssh -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $NX_BIN_DIR/nxnode "$CMD" | log_tee
 	fi
 }
 
@@ -754,7 +720,7 @@ fi
 
 # Policy: All functions and variables need to start with CMD_ / cmd_
 
-# Needed global vars: $VERSION, $LICENSE, $NX_DIR
+# Needed global vars: $NX_VERSION, $NX_LICENSE, $NX_ETC_DIR, $NX_BIN_DIR, $NX_HOME_DIR, $NX_AUTHORIZED_KEYS_FILE
 
 # Needed package: passdb
 
@@ -984,14 +950,14 @@ cmd_terminate()
 			--suspend)
 				if [ "$cmd_status" = "Running" ] && stringinstring "unix-" "$cmd_type"
 				then
-					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$NX_DIR/bin/nxnode --suspend"
+					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$NX_BIN_DIR/nxnode --suspend"
 					session_suspend $cmd_sessionid
 				fi
 				;;
 			--terminate)
 			#if stringinstring "unix-" "$cmd_type"
 			#	then
-					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$NX_DIR/bin/nxnode --terminate"
+					echo "sessionid=$cmd_sessionid" | su - "$cmd_user" -c "$NX_BIN_DIR/nxnode --terminate"
 					session_close $cmd_sessionid
 			#	fi
 
@@ -1024,7 +990,8 @@ cmd_send()
 			# is it a "good" session?
 			if [ "$cmd_status" = "Running" ] && stringinstring "unix-" "$cmd_type"
 			then
-				su - "$cmd_user" -c "$NX_DIR/bin/nxclient --dialog ok --caption \"NX Administrator Message\" --message \"$@\" --noautokill -display \":$cmd_display\"" &
+				su - "$cmd_user" -c "$NX_BIN_DIR/nxclient --dialog ok --caption \"NX Administrator Message\" --message \"$@\" --noautokill 
+-display \":$cmd_display\"" &
 				disown $!
 			fi
 	done

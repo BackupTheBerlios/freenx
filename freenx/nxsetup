@@ -36,6 +36,9 @@ export PATH=$(cd $(dirname $0) && pwd):$PATH
 export $(grep ^NX_ $(which nxserver))
 echo "done"
 
+# Read the config file
+. $NX_CONFIG_FILE
+
 if [ "$(pidof sshd)" = "" ]
 then 
 	echo -n "Starting ssh service ..."
