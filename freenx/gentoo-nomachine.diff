@@ -29,8 +29,8 @@
  
 -NX_DIR=/usr
 +NX_DIR=/usr/NX
- NX_BIN_DIR=$NX_DIR/bin
- NX_LIB_DIR=$NX_DIR/lib
+ PATH_BIN=$NX_DIR/bin
+ PATH_LIB=$NX_DIR/lib
 -NX_ETC_DIR=/etc/nxserver
 -NX_SESS_DIR=/var/lib/nxserver
 -NX_HOME_DIR=/home/.nx

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.8 2005/02/11 15:43:33 fabianx Exp $
+# CVS: $Id: nxnode,v 1.9 2005/02/11 16:12:54 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -166,7 +166,7 @@ node_start_agent()
 	G=""
 	[ -n "$geometry" ] && G="-geometry $geometry"
 
-	[ "$NX_NOMACHINE_WAY" = "1" ] && export LD_LIBRARY_PATH="$NX_LIB_DIR:$LD_LIBRARY_PATH"
+	[ "$NX_NOMACHINE_WAY" = "1" ] && export LD_LIBRARY_PATH="$PATH_LIB:$LD_LIBRARY_PATH"
 
 	# nxdesktop session
 
@@ -176,7 +176,7 @@ node_start_agent()
 		P=""
 		[ -n "$agent_user" ] && U="-u $agent_user"
 		[ -n "$agent_password" ] && P="-p $agent_password"
-		$NX_BIN_DIR/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
+		$PATH_BIN/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
 	else
 
 	# nxviewer session
@@ -184,11 +184,11 @@ node_start_agent()
 	if [ "$type" = "vnc" ]
 	then
 		mkdir -p ~/.nx/C-$sess_id/scripts/
-		echo "$agent_password" | $NX_BIN_DIR/nxpasswd ~/.nx/C-$sess_id/scripts/.passwd doit
-		$NX_BIN_DIR/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
+		echo "$agent_password" | $PATH_BIN/nxpasswd ~/.nx/C-$sess_id/scripts/.passwd doit
+		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
 	else
 	# "normal" nxagent session
-		$NX_BIN_DIR/nxagent -persistent -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
+		$PATH_BIN/nxagent -persistent -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
 	fi
 	fi
 	PID=$!
@@ -517,7 +517,7 @@ cmd_node_smbmount()
 	$SMBMOUNT_COMMAND //$computername/$rdir $HOME/$dir -o username $username ip 127.0.0.1 port $port
 	if [ $? -eq 0 ]
 	then
-		$NX_BIN_DIR/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display
+		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display
 	fi
 }
 
