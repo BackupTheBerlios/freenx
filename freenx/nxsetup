@@ -4,7 +4,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.4 2005/02/11 15:43:33 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.5 2005/02/11 15:53:49 fabianx Exp $ 
 #
 
 SETUP_NOMACHINE_KEY="no"
@@ -104,20 +104,20 @@ fi
 echo "done"
 
 echo -n "Setting up permissions ..."
-chown -R nx.root $NX_SESS_DIR
-chown -R nx.root $NX_ETC_DIR
-chown -R nx.root $NX_HOME_DIR
+chown -R nx:root $NX_SESS_DIR
+chown -R nx:root $NX_ETC_DIR
+chown -R nx:root $NX_HOME_DIR
 echo "done"
 
 echo "Ok, nxserver is ready."
 echo ""
-if egrep -q '^ENABLE_PAM_AUTHENTICATION="1"' $(which nxserver)
+if [ "$ENABLE_PAM_AUTHENTICATION" = "1" ]
 then
 	echo "PAM authentication enabled:"
 	echo "  All users will be able to login with their"
 	echo "  normal passwords."
 	echo
-	echo "You can change this behaviour in the nxserver script." 
+       echo "You can change this behaviour in the $NX_CONFIG_FILE file."
 else
 	echo "PAM authentication disabled."
 	echo ""
