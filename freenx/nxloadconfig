@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.9 2005/03/10 12:59:37 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.10 2005/03/10 14:52:45 jonno Exp $
 #
 # ========================================================================
 
@@ -153,6 +153,7 @@ AGENT_LIBRARY_PATH=""
 PROXY_LIBRARY_PATH=""
 APPLICATION_LIBRARY_PATH=""
 APPLICATION_LIBRARY_PRELOAD=""
+USER_FAKE_HOME=""
 
 #########################################################################
 # node.conf file evaluation
@@ -172,6 +173,7 @@ APPLICATION_LIBRARY_PRELOAD=""
 [ -z "$PROXY_LIBRARY_PATH" ] && PROXY_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PATH" ] && APPLICATION_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PRELOAD" ] && APPLICATION_LIBRARY_PRELOAD="$APPLICATION_LIBRARY_PATH/libX11.so.6.2:$APPLICATION_LIBRARY_PATH/libXext.so.6.4:$APPLICATION_LIBRARY_PATH/libXcomp.so.1:$APPLICATION_LIBRARY_PATH/libXcompext.so.1:$APPLICATION_LIBRARY_PATH/libXrender.so.1.2"
+[ -z "$USER_FAKE_HOME" ] && USER_FAKE_HOME=$HOME
 
 #########################################################################
 # Support for --check
@@ -240,6 +242,9 @@ then
 	[ "$ENABLE_ESD_PRELOAD" = "1" ] && ! which "$ESD_BIN_PRELOAD" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"ESD_BIN_PRELOAD=$ESD_BIN_PRELOAD\"" \
 					  && echo "         No esd preload will be performed."
+	
+	[ ! -d "$USER_FAKE_HOME" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"USER_FAKE_HOME=$USER_FAKE_HOME\""
 	
 	[ -z "$SERVER_NAME" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SERVER_NAME=$SERVER_NAME\"" 

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.28 2005/03/08 14:27:55 fabianx Exp $
+# CVS: $Id: nxnode,v 1.29 2005/03/10 14:52:45 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -73,14 +73,14 @@ node_abort()
 
 node_terminate_agent()
 {
-	AGENT_PID=$(cat $HOME/.nx/C-$1/pids/agent 2>/dev/null)
+	AGENT_PID=$(cat $USER_FAKE_HOME/.nx/C-$1/pids/agent 2>/dev/null)
 	[ -n "$AGENT_PID" ] && kill $AGENT_PID 2>/dev/null
 }
 
 node_terminate_session()
 {
-	[ -d "$HOME/.nx/C-$1/" ] || return
-	AGENT_PID=$(cat $HOME/.nx/C-$1/pids/agent 2>/dev/null)
+	[ -d "$USER_FAKE_HOME/.nx/C-$1/" ] || return
+	AGENT_PID=$(cat $USER_FAKE_HOME/.nx/C-$1/pids/agent 2>/dev/null)
 	if [ -n "$AGENT_PID" ]
 	then 
 		kill $AGENT_PID 2>/dev/null
@@ -96,16 +96,16 @@ node_terminate_session()
 	fi
 	
 	# remove cookie
-	$COMMAND_XAUTH -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
+	$COMMAND_XAUTH -v source $USER_FAKE_HOME/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
 	# FIXME: What to do on errors ... ?
 	# TODO: Add parsing of var ...
-	#mv $HOME/.nx/C-$1/ $HOME/.nx/F-C-$1/
-	rm -rf $HOME/.nx/C-$1/
+	#mv $USER_FAKE_HOME/.nx/C-$1/ $USER_FAKE_HOME/.nx/F-C-$1/
+	rm -rf $USER_FAKE_HOME/.nx/C-$1/
 }
 
 node_suspend_session()
 {
-	AGENT_PID=$(cat $HOME/.nx/C-$1/pids/agent 2>/dev/null)
+	AGENT_PID=$(cat $USER_FAKE_HOME/.nx/C-$1/pids/agent 2>/dev/null)
 	[ -n "$AGENT_PID" ] && kill -HUP $AGENT_PID
 }
 
@@ -122,7 +122,7 @@ node_start_applications()
 	. /etc/profile
 	[ -f ~/.bash_profile ] && . ~/.bash_profile
 
-	mkdir -p ~/.nx/C-$sess_id/pids/
+	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
 
 	STARTX=""
 	case $type in
@@ -162,19 +162,19 @@ node_start_applications()
 			# Do not spawn new ESD daemons
 			export ESD_NO_SPAWN="yes"
 			
-			echo "Info: NXNODE - Using $ESD_BIN_PRELOAD wrapper script." >> ~/.nx/C-$sess_id/session
+			echo "Info: NXNODE - Using $ESD_BIN_PRELOAD wrapper script." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
 		fi
 	elif [ "$mediahelper" = "arts" ]
 	then
-		echo "Error: NXNODE - No support for artsd, yet." >> ~/.nx/C-$sess_id/session
+		echo "Error: NXNODE - No support for artsd, yet." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
 	fi
 
-	DISPLAY=unix:$display $STARTX >>~/.nx/C-$sess_id/session 2>&1 &
+	DISPLAY=unix:$display $STARTX >>$USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
 	APP_PID=$!
-	mkdir -p ~/.nx/C-$sess_id/pids/
-	echo "$APP_PID" > ~/.nx/C-$sess_id/pids/applications
+	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
+	echo "$APP_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
 	wait $APP_PID
-	rm -f ~/.nx/C-$sess_id/pids/applications
+	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
 	node_terminate_agent $sess_id
 }
 
@@ -185,9 +185,10 @@ node_start_agent()
 	exec 1>&-
 	exec 2>&-
 	
-	export DISPLAY="nx/nx,options=$HOME/.nx/C-$sess_id/options:$display"
-	export XAUTHORITY="$HOME/.nx/C-$sess_id/authority"
-
+	export DISPLAY="nx/nx,options=$USER_FAKE_HOME/.nx/C-$sess_id/options:$display"
+	export XAUTHORITY="$USER_FAKE_HOME/.nx/C-$sess_id/authority"
+	export HOME="$USER_FAKE_HOME"
+	
 	# backwards compatibility
 	K=""
 	[ -n "$keyboard" ] && K="-keyboard $keyboard"
@@ -208,50 +209,50 @@ node_start_agent()
 		P=""
 		[ -n "$agent_user" ] && U="-u $agent_user"
 		[ -n "$agent_password" ] && P="-p -"
-		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>~/.nx/C-$sess_id/session &
+		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	else
 
 	# nxviewer session
 	
 	if [ "$type" = "vnc" ]
 	then
-		mkdir -p ~/.nx/C-$sess_id/scripts/
-		echo "$agent_password" | $PATH_BIN/nxpasswd ~/.nx/C-$sess_id/scripts/.passwd doit
-		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)"  $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>>~/.nx/C-$sess_id/session &
+		mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/scripts/
+		echo "$agent_password" | $PATH_BIN/nxpasswd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd doit
+		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)"  $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	else
 		# "normal" nxagent session
 		if [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
 		then
 			# nxproxy single application mode session
-			$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>>~/.nx/C-$sess_id/session &
+			$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 		else
 			FP=""
 			[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
 			# nxagent session
-			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>~/.nx/C-$sess_id/session &
+			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 		fi
 	fi
 	fi
 	PID=$!
-	mkdir -p ~/.nx/C-$sess_id/pids/
-	echo "$PID" > ~/.nx/C-$sess_id/pids/agent
+	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
+	echo "$PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/agent
 	wait $PID
-	rm -f ~/.nx/C-$sess_id/pids/agent
+	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/agent
 	[ "$type" = "windows" -o "$type" = "vnc" ] && node_terminate_session "$sess_id"
 }
 
 node_kill_proxy()
 {
 	# Info: Proxy running in server mode with pid '5279'.
-	PROXY_PID=$(grep "Info: Proxy running in server mode with pid" $HOME/.nx/C-$1/session | cut -d"'" -f2)
+	PROXY_PID=$(grep "Info: Proxy running in server mode with pid" $USER_FAKE_HOME/.nx/C-$1/session | cut -d"'" -f2)
 	sleep 2
 	[ -n "$PROXY_PID" ] && kill $PROXY_PID 2>/dev/null
 }
 
 node_umount_smb()
 {
-	[ -e "$HOME/.nx/C-$sess_id/scripts/mpoint" ] || return
-	cat "$HOME/.nx/C-$sess_id/scripts/mpoint" | while read mpoint
+	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/mpoint" ] || return
+	cat "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/mpoint" | while read mpoint
 	do
 		smbumount "$mpoint" >/dev/null 2>/dev/null
 	done
@@ -270,7 +271,7 @@ node_start_monitor()
 	TAIL_PID=""
 	TIMEOUT_PID=""
 	
-	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f ~/.nx/C-'$sess_id'/session' | while read line 
+	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | while read line 
 	do
 		#
 		# Catch tail pid
@@ -422,8 +423,8 @@ node_start_monitor()
 		then
 			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1004 Error:"
-			echo "Session '$sess_id' has failed after reaching usable state. Session directory '$HOME/.nx/F-C-$sess_id' will be not deleted to allow for further investigation."
-		#	mv ~/.nx/C-$sess_id/ ~/.nx/F-C-$sess_id/
+			echo "Session '$sess_id' has failed after reaching usable state. Session directory '$USER_FAKE_HOME/.nx/F-C-$sess_id' will be not deleted to allow for further investigation."
+		#	mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
 			break
 		fi
 	done 
@@ -476,7 +477,7 @@ node_startsession()
 	sess_id="$SERVER_NAME-$display-$uniqueid"
 	[ "$EXPORT_SESSIONID" = "1" ] && export NXSESSIONID="$sess_id"
 	
-	mkdir -p ~/.nx/C-$sess_id
+	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id
 	
 	# cache=8M,images=32M,pack=nopack,link=lan,type=unix-kde,cleanup=0,accept=192.168.1.66,cookie=E38A94A77F975443AF04EC911881B120,id=Knoppix-1000-6A8269CC467264EAEF6349D062689755,samba=1,render=1:1000
 	
@@ -497,7 +498,7 @@ node_startsession()
 	OLD_UMASK=$(umask)
 	umask 0077
 
-cat << EOF > ~/.nx/C-$sess_id/options
+cat << EOF > $USER_FAKE_HOME/.nx/C-$sess_id/options
 ${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}:$display
 EOF
 	umask $OLD_UMASK
@@ -513,25 +514,25 @@ add unix:$display MIT-MAGIC-COOKIE-1 $cookie
 exit
 EOF
 
-$COMMAND_XAUTH -f "$HOME/.nx/C-$sess_id/authority" >/dev/null 2>&1 <<EOF
+$COMMAND_XAUTH -f "$USER_FAKE_HOME/.nx/C-$sess_id/authority" >/dev/null 2>&1 <<EOF
 add localhost:$display MIT-MAGIC-COOKIE-1 $cookie
 add unix:$display MIT-MAGIC-COOKIE-1 $cookie
 exit
 EOF
 
-	mkdir -m700 ~/.nx/C-$sess_id/scripts/ 2>/dev/null || chmod 700 ~/.nx/C-$sess_id/scripts/
+	mkdir -m700 $USER_FAKE_HOME/.nx/C-$sess_id/scripts/ 2>/dev/null || chmod 700 $USER_FAKE_HOME/.nx/C-$sess_id/scripts/
 
-cat << EOF >~/.nx/C-$sess_id/scripts/authority
+cat << EOF >$USER_FAKE_HOME/.nx/C-$sess_id/scripts/authority
 remove localhost:$display
 remove unix:$display
 exit
 EOF
 
-echo > ~/.nx/C-$sess_id/session
+echo > $USER_FAKE_HOME/.nx/C-$sess_id/session
 node_start_monitor &
 SPID=$!
-mkdir -p ~/.nx/C-$sess_id/pids/
-echo "$SPID" > ~/.nx/C-$sess_id/pids/monitor
+mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
+echo "$SPID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 
 if [ "$1" = "restore" ]
 then
@@ -561,14 +562,14 @@ EOF
 #Session 'Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' has failed after reaching usable state. Session directory '/home/knoppix/.nx/F-C-Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' will be not deleted to allow for further investigation.
 
 wait $SPID
-rm -f ~/.nx/C-$sess_id/pids/monitor
+rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 }
 
 cmd_node_terminate()
 {
 	sessionid=$(getparam_sessionid)
 	echo "NX> 716 Terminating session $sessionid on user request."
-	display=$(cd $HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
 	node_terminate_session "$SERVER_NAME-$display-$sessionid"
 }
 
@@ -576,7 +577,7 @@ cmd_node_suspend()
 {
 	sessionid=$(getparam_sessionid)
 	echo "NX> 716 Suspending session $sessionid on user request."
-	display=$(cd $HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
 	node_suspend_session "$SERVER_NAME-$display-$sessionid"
 }
 
@@ -590,13 +591,13 @@ cmd_node_smbmount()
 	computername=$(getparam computername)
 	dir=$(getparam dir | sed 's|$(SHARES)|MyShares|g')
 	rdir=$(getparam dir | sed 's|$(SHARES)/||g')
-	display=$(cd $HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
 	mkdir -p "$HOME/$dir"
 	ERROR=$(PASSWD="$password" "$COMMAND_SMBMOUNT" "//$computername/$rdir" "$HOME/$dir" -o username="$username" ip="127.0.0.1" port="$port" 2>&1)
 	if [ $? -eq 0 ]
 	then
 		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display &
-		echo "$HOME/$dir" >> "$HOME/.nx/C-$SERVER_NAME-$display-$sessionid/scripts/mpoint"
+		echo "$HOME/$dir" >> "$USER_FAKE_HOME/.nx/C-$SERVER_NAME-$display-$sessionid/scripts/mpoint"
 	else
 		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' failed to mount: $ERROR" -noautokill -display :$display &
 	fi

@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.7 2005/03/10 12:59:37 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.8 2005/03/10 14:52:45 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -131,6 +131,12 @@
 
 # The key that contains the name of the complete path of the 'netcat' command. 
 #COMMAND_NETCAT=netcat
+
+# USER_FAKE_HOME is the base directory for the .nx directory. Use this
+# parameter instead of the users home directory if $HOME is on a NFS share.
+# Note that this directory must be unique for every user! To accomplish this 
+# it is recomended to include $USER in the path.
+#USER_FAKE_HOME=$HOME
 
 #########################################################################
 # NoMachine node.conf compatible (almost) directives
