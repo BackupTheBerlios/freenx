@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.11 2005/02/12 14:44:21 fabianx Exp $
+# CVS: $Id: nxnode,v 1.12 2005/02/12 17:58:58 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -394,6 +394,8 @@ node_startsession()
 	agent_user=$(getparam agent_user)
 	agent_password=$(getparam agent_password)
 
+	[ "$EXPORT_USERIP" = "1" ] && export NXUSERIP="$userip"
+
 	ssl_tunnel=$(getparam encryption)
 	[ -z "$ssl_tunnel" ] && ssl_tunnel=0
 	
@@ -402,6 +404,7 @@ node_startsession()
 	# ok, lets make the session dir first:
 	
 	sess_id="$HOSTNAME-$display-$uniqueid"
+	[ "$EXPORT_SESSIONID" = "1" ] && export NXSESSIONID="$sess_id"
 	
 	mkdir -p ~/.nx/C-$sess_id
 	
@@ -460,6 +463,8 @@ else
 	node_start_agent &
 	node_start_applications &
 fi
+
+[ -n "$NODE_AUTOSTART" ] && "$NODE_AUTOSTART" "$1"
 	
 cat << EOF
 NX> 700 Session id: $sess_id
