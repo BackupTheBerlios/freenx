@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.49 2005/03/16 14:02:38 jonno Exp $
+# CVS: $Id: nxnode,v 1.50 2005/03/17 00:00:20 fux Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -235,7 +235,7 @@ node_start_agent()
 	R=""
 	[ "$virtualdesktop" = "0" ] && R="-rootless"
 	vncfullscreen=""
-	[ "$geometry" = "fullscreen" && "$type" = "vnc" ] && vncfullscreen="-fullscreen" && G=""
+	[ "$geometry" = "fullscreen" -a "$type" = "vnc" ] && vncfullscreen="-fullscreen" && G=""
 
 	if [ "$type" = "windows" ]
 	then
@@ -252,7 +252,7 @@ node_start_agent()
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$AGENT_LIBRARY_PATH:$LD_LIBRARY_PATH"
 		mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/scripts/
 		echo "$agent_password" | $PATH_BIN/nxpasswd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd doit
-		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $vncfullscreen $G  $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $vncfullscreen $G $K $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	elif [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
 	then
 		# nxproxy single application mode session
