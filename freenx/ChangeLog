@@ -23,6 +23,15 @@
 	  Note: You need to use nxsetup --install for installation now.
 	* Added Disabling of port-forwarding, X11-forwarding, ... to ssh-key.
 
+	* Security: Fixed a security blunder. Authority file was not used 
+	            and so basically xhost +localhost was set. (ported from
+		    0.2.8)
+		    
+		    Update immediately.
+                   
+	* Security: Fixed two possible security problems (umask was not set
+                   correctly; ported from 0.2.8)
+
 20.11.2004 FreeNX 0.2.7 "Skolelinux Edition"
 	* Fix nxserver to work again with KNX-Client. ('\r' is evil)
 	* Fix timeout in nxnode-login to allow proper session management
