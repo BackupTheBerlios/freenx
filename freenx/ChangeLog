@@ -8,6 +8,7 @@
 	* Moved logfile to /var/log/nxserver.log.
 	* Complete rewrite of authentication code
 		* su or ssh is now supported.
+	* Added support for user based configs like in !M AR01C00135.
 
 20.11.2004 FreeNX 0.2.7 "Skolelinux Edition"
 	* Fix nxserver to work again with KNX-Client. ('\r' is evil)
