@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.10 2005/02/13 16:39:16 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.11 2005/02/14 00:02:59 fabianx Exp $ 
 #
 
 HELP="no"
@@ -68,6 +68,23 @@ export $(grep ^NX_CONFIG_FILE= $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxs
 echo "done"
 . $NX_CONFIG_FILE
 
+# Tries to add a system user
+useradd_nx()
+{
+	# Is it a debian?
+	if [ -f /etc/debian_version ]
+	then
+		adduser --system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver nx
+	# or is it a SuSE?
+	elif [ -f /etc/SuSE-release ]
+	then
+		useradd -r -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
+	# we don't know the system, fallback
+	else
+		useradd -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
+	fi
+}
+
 install_nx()
 {
 	set -e
@@ -107,7 +124,7 @@ install_nx()
 	if ! { getent passwd | egrep -q "^nx:"; }
 	then
 		echo -n "Setting up user nx ..."
-		useradd -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
+		useradd_nx
 		echo "done"
 	fi
 	
