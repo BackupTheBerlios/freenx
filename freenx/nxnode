@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.44 2005/03/13 12:57:59 fabianx Exp $
+# CVS: $Id: nxnode,v 1.45 2005/03/13 13:15:43 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -44,6 +44,12 @@ getparam(){
 stringinstring "&$1=" "$CMDLINE" || return 1
 echo "$CMDLINE" | awk "/^$1=/"' { VAL=$2 } END { print VAL }' FS="=" RS="(&|\n)"
 return 0
+}
+
+find_app()
+{
+	set -- $*
+	which $1 2>/dev/null
 }
 
 getparam_user()
@@ -166,7 +172,7 @@ node_start_applications()
 		export ESPEAKER="127.0.0.1:$ESPEAKER"
 		
 		# Check for config file directive
-		if [ "$ENABLE_ESD_PRELOAD" = "1" -a -x $ESD_BIN_PRELOAD ]
+		if [ "$ENABLE_ESD_PRELOAD" = "1" -a -x "$(find_app $ESD_BIN_PRELOAD)" ]
 		then
 			STARTX="$ESD_BIN_PRELOAD $STARTX"
 			
@@ -179,7 +185,7 @@ node_start_applications()
 	then
 		# Overwrite users mcoprc
 		echo -n "GlobalComm=Arts::X11GlobalComm" > $HOME/.mcoprc
-		if [ "$ENABLE_ARTSD_PRELOAD" = "1" -a -x $ARTSD_BIN_PRELOAD ]
+		if [ "$ENABLE_ARTSD_PRELOAD" = "1" -a -x "$(find_app $ARTSD_BIN_PRELOAD)" ]
 		then
 			STARTX="$ARTSD_BIN_PRELOAD $STARTX"
 			echo "Info: NXNODE - Using $ARTSD_BIN_PRELOAD wrapper script." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
@@ -187,7 +193,7 @@ node_start_applications()
 	fi
 
 	[ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ] && export LD_PRELOAD="$APPLICATION_LIBRARY_PRELOAD:$LD_PRELOAD"
-	if [ "$ENABLE_DEFAULT_X_WM" = "1" -a "$virtualdesktop" = "1" -a "$type" = "unix-application" -a -x "$(which $DEFAULT_X_WM)" ]
+	if [ "$ENABLE_DEFAULT_X_WM" = "1" -a "$virtualdesktop" = "1" -a "$type" = "unix-application" -a -x "$(find_app $DEFAULT_X_WM)" ]
 	then
 		DISPLAY=unix:$display $DEFAULT_X_WM >> $USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
 		WM_PID=$!
