@@ -420,7 +420,7 @@ node_startsession()
 	[ -z "$images" ] && IMAGES=""
 
 cat << EOF > ~/.nx/C-$sess_id/options
-${kbtype/#/kbtype=}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media,sync=$sync:$display
+${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media,sync=$sync:$display
 EOF
 #samba=$samba,
 	#cache=$cache,images=$images,pack=nopack,link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id
