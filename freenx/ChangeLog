@@ -4,6 +4,7 @@
 	* Improvements to be more node.conf compatible.
 	* Added COMMAND_NETCAT directive
 	* Added support for 'nxloadconfig --check' to validate node.conf settings
+	* Added initial support for sound (esd/artsd).
 
 11.03.2005 FreeNX 0.3.1
 	* Fixed keyboard mapping problems.

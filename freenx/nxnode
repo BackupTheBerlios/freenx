@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.31 2005/03/11 00:35:47 fabianx Exp $
+# CVS: $Id: nxnode,v 1.32 2005/03/11 02:29:15 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -164,9 +164,15 @@ node_start_applications()
 			
 			echo "Info: NXNODE - Using $ESD_BIN_PRELOAD wrapper script." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
 		fi
-	elif [ "$mediahelper" = "arts" ]
+	elif [ "$mediahelper" = "artsd" ]
 	then
-		echo "Error: NXNODE - No support for artsd, yet." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
+		# Overwrite users mcoprc
+		echo -n "GlobalComm=Arts::X11GlobalComm" > $USER_FAKE_HOME/.mcoprc
+		if [ "$ENABLE_ARTSD_PRELOAD" = "1" ]
+		then
+			STARTX="$ARTSD_BIN_PRELOAD $STARTX"
+			echo "Info: NXNODE - Using $ARTSD_BIN_PRELOAD wrapper script." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
+		fi
 	fi
 
 	DISPLAY=unix:$display $STARTX >>$USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &

@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.8 2005/03/10 14:52:45 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.9 2005/03/11 02:29:14 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -128,6 +128,17 @@
 
 #ENABLE_ESD_PRELOAD="0"
 #ESD_BIN_PRELOAD="esddsp"
+
+# FreeNX with ENABLE_ARTSD_PRELOAD="1" will automatically try to setup 
+# the sound with the help of the artsd media helper.
+#
+# Currently ARTSD will be used just by the Linux NX Client.
+#
+# Be sure that $ARTSD_BIN_PRELOAD is in your path, does exist and work 
+# before enabling this directive.
+
+#ENABLE_ARTSD_PRELOAD="0"
+#ARTSD_BIN_PRELOAD="artsdsp"
 
 # The key that contains the name of the complete path of the 'netcat' command. 
 #COMMAND_NETCAT=netcat
