@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.3 2005/02/14 08:23:16 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.4 2005/03/02 14:17:43 fabianx Exp $
 #
 # ========================================================================
 
@@ -52,6 +52,10 @@ ENABLE_AUTORECONNECT_BEFORE_140="1"
 EXPORT_USERIP="0"
 EXPORT_SESSIONID="0"
 NODE_AUTOSTART=""
+
+ENABLE_SERVER_FORWARD="0"
+SERVER_FORWARD_HOST=""
+SERVER_FORWARD_KEY="/usr/NX/share/client.id_dsa.key"
 
 ENABLE_NOMACHINE_FORWARD="0"
 NOMACHINE_SERVER="/usr/NX/bin/nxserver"

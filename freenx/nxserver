@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.23 2005/02/14 17:46:06 jonno Exp $
+# CVS: $Id: nxserver,v 1.24 2005/03/02 14:17:43 fabianx Exp $
 #
 
 # Read the config file
@@ -415,6 +415,13 @@ server_forward_nomachine()
 
 # Start!
 log "-- NX SERVER START: $@"
+
+if [ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ]
+then
+	log "Forwarding connection to $SERVER_FORWARD_HOST with secret key $SERVER_FORWARD_KEY."
+	ssh -i "$SERVER_FORWARD_KEY" nx@"$SERVER_FORWARD_HOST"
+	exit 0
+fi
 
 echo_x "HELLO NXSERVER - Version $NX_VERSION $NX_LICENSE"
 

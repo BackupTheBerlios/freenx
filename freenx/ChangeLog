@@ -15,6 +15,8 @@
 	  directives.
 	* Added mechanism to forward connection to commercial NoMachine 
 	  nxserver (as available from www.nomachine.com).
+	* Added mechanism to forward connection to another nxserver. This
+	  allows using a "chain" of nxservers.
 	* Added "floating window" support by using rootless nxagent as
 	  it will be standard in NX 1.5.0.
 	* Added "floating window" support by just nxproxy/nxproxy connection
