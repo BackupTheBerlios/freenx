@@ -2,7 +2,7 @@
 	* Opened the 0.4.0 branch.
 	* Added initial support for filesharing via samba.
 	* Improvements to be more node.conf compatible.
-	* Added COMMAND_NETCAT directive
+	* Added COMMAND_NETCAT, COMMAND_SSH & COMMAND_SSH_KEYGEN directive
 	* Added support for 'nxloadconfig --check' to validate node.conf settings
 	* Added initial support for sound (esd/artsd).
 	* Added optional support for utmp/wtmp/lastlog database.

@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.17 2005/03/16 13:58:42 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.18 2005/03/17 23:21:14 fux Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -166,6 +166,11 @@
 
 # The key that contains the name of the complete path of the 'netcat' command. 
 #COMMAND_NETCAT=netcat
+
+# The key that contains the name of the complete path of the 'ssh' and 
+# 'ssh-keygen' command. 
+#COMMAND_SSH=ssh
+#COMMAND_SSH_KEYGEN=ssh-keygen
 
 # If enabled writes entries via the COMMAND_SESSREG program 
 # into utmp/wtmp/lastlog database.

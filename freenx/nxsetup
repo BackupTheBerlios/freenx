@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.19 2005/03/11 16:53:02 jonno Exp $ 
+# CVS: $Id: nxsetup,v 1.20 2005/03/17 23:21:15 fux Exp $ 
 #
 
 HELP="no"
@@ -101,8 +101,8 @@ install_nx()
 	then 
 		echo -n "Starting ssh service ..."
 		# Generate Host keys if they are not available, yet
-		[ -e /etc/ssh/ssh_host_rsa_key ] || ssh-keygen -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C '' -N ''
-		[ -e /etc/ssh/ssh_host_dsa_key ] || ssh-keygen -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C '' -N ''
+		[ -e /etc/ssh/ssh_host_rsa_key ] || $COMMAND_SSH_KEYGEN -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C '' -N ''
+		[ -e /etc/ssh/ssh_host_dsa_key ] || $COMMAND_SSH_KEYGEN -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C '' -N ''
 		/etc/init.d/ssh start
 		echo "done"
 	fi
@@ -115,7 +115,7 @@ install_nx()
 	
 	if [ ! -f $NX_ETC_DIR/users.id_dsa ]
 	then
-		ssh-keygen -f $NX_ETC_DIR/users.id_dsa -t dsa -N ""
+		$COMMAND_SSH_KEYGEN -f $NX_ETC_DIR/users.id_dsa -t dsa -N ""
 	fi
 	
 	echo -n "Setting up $NX_SESS_DIR ..."

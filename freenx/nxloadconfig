@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.22 2005/03/16 15:09:56 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.23 2005/03/17 23:21:14 fux Exp $
 #
 # ========================================================================
 
@@ -106,6 +106,8 @@ ENABLE_ARTSD_PRELOAD="0"
 ARTSD_BIN_PRELOAD="artsdsp"
 
 COMMAND_NETCAT=netcat
+COMMAND_SSH=ssh
+COMMAND_SSH_KEYGEN=ssh-keygen
 
 ENABLE_USESSION="0"
 COMMAND_SESSREG="sessreg"
@@ -283,6 +285,12 @@ then
 	
 	! which "$COMMAND_NETCAT" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_NETCAT=$COMMAND_NETCAT\""
+
+	! which "$COMMAND_SSH" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH=$COMMAND_SSH\""
+
+	! which "$COMMAND_SSH_KEYGEN" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH_KEYGEN=$COMMAND_SSH_KEYGEN\""
 	
 	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""

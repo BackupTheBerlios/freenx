@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.45 2005/03/16 15:09:56 jonno Exp $
+# CVS: $Id: nxserver,v 1.46 2005/03/17 23:21:14 fux Exp $
 #
 
 # Read the config file
@@ -464,7 +464,7 @@ log 3 "-- NX SERVER START: $@"
 if [ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ]
 then
 	log 3 "Info: Forwarding connection to $SERVER_FORWARD_HOST with secret key $SERVER_FORWARD_KEY."
-	ssh -i "$SERVER_FORWARD_KEY" "nx@$SERVER_FORWARD_HOST:$SERVER_FORWARD_PORT"
+	$COMMAND_SSH -i "$SERVER_FORWARD_KEY" "nx@$SERVER_FORWARD_HOST:$SERVER_FORWARD_PORT"
 	exit 0
 fi
 
@@ -562,11 +562,12 @@ do
 					LOGIN_METHOD="PASSDB"
 				fi
 			fi
-			
+
 			# SSH based auth
 			if [ "$ENABLE_SSH_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
 				log 6 -n "ssh "
+				export COMMAND_SSH			
 				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
 				if [ $? -eq 0 ]
 				then
@@ -649,12 +650,13 @@ server_nxnode_start()
 	# Use nxnode-login?
 	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
+	    export COMMAND_SSH
 	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
 	elif [ "$LOGIN_METHOD" = "SU" ]
 	then
 	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
 	else 
-	    echo "$@" | ssh -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
+	    echo "$@" | $COMMAND_SSH -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
 }
 
