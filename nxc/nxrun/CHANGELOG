@@ -1,0 +1,22 @@
+ChangeLog:
+
+nxrun-1.3.2-1
+
+- Opened the 1.3.2 branch.
+
+nxrun-1.3.1-1
+
+- Revision of CHANGELOG format to achieve full compliance with the
+  format used in the release notices.
+
+- Opened the 1.3.1 branch.
+
+nxrun-1.3.0-1
+
+- Opened the 1.3.0 branch.
+
+nxrun-1.2.2-6
+
+- Added CHANGELOG file.
+
+- First public release.

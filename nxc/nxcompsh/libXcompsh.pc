@@ -1,0 +1,11 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Xcompsh
+Description: X compression shell interface.
+Version: 1.2.0
+Libs: -L${libdir} -llibXcompsh-1.2
+Cflags: -I${libdir}
+

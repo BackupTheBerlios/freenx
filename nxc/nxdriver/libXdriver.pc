@@ -1,0 +1,11 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Xdriver
+Description: X compression application interface.
+Version: 1.2.0
+Libs: -L${libdir} -llibXdriver-1.2
+Cflags: -I${libdir}
+

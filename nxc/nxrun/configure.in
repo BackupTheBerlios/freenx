@@ -1,0 +1,16 @@
+
+AC_INIT(Main.cpp)
+
+AM_INIT_AUTOMAKE(nxrun,1.2.2)
+
+AM_CONFIG_HEADER(config.h)
+
+AC_PROG_CC
+
+AC_PROG_CXX
+
+AC_PROG_INSTALL
+
+AC_PROG_LIBTOOL
+
+AC_OUTPUT(Makefile)

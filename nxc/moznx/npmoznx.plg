@@ -1,0 +1,40 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: npmoznx - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\WINDOWS\TEMP\RSP6052.TMP" with contents
+[
+/nologo /MTd /W3 /GX /Zd /Od /I "..\..\include" /I "..\..\..\..\gecko-sdk\plugin\include" /I "..\..\..\..\gecko-sdk\nspr\include" /I "..\..\..\..\gecko-sdk\java\include" /I "..\nxcompsh" /I "..\pthread/include" /I "..\nxdriver" /I "..\expat-1.95.8\lib" /D "_DEBUG" /D "MOZILLA_STRICT_API" /D "XP_WIN" /D "_X86_" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "NPMOZNX_EXPORTS" /D "XML_STATIC" /Fp"Debug/npmoznx.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /I /I /I /I /GZ /c 
+"C:\GeckoPluginSDK-samplesWin32\GeckoPluginSDK-samples\Win32SDK\sdk\samples\nxc\moznx\plugin.cpp"
+]
+Creating command line "cl.exe @C:\WINDOWS\TEMP\RSP6052.TMP" 
+Creating temporary file "C:\WINDOWS\TEMP\RSP6053.TMP" with contents
+[
+kernel32.lib user32.lib gdi32.lib ..\pthread\lib\pthreadvc1.lib /nologo /dll /incremental:yes /pdb:"Debug/npmoznx.pdb" /machine:I386 /nodefaultlib:"LIBCD" /def:".\nx.def" /out:"Debug/npmoznx.dll" /implib:"Debug/npmoznx.lib" /pdbtype:sept 
+".\Debug\np_entry.obj"
+".\Debug\npn_gate.obj"
+".\Debug\npp_gate.obj"
+".\Debug\plugin.obj"
+".\Debug\moznx.res"
+"\GeckoPluginSDK-samplesWin32\GeckoPluginSDK-samples\Win32SDK\sdk\samples\nxc\nxdriver\Debug\nxdriver.lib"
+"\GeckoPluginSDK-samplesWin32\GeckoPluginSDK-samples\Win32SDK\sdk\samples\nxc\expat-1.95.8\lib\Debug_static\libexpatMT.lib"
+"\GeckoPluginSDK-samplesWin32\GeckoPluginSDK-samples\Win32SDK\sdk\samples\nxc\nxcompsh\Debug\nxcompsh.lib"
+]
+Creating command line "link.exe @C:\WINDOWS\TEMP\RSP6053.TMP"
+<h3>Output Window</h3>
+Compiling...
+plugin.cpp
+Linking...
+   Creating library Debug/npmoznx.lib and object Debug/npmoznx.exp
+
+
+
+<h3>Results</h3>
+npmoznx.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

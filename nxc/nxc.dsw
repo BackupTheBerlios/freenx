@@ -1,0 +1,113 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "expat_static"=".\expat-1.95.8\lib\expat_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "npmoznx"=".\moznx\npmoznx.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name nxdriver
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name expat_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nxcompsh
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nxcompsh"=".\nxcompsh\nxcompsh.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "nxdriver"=".\nxdriver\nxdriver.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name expat_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nxcompsh
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nxdriverdll"=".\nxdriverdll\nxdriverdll.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name expat_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nxcompsh
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nxrun"=".\nxrun\nxrun.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name nxdriver
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

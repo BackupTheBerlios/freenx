@@ -1,0 +1,58 @@
+Parameters: --session="/var/www/html/nxconf/lroufail/dsl" --cookie="9ecedb10e323474ff0836efcbb9022c2" --type="unix-application" --application="fluxbox" --cache="8m" --link="adsl" --geometry="fullscreen" --keyboard="us" --encryption="0" --cache="1" --nodelay="1" --stream="1" --media="0" --samba="0" --virtualdesktop="1" --images="32m"
+InitConnection:Initializing
+InitConnection:Creating New Process...
+InitConnection:Proces Created 
+InitConnection:Creating Options
+InitConnection:Creating Session Directory
+InitConnection:Session Directory Created
+Info (from Proxy): nxproxy -S options=/home/lroufail/.nx/S-box-1018-8CF3C7BC59ACC6D8532CC7221265A89B/options:1018
+Info (from Proxy): 
+Info (from Proxy): NXPROXY - Version 1.4.0
+Info (from Proxy): 
+Info (from Proxy): Copyright (C) 2001, 2004 NoMachine.
+Info (from Proxy): See http://www.nomachine.com/ for more information.
+Info (from Proxy): 
+Info (from Proxy): Info: Proxy running in client mode with pid '15602'.
+Info (from Proxy): Info: Connecting to remote host '192.168.0.105:5018'.
+Info (from Proxy): Info: Connection to remote proxy '192.168.0.105:5018' established.
+Info (from Proxy): Info: Handshaking with remote proxy '192.168.0.105:5018' completed.
+Info (from Proxy): Info: Synchronizing local and remote caches.
+Info (from Proxy): Info: Not using NX delta compression.
+Info (from Proxy): Info: Using adsl link parameters 8192/80/16/4096.
+Info (from Proxy): Info: Using pack method 'no-pack' with session 'unix-application'.
+Info (from Proxy): Info: Using ZLIB stream compression level 6.
+Info (from Proxy): Info: Using remote ZLIB stream compression level 6.
+Info (from Proxy): Info: Not using persistent cache.
+Info (from Proxy): Info: Using remote server '192.168.0.105:5018'.
+Info (from Proxy): Info: Starting X protocol compression.
+Info (from Proxy): Info: Established X server connection.
+Parameters: --session="/var/www/html/nxconf/lroufail/dsl" --cookie="9ecedb10e323474ff0836efcbb9022c2" --type="unix-application" --application="fluxbox" --cache="8m" --link="adsl" --geometry="fullscreen" --keyboard="us" --encryption="1" --cache="1" --nodelay="1" --stream="1" --media="0" --samba="0" --virtualdesktop="1" --images="32m"
+InitConnection:Initializing
+InitConnection:Creating New Process...
+InitConnection:Proces Created 
+InitConnection:Creating Options
+InitConnection:Creating Session Directory
+InitConnection:Session Directory Created
+Info (from Proxy): nxproxy -S options=/home/lroufail/.nx/S-box-1018-C5FD82B11BEEB7B8AD582BC92D283E15/options:1018
+Info (from Proxy): 
+Info (from Proxy): NXPROXY - Version 1.4.0
+Info (from Proxy): 
+Info (from Proxy): Copyright (C) 2001, 2004 NoMachine.
+Info (from Proxy): See http://www.nomachine.com/ for more information.
+Info (from Proxy): 
+Info (from Proxy): Info: Proxy running in client mode with pid '15657'.
+Info (from Proxy): Info: Waiting for connection from any host on port '33057'.
+Info (from Proxy): Info: Accepted connection from '127.0.0.1' on port '56135'.
+Info (from Proxy): Info: Connection with remote proxy established.
+Info (from Proxy): Info: Handshaking with remote proxy ':5018' completed.
+Info (from Proxy): Info: Synchronizing local and remote caches.
+Info (from Proxy): Info: Not using NX delta compression.
+Info (from Proxy): Info: Using adsl link parameters 8192/80/16/4096.
+Info (from Proxy): Info: Using pack method 'no-pack' with session 'unix-application'.
+Info (from Proxy): Info: Using ZLIB stream compression level 6.
+Info (from Proxy): Info: Using remote ZLIB stream compression level 6.
+Info (from Proxy): Info: Not using persistent cache.
+Info (from Proxy): Info: Using remote server connected on port '33057'.
+Info (from Proxy): Info: Starting X protocol compression.
+Info (from Proxy): Info: Established X server connection.
+Info (from Proxy): Warning: Not using shared memory support in X server.
