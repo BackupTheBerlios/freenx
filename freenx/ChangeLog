@@ -1,4 +1,7 @@
-14.02.2005 FreeNX 0.3.0-WIP
+06.03.2005 FreeNX 0.4.0-CVS
+	* Opened the 0.4.0 branch.
+
+05.03.2005 FreeNX 0.3.0 "Chemnitzer LinuxTage Edition"
 	* Initial CVS checkin.
 	* Added unix-default as session type - by Kalev Lember 
 	  <kalev@smartlink.ee>

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.4 2005/03/02 14:17:43 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.5 2005/03/06 13:12:19 fabianx Exp $
 #
 # ========================================================================
 
@@ -14,7 +14,7 @@
 # DO NOT TOUCH unless you REALLY know what you are doing
 #########################################################################
 
-NX_VERSION=1.4.0-03-CVS
+NX_VERSION=1.4.0-04-CVS
 NX_LICENSE="OS (GPL)"
 
 # Where can different nx components be found
