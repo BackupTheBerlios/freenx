@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.40 2005/03/13 15:12:17 fabianx Exp $
+# CVS: $Id: nxserver,v 1.41 2005/03/13 15:39:33 fabianx Exp $
 #
 
 # Read the config file
@@ -664,6 +664,7 @@ server_nxnode_start_wait()
 {
 	server_add_usession
 	
+	STOP_SEND=""
 	server_nxnode_start "$@" | while read CMD
 	do
 		case "$CMD" in 
@@ -681,6 +682,10 @@ server_nxnode_start_wait()
 					;;
 					*terminating*)
 						session_status $uniqueid "Terminating"
+						# we need to stop sending to client as it will have already
+						# closed his side of the channel and this will lead to not 
+						# closed sessions.
+						STOP_SEND="1"
 				esac
 			;;
 			"NX> 1004"*)
@@ -692,13 +697,13 @@ server_nxnode_start_wait()
 
 		case $CMD in
 			"NX> 718"*)
-				echo $CMD >&2
+				[ -z "$STOP_SEND" ] && echo $CMD >&2
 				#echo "NX> 1006 Session status: running" 1>&2
 				#echo "NX> 1001 Bye." 1>&2
 
 			;;
 			"NX> "*)
-				echo $CMD
+				[ -z "$STOP_SEND" ] && echo $CMD
 			;;
 		esac
 	done

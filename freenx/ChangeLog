@@ -26,6 +26,7 @@
 	* Fixed resume when agent is no longer there.
 	* Fixed error message shown to user, when session startup fails.
 	* Fixed handling of /tmp/.X*-lock files.
+	* Fixed handling of not closed sessions in "Terminating" status.
 
 05.03.2005 FreeNX 0.3.0 "Chemnitzer LinuxTage Edition"
 	* Initial CVS checkin.
