@@ -51,10 +51,11 @@ cp -a freenx*/nxserver ${NXPREFIX}/bin
 cp -a freenx*/nxsetup ${NXPREFIX}/bin
 cp -a freenx*/nxkeygen ${NXPREFIX}/bin
 cp -a freenx*/nxnode-login ${NXPREFIX}/bin
+cp -a freenx*/nxloadconfig ${NXPREFIX}/bin
 
 # config file
-cp -a freenx*/node.conf ${NXPREFIX}/etc/
+cp -a freenx*/node.conf.sample ${NXPREFIX}/etc/
 
 You should also install the nxclient from NoMachine or also copy the nxclient program from freenx. 
 
-Then you need to run 'nxsetup' and follow the instructions given.
+Then you need to run 'nxsetup --install' and follow the instructions given.
