@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.37 2005/03/12 18:19:02 fabianx Exp $
+# CVS: $Id: nxserver,v 1.38 2005/03/13 11:48:19 fabianx Exp $
 #
 
 # Read the config file
@@ -677,6 +677,21 @@ server_startrestore_session()
 	PARAMS=$SERVER_PARAMS
 	CMDLINE=$PARAMS
 	echo_x
+	
+	# If we can't get the userip and SSHD_CHECK_IP is set to 1
+	# we bail out.
+	if [ -z "$SSH_CLIENT" ]
+	then 
+		if [ "$SSHD_CHECK_IP" = "1" ]
+		then
+			echo "NX> 504 Session startup failed. (Missing SSH_CLIENT environment variable)"
+			return 1
+		else
+			log "WARNING: Failed to determine the client IP."
+			log "WARNING: The SSH_CLIENT variable was not provided by SSHD."
+			log "WARNING: Please set SSHD_CHECK_IP=1 if you want to refuse the connection."
+		fi
+	fi
 
 	# check if there is a suspended session, which we could resume
 	if [ "$ENABLE_AUTORECONNECT" = "1" -a "$ACTION" = "start" ]
@@ -691,6 +706,7 @@ server_startrestore_session()
 	fi
 
 	USERIP=$(echo $SSH_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
+	[ -z "$USERIP" ] && USERIP="*"
 	if [ "$ACTION" = "start" ]
 	then
 		# start nxnode

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.41 2005/03/13 10:57:36 jonno Exp $
+# CVS: $Id: nxnode,v 1.42 2005/03/13 11:48:19 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -524,11 +524,14 @@ node_startsession()
 	IMAGES="images=$images,"
 	[ -z "$images" ] && IMAGES=""
 
+	ACCEPT="accept=$userip,"
+	[ "$userip" = "*" ] && ACCEPT=""
+
 	OLD_UMASK=$(umask)
 	umask 0077
 
 cat << EOF > $USER_FAKE_HOME/.nx/C-$sess_id/options
-${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}:$display
+${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}:$display
 EOF
 	umask $OLD_UMASK
 #samba=$samba,
