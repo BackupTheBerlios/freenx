@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.15 2005/02/14 08:23:16 jonno Exp $ 
+# CVS: $Id: nxsetup,v 1.16 2005/02/16 00:00:31 fabianx Exp $ 
 #
 
 HELP="no"
@@ -71,6 +71,10 @@ fi
 # Tries to add a system user
 useradd_nx()
 {
+	# In any case create the basedir of the HOME directory before, 
+	# because useradd will fail to make more than one directory
+	mkdir -p $(dirname "$NX_HOME_DIR")
+	
 	# Are uid specified
 	if [ -n "$SETUP_UID" ]
 	then
