@@ -257,6 +257,13 @@ bool TransportSSH::InitConnection()
     mp_process->AddArgument( sTmp );
   }
 
+  sTmp = parameters.GetString(NX_HostPort, "");
+  if (!sTmp.empty())
+  {
+     mp_process->AddArgument("-p");
+     mp_process->AddArgument(sTmp);
+  }
+
   sTmp = parameters.GetString( NX_SshLogPath, "" );
   if( sTmp.empty() )
   {
