@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.1 2005/02/14 00:43:46 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.2 2005/02/14 01:52:08 fabianx Exp $
 #
 # ========================================================================
 
@@ -19,7 +19,7 @@ NX_LICENSE="OS (GPL)"
 
 # Where can different nx components be found
 NX_DIR=/usr
-PATH_BIN=$NX_DIR/bin
+PATH_BIN=$NX_DIR/bin # if you change that, be sure to also change the public keys
 PATH_LIB=$NX_DIR/lib
 NX_ETC_DIR=/etc/nxserver
 NX_SESS_DIR=/var/lib/nxserver/db
