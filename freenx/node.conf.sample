@@ -4,15 +4,16 @@
 # /etc/nxserver/node.conf (FreeNX style) or /usr/NX/etc/node.conf
 # (NoMachine NX style).
 #
-# It is mostly compatible with NoMachine node.conf.
-# The most important difference is that no spaces are allowed when assigning
-# values (eg "A=value" is allowed, "A = value" is NOT).
+# It is mostly compatible with NoMachine node.conf. The most important 
+# difference is that no spaces are allowed when assigning values (eg 
+# "A=value" is allowed, "A = value" is NOT).
+#
 # This file is sourced by bash, so you can do some fancy stuff here if you
-# want to, but be aware that it is sourced 3 times per connection.
-# If you want autostart stuff, se NODE_AUTOSTART instead!
+# want to, but be aware that it is sourced 3 times per connection. If you 
+# want autostart stuff, set NODE_AUTOSTART instead!
 # 
 #
-# You surely are aware that FreeNX is based on the phantastic results that
+# You surely are aware that FreeNX is based on the fantastic results that
 # the hard work by NoMachine.com has achieved. NoMachine.com released the
 # core NX libraries under the GPL. The installation of these libs are the
 # precondition for all FreeNX scripts to work. If you are installing this
@@ -36,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.2 2005/02/14 08:23:16 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.3 2005/02/14 10:07:43 pipitas Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
