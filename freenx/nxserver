@@ -52,6 +52,9 @@ ENABLE_AUTORECONNECT_BEFORE_140="1"
 #
 SSHD_AUTH_PORT="22"
 
+# for using NX_DIR in nxnode-login you need to export them first
+export NX_DIR
+
 # following two functions are Copyright by Klaus Knopper
 
 stringinstring(){

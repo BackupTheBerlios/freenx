@@ -39,17 +39,6 @@
  	fi
  	fi
  	PID=$!
---- nxnode-login.old	2004-10-14 18:57:21.000000000 +0200
-+++ nxnode-login	2004-10-14 18:57:24.000000000 +0200
-@@ -16,7 +16,7 @@
-
- set stty_init "raw icrnl"
-
--set pid [spawn -noecho ssh -2 -l "$user" "$host" -o "NumberOfPasswordPrompts 1" $parameter "nxnode $command" ]
-+set pid [spawn -noecho ssh -2 -l "$user" "$host" -o "NumberOfPasswordPrompts 1" $parameter "/usr/NX/bin/nxnode $command" ]
- 
- while {1} {
- 	expect {
 --- nxkeygen.old	2004-10-14 18:57:21.000000000 +0200
 +++ nxkeygen	2004-10-14 18:57:24.000000000 +0200
 @@ -13,11 +13,7 @@
