@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.35 2005/03/12 03:24:30 fabianx Exp $
+# CVS: $Id: nxnode,v 1.36 2005/03/12 08:03:45 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -206,37 +206,29 @@ node_start_agent()
 
 	[ "$NX_NOMACHINE_WAY" = "1" ] && export LD_LIBRARY_PATH="$PATH_LIB:$LD_LIBRARY_PATH"
 
-	# nxdesktop session
-
 	if [ "$type" = "windows" ]
 	then
+		# nxdesktop session (Windows RDP)
 		U=""
 		P=""
 		[ -n "$agent_user" ] && U="-u $agent_user"
 		[ -n "$agent_password" ] && P="-p -"
 		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $U $P $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
-	else
-
-	# nxviewer session
-	
-	if [ "$type" = "vnc" ]
+	elif [ "$type" = "vnc" ]
 	then
+		# nxviewer session (VNC RFP)
 		mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/scripts/
 		echo "$agent_password" | $PATH_BIN/nxpasswd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd doit
 		$PATH_BIN/nxviewer -encodings tight hextile copyrect raw -passwd $USER_FAKE_HOME/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)"  $agent_server $AGENT_EXTRA_OPTIONS_RFB 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+	elif [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
+	then
+		# nxproxy single application mode session
+		$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	else
-		# "normal" nxagent session
-		if [ -n "$R" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
-		then
-			# nxproxy single application mode session
-			$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
-		else
-			FP=""
-			[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
-			# nxagent session
-			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
-		fi
-	fi
+		# nxagent session (X11)
+		FP=""
+		[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
+		$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	fi
 	PID=$!
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
