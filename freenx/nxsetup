@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.22 2005/03/31 08:17:56 fux Exp $ 
+# CVS: $Id: nxsetup,v 1.23 2005/04/04 06:45:15 fux Exp $ 
 #
 
 HELP="no"
@@ -235,7 +235,7 @@ uninstall_nx()
 	
 	if [ -e "$NX_LOGFILE" ] 
 	then
-		echo -n "Removing loggfile ..."
+		echo -n "Removing logfile ..."
 		rm -f "$NX_LOGFILE" 2>/dev/null
 		rmdir -p $(dirname "$NX_LOGFILE") 2>/dev/null
 		echo "done"
@@ -287,7 +287,7 @@ then
 		then
 			echo "  Both SSH and SU authentication is enabled."
 			echo "  This does work, but is redundant."
-			echo "  Please check if this is realy what you intended."
+			echo "  Please check if this is really what you intended."
 		elif [ "$ENABLE_SSH_AUTHENTICATION" = "1" ]
 		then
 			echo "  PAM authentication will be done through SSH."
