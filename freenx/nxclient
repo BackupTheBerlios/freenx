@@ -1,0 +1,137 @@
+#!/bin/bash
+#
+# Copyright (c) 2004 by Fabian Franz <freenx@fabian-franz.de>
+#           (c) 2004 by Rick Stout <zipsonic@gmail.com>
+
+# Note: NX does not check the exit-code from nxclient,
+#       but we set it to a "good value" anyway in case 
+#       it does check it someday.
+
+# First check if the commercial nxclient is available and use it
+[ -x /usr/NX/bin/nxclient ] && exec /usr/NX/bin/nxclient "$@"
+
+TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display: -n $(basename $0) -- "$@"`
+
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+DIALOG_TYPE="ok";
+DIALOG_CAPTION=""
+DIALOG_MESSAGE=""
+DIALOG_LOCAL=""
+DIALOG_NOAUTOKILL=""
+
+while true
+do
+        case "$1" in
+		--dialog) DIALOG_TYPE="$2"; shift 2 ;;
+		--caption) DIALOG_CAPTION="$2"; shift 2 ;;
+		--message) DIALOG_MESSAGE="$2"; shift 2 ;;
+		--local) DIALOG_LOCAL="yes"; shift ;;
+		--noautokill) DIALOG_NOAUTOKILL="yes"; shift ;;
+		--display) DISPLAY="$2"; shift 2 ;;
+		--) shift ; break ;;
+                *) echo "Internal error!" ; exit 1; ;;
+	esac
+done
+
+export DISPLAY
+
+if [ -x /usr/bin/Xdialog ] 
+then
+	dialog_interface="xdialog"
+	DIALOG=/usr/bin/Xdialog # just in case that we have no good path
+else
+	dialog_interface="xmessage"
+	xmessage=$(which xmessage 2>/dev/null)
+	[ -z "$xmessage" ] && xmessage="/usr/X11R6/bin/xmessage"
+fi
+
+xmessage_ok()
+{
+	$xmessage -buttons "Ok:0" -center "$DIALOG_MESSAGE"
+	return 0 # Give cancel on close ...
+}
+
+xmessage_yesno()
+{
+	$xmessage -buttons "Yes:2,No:0" -center "$DIALOG_MESSAGE"
+}
+
+xmessage_yesnosuspend()
+{
+	$xmessage -buttons "Suspend:3,Terminate:2,Cancel:0" -center "$DIALOG_MESSAGE"
+}
+
+xmessage_panic()
+{
+	$xmessage -buttons "Terminate:2,Cancel:0" -center "$DIALOG_MESSAGE"
+}
+
+xmessage_quit()
+{
+	$xmessage -buttons "Quit:0" -center "$DIALOG_MESSAGE"
+	return 0 # Give cancel on close ...
+}
+
+xdialog_ok()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
+	return 0 # Give cancel on close ...
+}
+
+xdialog_yesno()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --yesno "$DIALOG_MESSAGE" 0 0
+	RC=$?
+	[ $RC -eq 0 ] && return 2
+	[ $RC -eq 1 ] && return 0
+}
+
+xdialog_yesnosuspend()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --ok-label "Suspend" --cancel-label "Terminate" --yesno "$DIALOG_MESSAGE Close window to cancel." 400x150
+	RC=$?
+	[ $RC -eq 0 ] && return 3
+	[ $RC -eq 1 ] && return 2
+}
+
+xdialog_panic()
+{
+	$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --default-no --ok-label "Terminate" --cancel-label "Cancel" --yesno "$DIALOG_MESSAGE" 0x0
+	RC=$?
+	[ $RC -eq 0 ] && return 2
+	[ $RC -eq 1 ] && return 0
+}
+
+xdialog_quit()
+{
+        $DIALOG --buttons-style text --ok-label "Quit" --title "$DIALOG_CAPTION" --msgbox "$DIALOG_MESSAGE" 0 0
+        return 0 # Give cancel on close ...
+}
+
+case $DIALOG_TYPE in 
+	ok)
+		${dialog_interface}_ok
+	;;
+	yesno)
+		${dialog_interface}_yesno
+	;;
+	yesnosuspend)
+		${dialog_interface}_yesnosuspend
+	;;
+	panic)
+		${dialog_interface}_panic
+	;;
+	quit)
+		${dialog_interface}_quit
+	;;
+esac
+
+# Time for exit code checks :)
+RC=$?
+	[ $RC -eq 2 ] && kill -TERM $PPID
+	[ $RC -eq 3 ] && kill -HUP $PPID
+exit 0

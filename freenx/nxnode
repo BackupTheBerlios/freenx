@@ -1,0 +1,541 @@
+#!/bin/bash
+
+# Free implementation of nxserver components
+#
+# nxnode does accept (for now):
+# 
+#	--startsession
+#	--terminate
+#	--smbmount 
+#		(smbmount is not implemented yet)
+#
+# Copyright (c) 2004 by Fabian Franz.
+#
+# License: GNU GPL, version 2
+#
+# 21.06.2004: - Full reconnection support
+
+# constants
+
+# FIXME: move from nxserver binary to config file
+
+export PATH=$PATH:$(cd $(dirname $0) && pwd)
+export $(grep ^NX_ $(which nxserver))
+
+echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"
+
+if [ "$1" != "--check" -a "$1" != "--setkey" ]
+then 
+	read CMDLINE
+
+	CMDLINE="a=b&$CMDLINE"
+fi
+
+# --------
+
+# following two functions are Copyright by Klaus Knopper
+
+# same for strings
+stringinstring(){
+case "$2" in *$1*) return 0;; esac
+return 1
+}
+
+# Reread boot command line; echo last parameter's argument or return false.
+getparam(){
+stringinstring "&$1=" "$CMDLINE" || return 1
+result="${CMDLINE##*&$1=}"
+result="${result%%[&&&&&]*}"
+echo "$result"
+return 0
+}
+
+getparam_user()
+{
+	[ $UID -eq 0 ] && echo $(getparam user)
+	[ $UID -eq 0 ] || $(whoami)
+}
+
+getparam_sessionid()
+{
+	sessionid=$(getparam sessionid)
+	[ -n "$sessionid" ] || node_abort "NX> 500 Error: missing parameter session id"
+	echo $sessionid
+}
+
+node_abort()
+{
+	echo "$@" 1>&2
+	exit 1
+}
+
+
+
+node_terminate_session()
+{
+	AGENT_PID=$(cat $HOME/.nx/C-$1/pids/agent 2>/dev/null)
+	if [ -n "$AGENT_PID" ]
+	then 
+		kill $AGENT_PID 2>/dev/null
+		sleep 1
+		kill -9 $AGENT_PID 2>/dev/null
+		# remove possible leftover display ...
+		display=$(echo $1 | cut -d"-" -f2)
+		rm -f /tmp/.X$display-lock
+		rm -f /tmp/.X11-unix/X$display
+	fi
+	
+	# remove cookie
+	/usr/X11R6/bin/xauth -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
+	# FIXME: What to do on errors ... ?
+	# TODO: Add parsing of var ...
+	#mv $HOME/.nx/C-$1/ $HOME/.nx/F-C-$1/
+	rm -rf $HOME/.nx/C-$1/
+}
+
+node_suspend_session()
+{
+	AGENT_PID=$(cat $HOME/.nx/C-$1/pids/agent 2>/dev/null)
+	[ -n "$AGENT_PID" ] && kill -HUP $AGENT_PID
+}
+
+# ---------
+#stringinstring "$CMD"
+
+node_start_applications()
+{
+	# close input and output file descriptors
+	exec 0<&-
+	exec 1>&-
+	exec 2>&-
+	
+	. /etc/profile
+	[ -f ~/.bash_profile ] && . ~/.bash_profile
+
+	mkdir -p ~/.nx/C-$sess_id/pids/
+
+	STARTX=""
+	case $type in
+		unix-kde)
+			STARTX=$(which startkde)
+		;;
+		unix-gnome)
+			STARTX=$(which gnome-session)
+		;;
+		unix-application)
+			STARTX=$(which $application)
+		;;
+	esac
+	[ -n "$STARTX" ] || return
+
+	DISPLAY=unix:$display $STARTX >>~/.nx/C-$sess_id/session 2>&1 &
+	APP_PID=$!
+	mkdir -p ~/.nx/C-$sess_id/pids/
+	echo "$APP_PID" > ~/.nx/C-$sess_id/pids/applications
+	wait $APP_PID
+	rm -f ~/.nx/C-$sess_id/pids/applications
+	node_terminate_session $sess_id
+}
+
+node_start_agent()
+{
+	# close input and output file descriptors
+	exec 0<&-
+	exec 1>&-
+	exec 2>&-
+	
+	export DISPLAY="nx/nx,options=$HOME/.nx/C-$sess_id/options:$display"
+	# backwards compatibility
+	K=""
+	[ -n "$keyboard" ] && K="-keyboard $keyboard"
+	B=""
+	[ -n "$backingstore" ] && B="-bs $backingstore"
+	G=""
+	[ -n "$geometry" ] && G="-geometry $geometry"
+
+
+	# nxdesktop session
+
+	if [ "$type" = "windows" ]
+	then
+		U=""
+		P=""
+		[ -n "$agent_user" ] && U="-u $agent_user"
+		[ -n "$agent_password" ] && P="-p $agent_password"
+		$NX_DIR/bin/nxdesktop -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server 2>>~/.nx/C-$sess_id/session &
+	else
+
+	# nxviewer session
+	
+	if [ "$type" = "vnc" ]
+	then
+		mkdir -p ~/.nx/C-$sess_id/scripts/
+		echo "$agent_password" | $NX_DIR/bin/nxpasswd ~/.nx/C-$sess_id/scripts/.passwd doit
+		$NX_DIR/bin/nxviewer -encodings tight hextile copyrect raw -passwd ~/.nx/C-$sess_id/scripts/.passwd -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)"  $agent_server 2>>~/.nx/C-$sess_id/session &
+	else
+	# "normal" nxagent session
+		$NX_DIR/bin/nxagent -persistent -name "NX - $user@$HOSTNAME:$display - $session (GPL Edition)" $K $G $B :$display 2>>~/.nx/C-$sess_id/session &
+	fi
+	fi
+	PID=$!
+	mkdir -p ~/.nx/C-$sess_id/pids/
+	echo "$PID" > ~/.nx/C-$sess_id/pids/agent
+	wait $PID
+	rm -f ~/.nx/C-$sess_id/pids/agent
+	[ "$type" = "windows" -o "$type" = "vnc" ] && node_terminate_session "$sess_id"
+}
+
+node_kill_proxy()
+{
+	# Info: Proxy running in server mode with pid '5279'.
+	PROXY_PID=$(grep "Info: Proxy running in server mode with pid" $HOME/.nx/C-$1/session | cut -d"'" -f2)
+	sleep 2
+	[ -n "$PROXY_PID" ] && kill $PROXY_PID 2>/dev/null
+}
+
+#
+# Monitoring the nxagent: Its also kind of a "state-machine" 
+#                         as it has to keep track of different 
+#                         connection states and react differently.
+#
+
+node_start_monitor()
+{
+	RUNNING=0
+	RECONNECT=0
+	TAIL_PID=""
+	TIMEOUT_PID=""
+	
+	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f ~/.nx/C-'$sess_id'/session' | while read line 
+	do
+		#
+		# Catch tail pid
+		#
+		if stringinstring "Info: tail -f running with pid" "$line"
+		then
+			TAIL_PID=$(echo $line | cut -d"'" -f2)
+			# now set a timeout of 10 seconds ...
+			( 
+                          sleep 10
+		          echo "NX> 1004 Error: nxagent failed to start. Session timed out."
+			  echo "                Blocking $display again ..."
+			  touch /tmp/.X$display-lock
+			  kill $TAIL_PID
+			) &
+			TIMEOUT_PID=$!
+		fi
+
+		#
+		# Detect nxagent syntax errors
+		#
+		
+		if stringinstring "Unrecognized option:" "$line"
+		then
+			kill $TAIL_PID
+			echo "NX> 1004 Error: nxagent failed to start with: $line"
+			break
+		fi
+
+		#
+		# Suspending possibilities
+		#
+		
+		if stringinstring "Info: Suspending session on user request." "$line"
+		then
+			kill $TAIL_PID
+			echo "NX> 1005 Session status: suspended"
+			kill $PROXY_PID
+			sleep 2
+			break
+		fi
+		
+		#if stringinstring "Info: Disconnected from user display."
+		if stringinstring "Info: Going to sleep waiting for reconnection." "$line"
+		then
+			kill $TAIL_PID
+			echo "NX> 1005 Session status: suspended"
+			break
+		fi
+
+		if stringinstring "Error: Connection with remote peer broken." "$line"
+		then
+			kill $TAIL_PID
+			echo "NX> 1005 Session status: suspended"
+			kill $PROXY_PID
+			sleep 2
+			# time out faster for suspend
+			break
+		fi
+
+		#
+		# Session end
+		#
+		
+		#if stringinstring "Info: End of session requested by agent termination." "$line"
+		# TODO: Kill also waiting smbmount processes
+		if stringinstring "Info: Waiting for a further signal to complete." "$line" && [ "$RECONNECT" = "0" ]
+		then
+			kill $TAIL_PID
+			echo "NX> 1006 Session status: closed"
+			# TODO: Need a way to remove session infos ...
+			# especially for windows/vnc mode
+			kill $PROXY_PID
+			sleep 2
+			kill -9 $PROXY_PID
+			break
+		fi
+
+		#
+		# Session was suspended before, do not _close_ it, until
+		# it is fully resumed.
+		#
+
+		if stringinstring "Info: Going to reconnect to a new display." "$line"
+		then
+			RECONNECT=1
+		fi
+
+		#
+		# Session is running
+		#
+		
+		if stringinstring "Info: Waiting for connection from" "$line"
+		then
+			echo "NX> 1002 Commit"
+			echo "NX> 1006 Session status: running"
+			[ -n "$TIMEOUT_PID" ] && kill $TIMEOUT_PID
+		fi
+
+		#
+		# Status = Running - Do _not_ fail anymore.
+		#
+
+		if stringinstring "Info: Connection with remote proxy established." "$line"
+		then
+			RUNNING=1
+		fi
+	
+		#
+		# Catch proxy pid
+		#
+		
+		if stringinstring "Info: Proxy running in server mode with pid" "$line"
+		then
+			PROXY_PID=$(echo $line | cut -d"'" -f2)
+			#echo "Got $PROXY_PID ... " >> /tmp/nxnode.log
+		fi
+		
+		#
+		# Reconnection success!
+		#
+		
+		if stringinstring "Info: Reconnection succeded." "$line"
+		then
+			echo "NX> 718 Session restore succeded"
+			RECONNECT=0 # Do no longer block "Connection Close"
+		fi
+
+		#
+		# Error handling.
+		#
+
+		if stringinstring "Error: Connection with remote host" "$line" && [ "$RUNNING" = "0" ] 
+		then
+			kill $TAIL_PID
+			echo "NX> 1004 Error:"
+			echo "Session '$sess_id' has failed after reaching usable state. Session directory '$HOME/.nx/F-C-$sess_id' will be not deleted to allow for further investigation."
+		#	mv ~/.nx/C-$sess_id/ ~/.nx/F-C-$sess_id/
+			break
+		fi
+	done 
+	# close all open file descriptors
+	exec 0<&-
+	exec 1>&-
+	exec 2>&-
+}
+
+node_startsession()
+{
+
+	# user=knoppix&userip=192.168.1.66&uniqueid=6A8269CC467264EAEF6349D062689755&display=1000&session=lappi%5ffull&type=unix%2dkde&cache=8M&images=32M&cookie=84765070afee043cf83f85d21130145f&link=lan&render=1&backingstore=when_requested&imagecompressionmethod=0&geometry=fullscreen&keyboard=fr&media=0&samba=1&agent_server=&agent_user=&agent_password=
+
+	user=$(getparam user)
+	userip=$(getparam userip)
+	uniqueid=$(getparam uniqueid)
+	display=$(getparam display)
+	session=$(getparam session)
+	type=$(getparam type | sed 's/%2d/-/g')
+	application=$(getparam application)
+	cache=$(getparam cache)
+	images=$(getparam images)
+	cookie=$(getparam cookie)
+	link=$(getparam link)
+	render=$(getparam render)
+	backingstore=$(getparam backingstore)
+	imagecompressionmethod=$(getparam imagecompressionmethod)
+	geometry=$(getparam geometry)
+	keyboard=$(getparam keyboard)
+	media=$(getparam media)
+	sync=$(getparam sync)
+	samba=$(getparam samba)
+	agent_server=$(getparam agent_server)
+	agent_user=$(getparam agent_user)
+	agent_password=$(getparam agent_password)
+
+	ssl_tunnel=$(getparam encryption)
+	[ -z "$ssl_tunnel" ] && ssl_tunnel=0
+	
+	[ "$ssl_tunnel" = "1" ] && userip="127.0.0.1"
+	
+	# ok, lets make the session dir first:
+	
+	sess_id="$HOSTNAME-$display-$uniqueid"
+	
+	mkdir -p ~/.nx/C-$sess_id
+	
+	# cache=8M,images=32M,pack=nopack,link=lan,type=unix-kde,cleanup=0,accept=192.168.1.66,cookie=E38A94A77F975443AF04EC911881B120,id=Knoppix-1000-6A8269CC467264EAEF6349D062689755,samba=1,render=1:1000
+	
+	# TODO: imagecompressionmethod ...
+	[ "$imagecompressionmethod" = "0" ] && PACK="pack=nopack,"
+	
+	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1)
+
+	# write options file
+	[ -z "$samba" ] && samba=0
+	[ -z "$media" ] && media=0
+	[ -z "$sync" ] && sync=0
+
+	CACHE="cache=$cache,"
+	[ -z "$cache" ] && CACHE=""
+	IMAGES="images=$images,"
+	[ -z "$images" ] && IMAGES=""
+
+cat << EOF > ~/.nx/C-$sess_id/options
+${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media,sync=$sync:$display
+EOF
+#samba=$samba,
+	#cache=$cache,images=$images,pack=nopack,link=$link,type=$type,cleanup=0,accept=$userip,cookie=$proxy_cookie,id=$sess_id
+#samba=$samba,media=$media,render=$render:$display
+
+	# write xauth script file
+
+	mkdir -p ~/.nx/C-$sess_id/scripts/
+cat << EOF >~/.nx/C-$sess_id/scripts/authority
+add localhost:$display MIT-MAGIC-COOKIE-1 $cookie
+add unix:$display MIT-MAGIC-COOKIE-1 $cookie
+exit
+EOF
+
+	/usr/X11R6/bin/xauth -v source ~/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
+
+cat << EOF >~/.nx/C-$sess_id/scripts/authority
+remove localhost:$display
+remove unix:$display
+exit
+EOF
+
+echo > ~/.nx/C-$sess_id/session
+node_start_monitor &
+SPID=$!
+mkdir -p ~/.nx/C-$sess_id/pids/
+echo "$SPID" > ~/.nx/C-$sess_id/pids/monitor
+
+if [ "$1" = "restore" ]
+then
+	node_suspend_session $sess_id
+else
+	node_start_agent &
+	node_start_applications &
+fi
+	
+cat << EOF
+NX> 700 Session id: $sess_id
+NX> 705 Session display: $display
+NX> 703 Session type: $type
+NX> 701 Proxy cookie: $proxy_cookie
+NX> 702 Proxy IP: $userip
+NX> 706 Agent cookie: $cookie
+NX> 704 Session cache: $type
+NX> 707 SSL tunneling: $ssl_tunnel
+NX> 710 Session status: running
+EOF
+
+# collection ...
+
+# NX> 1004 Error:
+#Session 'Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' has failed after reaching usable state. Session directory '/home/knoppix/.nx/F-C-Knoppix-1000-40EFB9F64FA55C64C41C72CA39EBD720' will be not deleted to allow for further investigation.
+
+wait $SPID
+rm -f ~/.nx/C-$sess_id/pids/monitor
+}
+
+cmd_node_terminate()
+{
+	sessionid=$(getparam_sessionid)
+	echo "NX> 716 Terminating session $sessionid on user request."
+	display=$(cd $HOME/.nx/; echo C-$HOSTNAME-*-$sessionid | cut -d"-" -f3)
+	node_terminate_session "$HOSTNAME-$display-$sessionid"
+}
+
+cmd_node_suspend()
+{
+	sessionid=$(getparam_sessionid)
+	echo "NX> 716 Suspending session $sessionid on user request."
+	display=$(cd $HOME/.nx/; echo C-$HOSTNAME-*-$sessionid | cut -d"-" -f3)
+	node_suspend_session "$HOSTNAME-$display-$sessionid"
+}
+
+cmd_node_smbmount()
+{
+	sessionid=$(getparam_sessionid)
+	port=$(getparam port)
+	username=$(getparam username)
+	password=$(getparam password)
+	share=$(getparam share)
+	computername=$(getparam computername)
+	dir=$(getparam dir | sed 's|$(SHARES)|~/MyShares|g')
+	rdir=$(getparam dir | sed 's|$(SHARES)/||g')
+	display=$(cd $HOME/.nx/; echo C-$HOSTNAME-*-$sessionid | cut -d"-" -f3)
+	mkdir -p $dir
+	smbmount //$computername/$rdir $HOME/$dir -o username $username ip 127.0.0.1 port $port
+	if [ $? -eq 0 ]
+	then
+		/usr/NX/bin/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display
+	fi
+}
+
+case "$1" in 
+	--startsession)
+		node_startsession
+	;;
+	--resumesession)
+		node_startsession "restore"
+	;;
+	--terminate)
+		cmd_node_terminate
+	;;
+	--suspend)
+		cmd_node_suspend
+	;;
+	--smbmount)
+		cmd_node_smbmount
+	;;
+	--check)
+		echo "NX> 716 finished"
+	;;
+	--setkey)
+		mkdir -m 700 -p $HOME/.ssh
+		if ! grep -q "$(cat $NX_ETC_DIR/users.id_dsa.pub)" $HOME/$NX_AUTHORIZED_KEYS_FILE 2>/dev/null
+		then
+			cat $NX_ETC_DIR/users.id_dsa.pub >> $HOME/$NX_AUTHORIZED_KEYS_FILE
+			chmod 600 $HOME/$NX_AUTHORIZED_KEYS_FILE
+			echo "NX> 716 Public key added to: $HOME/$NX_AUTHORIZED_KEYS_FILE"
+		else
+			echo "NX> 716 Public key is already present in: $HOME/$NX_AUTHORIZED_KEYS_FILE"
+		fi
+	;;
+	*)
+		echo "NX> 500 Error: Command not found"
+	;;
+esac
+echo "NX> 1001 Bye."

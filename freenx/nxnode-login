@@ -1,0 +1,52 @@
+#!/usr/bin/expect
+# nxnode-login: spawns and controls ssh 
+# Copyright (c) 2004 by Fabian Franz.
+# License: GPL, version 2
+
+# Syntax: nxnode-login user host ssh-parameter command tosend
+
+set user [lindex $argv 0]
+set host [lindex $argv 1]
+set parameter [lindex $argv 2]
+set command [lindex $argv 3]
+set tosend [lindex $argv 4]
+
+expect_user -re "(.*)\n" 
+set password $expect_out(1,string)
+
+set stty_init "raw icrnl"
+
+set pid [spawn -noecho ssh -2 -l "$user" "$host" -o "NumberOfPasswordPrompts 1" $parameter "nxnode $command" ]
+
+while {1} {
+	expect {
+		"Are you sure you want to continue connecting (yes/no)?" { send "yes\r" }
+		"assword:"  { send "$password\r" }
+		"Permission denied*" { exit 1 }
+		"NX> 1000 NXNODE - Version" { 
+			break
+		}
+	} 
+}
+
+if { "$tosend"!="" } { 
+	send "$tosend\r"
+}
+
+expect {
+	"NX> 716 finished" { }
+	"NX> 700" { 
+			set timeout -1
+			expect {
+				"NX> 1001 Bye." { exit 0 }
+				"NX> *" { exp_continue }
+			}
+			exit 0
+		  }
+	"NX> 716 Public key is already present in:" { }
+	"NX> 716 Public key added to:" { }
+	"NX> 716 Terminating session * on user request." { }
+	"NX> 716 Suspending session * on user request." { }
+	"NX> 500 Error: " { exit 1}
+}
+expect "NX> 1001 Bye."

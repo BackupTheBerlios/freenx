@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# Coypright (c) 2004 by Fabian Franz.
+#
+# License: GNU GPL, version 2
+
+SETUP_NOMACHINE_KEY="no"
+
+if [ "$1" = "--help" ]
+then
+	echo "nxsetup - Setup the FreeNX server."
+	echo "Syntax: nxsetup [--setup-nomachine-key]"
+	echo "  --setup-nomachine-key   Allow login with the key shipped with the NoMachine client."
+	echo "                        This can be a security risk. So it is not recommended."
+	echo "                        Use this option on your own risk."
+	exit 0
+fi
+
+if [ $UID -ne 0 ]
+then
+	echo "You need to be root to use this program." 
+	exit 1
+fi
+
+set -e
+
+if [ "$1" = "--setup-nomachine-key" ]
+then
+	SETUP_NOMACHINE_KEY="yes"
+fi
+
+echo -n "Searching for nxserver binary..."
+
+# add directory from which nxsetup was run to path
+export PATH=$PATH:$(cd $(dirname $0) && pwd)
+export $(grep ^NX_ $(which nxserver))
+echo "done"
+
+if [ "$(pidof sshd)" = "" ]
+then 
+	echo -n "Starting ssh service ..."
+	# Generate Host keys if they are not available, yet
+	[ -e /etc/ssh/ssh_host_rsa_key ] || ssh-keygen -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C '' -N ''
+	[ -e /etc/ssh/ssh_host_dsa_key ] || ssh-keygen -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C '' -N ''
+	/etc/init.d/ssh start
+	echo "done"
+fi
+
+echo -n "Setting up $NX_ETC_DIR ..."
+mkdir -p $NX_ETC_DIR
+touch $NX_ETC_DIR/passwords $NX_ETC_DIR/passwords.orig
+chmod 600 $NX_ETC_DIR/passwords $NX_ETC_DIR/passwords.orig
+echo "done"
+
+if [ ! -f $NX_ETC_DIR/users.id_dsa ]
+then
+	ssh-keygen -f $NX_ETC_DIR/users.id_dsa -t dsa -N ""
+fi
+
+echo -n "Setting up $NX_SESS_DIR ..."
+mkdir -p $NX_SESS_DIR/closed $NX_SESS_DIR/running $NX_SESS_DIR/failed
+chmod 700 $NX_SESS_DIR/*
+echo "done"
+
+if ! { getent passwd | egrep -q "^nx:"; }
+then
+	echo -n "Setting up user nx ..."
+	mkdir -p $NX_HOME_DIR/.ssh
+	chmod 700 $NX_HOME_DIR/ $NX_HOME_DIR/.ssh
+	useradd -d $NX_HOME_DIR -s $(which nxserver) nx
+	echo "done"
+fi
+
+echo -n "Setting up known_hosts and $NX_AUTHORIZED_KEYS_FILE ..."
+
+SETUP_NX_KEY="no"
+
+if [ ! -f $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE ]
+then
+	SETUP_NX_KEY="yes"
+	if [ "$SETUP_NOMACHINE_KEY" = "yes" ]
+	then
+		cat << EOF >$NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE
+ssh-dss AAAAB3NzaC1kc3MAAACBAJe/0DNBePG9dYLWq7cJ0SqyRf1iiZN/IbzrmBvgPTZnBa5FT/0Lcj39sRYt1paAlhchwUmwwIiSZaON5JnJOZ6jKkjWIuJ9MdTGfdvtY1aLwDMpxUVoGwEaKWOyin02IPWYSkDQb6cceuG9NfPulS9iuytdx0zIzqvGqfvudtufAAAAFQCwosRXR2QA8OSgFWSO6+kGrRJKiwAAAIEAjgvVNAYWSrnFD+cghyJbyx60AAjKtxZ0r/Pn9k94Qt2rvQoMnGgt/zU0v/y4hzg+g3JNEmO1PdHh/wDPVOxlZ6Hb5F4IQnENaAZ9uTZiFGqhBO1c8Wwjiq/MFZy3jZaidarLJvVs8EeT4mZcWxwm7nIVD4lRU2wQ2lj4aTPcepMAAACANlgcCuA4wrC+3Cic9CFkqiwO/Rn1vk8dvGuEQqFJ6f6LVfPfRTfaQU7TGVLk2CzY4dasrwxJ1f6FsT8DHTNGnxELPKRuLstGrFY/PR7KeafeFZDf+fJ3mbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8= root@nettuno
+EOF
+	else
+		# generate a new key, backup the old and copy it to $NX_AUTHORIZED_KEYS_FILE
+		nxkeygen
+	fi
+fi
+
+if [ ! -f $NX_HOME_DIR/.ssh/known_hosts ]
+then
+	echo -n "127.0.0.1 " > $NX_HOME_DIR/.ssh/known_hosts
+	cat /etc/ssh/ssh_host_rsa_key.pub >> $NX_HOME_DIR/.ssh/known_hosts
+fi
+
+echo "done"
+
+echo -n "Setting up permissions ..."
+chown -R nx.root $NX_SESS_DIR
+chown -R nx.root $NX_ETC_DIR
+chown -R nx.root $NX_HOME_DIR
+echo "done"
+
+echo "Ok, nxserver is ready."
+echo ""
+if egrep -q '^ENABLE_PAM_AUTHENTICATION="1"' $(which nxserver)
+then
+	echo "PAM authentication enabled:"
+	echo "  All users will be able to login with their"
+	echo "  normal passwords."
+	echo
+	echo "You can change this behaviour in the nxserver script." 
+else
+	echo "PAM authentication disabled."
+	echo ""
+	echo "To add new users to the nx database do:"
+	echo "  nxserver --adduser <username>"
+	echo "Afterwards change the password with:"
+	echo "  nxserver --passwd <username>"
+fi
+
+if [ "$SETUP_NOMACHINE_KEY" = "no" -a "$SETUP_NX_KEY" = "yes" ]
+then
+	echo ""
+	echo "Warning: Clients will not be able to login to this server with the standard key."
+	echo "         Please replace /usr/NX/share/client.id_dsa.key on all clients you want"
+	echo "         to use with the private key from $NX_HOME_DIR/.ssh/client.id_dsa.key and"
+	echo "         protect it accordingly."
+	echo ""
+	echo "If you really want to use the NoMachine key please remove $NX_HOME_DIR/$NX_AUTHORIZED_KEYS_FILE and run this script with the parameter --setup-nomachine-key again."
+fi
+
+echo "Have Fun!"
