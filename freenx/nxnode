@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.46 2005/03/16 08:03:06 fux Exp $
+# CVS: $Id: nxnode,v 1.47 2005/03/16 09:50:37 fux Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -236,7 +236,7 @@ node_start_agent()
 	R=""
 	[ "$virtualdesktop" = "0" ] && R="-rootless"
 	vncfullscreen=""
-	[ "$geometry" == "fullscreen" ] && vncfullscreen="-fullscreen" && G=""
+	[ "$geometry" = "fullscreen" && "$type" = "vnc" ] && vncfullscreen="-fullscreen" && G=""
 
 	if [ "$type" = "windows" ]
 	then
