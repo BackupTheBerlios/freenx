@@ -11,6 +11,8 @@
 #
 # License: GNU GPL, version 2
 #
+# CVS: $Id: nxserver,v 1.8 2005/02/11 15:43:33 fabianx Exp $
+#
 
 # Important constants
 NX_CONFIG_FILE=/etc/nxserver/node.conf

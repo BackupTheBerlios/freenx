@@ -2,6 +2,9 @@
 # nxnode-login: spawns and controls ssh 
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
+#
+# CVS: $Id: nxnode-login,v 1.4 2005/02/11 15:43:33 fabianx Exp $
+#
 
 # Syntax: nxnode-login user host ssh-parameter command tosend
 

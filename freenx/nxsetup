@@ -3,6 +3,9 @@
 # Coypright (c) 2004 by Fabian Franz.
 #
 # License: GNU GPL, version 2
+#
+# CVS: $Id: nxsetup,v 1.4 2005/02/11 15:43:33 fabianx Exp $ 
+#
 
 SETUP_NOMACHINE_KEY="no"
 
