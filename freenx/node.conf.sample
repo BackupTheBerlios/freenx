@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.6 2005/03/10 11:00:25 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.7 2005/03/10 12:59:37 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -96,6 +96,7 @@
 
 #ENABLE_SERVER_FORWARD="0"
 #SERVER_FORWARD_HOST=""
+#SERVER_FORWARD_PORT=22
 #SERVER_FORWARD_KEY="/usr/NX/share/client.id_dsa.key"
 
 # FreeNX with ENABLE_NOMACHINE_FORWARD="1" will automatically forward all
