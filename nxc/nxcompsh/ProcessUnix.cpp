@@ -160,11 +160,10 @@ NX_LOG_LOGDEBUG("- end process args");
 
     m_exception.SetRuntimeError( "Fork failed: cannot launch new process." );
 
-#ifdef NX_DEBUG
-    cerr << "NXProcess: cannot fork, errno = " << errno
+    stringstream ss;
+    ss << "NXProcess: cannot fork, errno = " << errno
     << " (" << strerror( errno ) << ")." << endl << flush;
-#endif
-
+    NX_LOG_LOGERROR(ss.str());
     return false;
   }
 
@@ -177,9 +176,7 @@ NX_LOG_LOGDEBUG("- end process args");
     if( mp_stdin == NULL )
     {
       m_exception.SetRuntimeError( "Unable to open stdin." );
-#ifdef NX_DEBUG
-      cerr << "NXProcess: cannot redirect stdin." << endl << flush;
-#endif
+      NX_LOG_LOGDEBUG( "NXProcess: cannot redirect stdin." );
       return false;
     }
   }
@@ -191,9 +188,7 @@ NX_LOG_LOGDEBUG("- end process args");
     if( mp_stdouterr == NULL )
     {
       m_exception.SetRuntimeError( "Unable to open stdout or stderr." );
-#ifdef NX_DEBUG
-      cerr << "NXProcess: cannot redirect stdout and stderr (2)." << endl << flush;
-#endif
+      NX_LOG_LOGERROR( "NXProcess: cannot redirect stdout and stderr (2).");
       return false;
     }
   }
@@ -206,9 +201,7 @@ bool ProcessUnix::Write( const string & in )
   if( mp_stdin == NULL )
   {
     m_exception.SetRuntimeError( "Unable to write. Stdin is not redirected." );
-#ifdef NX_DEBUG
-    cerr << "NXProcess: unable to write, stdin is not redirected." << endl << flush;
-#endif
+    NX_LOG_LOGERROR( "NXProcess: unable to write, stdin is not redirected." );
     return false;
   }
 
@@ -232,9 +225,7 @@ int ProcessUnix::Read( string & out, unsigned int timeout )
   if( mp_stdouterr == NULL )
   {
     m_exception.SetRuntimeError( "Unable to read. Stdout and stderr are not redirected." );
-#ifdef NX_DEBUG
-    cerr << "NXProcess: unable to read, stdout and stderr are not redirected." << endl << flush;
-#endif
+    NX_LOG_LOGERROR( "NXProcess: unable to read, stdout and stderr are not redirected." );
     out = "";
     return -1;
   }
@@ -252,12 +243,10 @@ int ProcessUnix::Read( string & out, unsigned int timeout )
   tv.tv_sec = 0;
   tv.tv_usec = 1000 * timeout;
 
-  NX_LOG_LOGDEBUG( "NXProcess: wait for select." );
   retval = select( myfd + 1, &rfds, NULL, NULL, &tv );
 
   if( retval == 0 )
   {
-    NX_LOG_LOGDEBUG( "NXProcess: no data to read." );
     out = "";
     return 0;
   }
@@ -269,7 +258,6 @@ int ProcessUnix::Read( string & out, unsigned int timeout )
   }
   else
   {
-    NX_LOG_LOGDEBUG( "NXProcess: there is data to read." );
     char buff[MAX_BUFFER_SIZE] = {0};
 
     unsigned int nBytes = fread( buff, sizeof( char ), (MAX_BUFFER_SIZE -1), mp_stdouterr );
