@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.36 2005/03/12 12:13:25 jonno Exp $
+# CVS: $Id: nxserver,v 1.37 2005/03/12 18:19:02 fabianx Exp $
 #
 
 # Read the config file
@@ -645,6 +645,8 @@ server_nxnode_start_wait()
 			;;
 			"NX> 1004"*)
 				session_fail $uniqueid
+				# FIXME: Need correct error code.
+				echo_x "NX> 504 Session startup failed."
 			;;
 		esac
 

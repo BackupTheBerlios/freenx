@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.39 2005/03/12 17:55:13 jonno Exp $
+# CVS: $Id: nxnode,v 1.40 2005/03/12 18:19:02 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -87,11 +87,11 @@ node_terminate_session()
 			sleep 1
 			kill -9 $AGENT_PID 2>/dev/null
 		fi
-		# remove possible leftover display ...
-		display=$(echo $1 | cut -d"-" -f2)
-		rm -f /tmp/.X$display-lock
-		rm -f /tmp/.X11-unix/X$display
 	fi
+	# remove possible leftover display ...
+	display=$(echo $1 | cut -d"-" -f2)
+	rm -f /tmp/.X$display-lock
+	rm -f /tmp/.X11-unix/X$display
 	
 	# remove cookie
 	$COMMAND_XAUTH -v source $USER_FAKE_HOME/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
@@ -101,10 +101,22 @@ node_terminate_session()
 	rm -rf $USER_FAKE_HOME/.nx/C-$1/
 }
 
+node_fail_restore_session()
+{
+	echo "NX> 1004 Error: Could not resume session. nxagent process could not be found."
+	node_terminate_session "$sess_id"
+	exit 1
+}
+
 node_suspend_session()
 {
 	AGENT_PID=$(cat $USER_FAKE_HOME/.nx/C-$1/pids/agent 2>/dev/null)
-	[ -n "$AGENT_PID" ] && kill -HUP $AGENT_PID
+	if [ -n "$AGENT_PID" ]
+	then 
+		kill -0 $AGENT_PID || return 1
+		kill -HUP $AGENT_PID && return 0
+	fi
+	return 1
 }
 
 # ---------
@@ -282,9 +294,13 @@ node_start_monitor()
 			# now set a timeout of 10 seconds ...
 			( 
                           sleep 10
-		          echo "NX> 1004 Error: nxagent failed to start. Session timed out."
-			  echo "                Blocking $display again ..."
-			  touch /tmp/.X$display-lock
+			  if [ -d "$HOME/.nx/C-$sess_id/" ]
+			  then
+		          	echo "NX> 1004 Error: nxagent failed to start. Session timed out."
+			  	echo "                Blocking $display again ..."
+				touch /tmp/.X$display-lock
+			  	mv $HOME/.nx/C-$sess_id/ $HOME/.nx/F-C-$sess_id/ 2>/dev/null
+			  fi
 			  kill $TAIL_PID 2>/dev/null
 			) &
 			TIMEOUT_PID=$!
@@ -536,7 +552,7 @@ echo "$SPID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor
 
 if [ "$1" = "restore" ]
 then
-	node_suspend_session $sess_id
+	node_suspend_session $sess_id || node_fail_restore_session
 else
 	node_start_agent &
 	node_start_applications &
