@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.14 2005/02/12 20:07:56 fabianx Exp $
+# CVS: $Id: nxnode,v 1.15 2005/02/12 20:10:57 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -163,7 +163,7 @@ node_start_agent()
 	G=""
 	[ -n "$geometry" ] && G="-geometry $geometry"
 	R=""
-	[ "$virtualdesktop" != 1 ] && R="-rootless"
+	[ "$virtualdesktop" = "0" ] && R="-rootless"
 
 	[ "$NX_NOMACHINE_WAY" = "1" ] && export LD_LIBRARY_PATH="$PATH_LIB:$LD_LIBRARY_PATH"
 
