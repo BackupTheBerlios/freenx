@@ -14,6 +14,7 @@
 		- SET_LD_LIBRARY_PATH replaces NX_NOMACHINE_WAY and is 
 		  enabled by default, as it is now safe to do so
 	* Implemented SSHD_CHECK_IP directive.
+	* Added the SESSION_HISTORY directive. Session history will by default be kept for 30 days.
 
 11.03.2005 FreeNX 0.3.1
 	* Fixed keyboard mapping problems.

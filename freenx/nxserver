@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.38 2005/03/13 11:48:19 fabianx Exp $
+# CVS: $Id: nxserver,v 1.39 2005/03/13 12:04:49 jonno Exp $
 #
 
 # Read the config file
@@ -277,6 +277,15 @@ session_history()
 	done
 }
 
+# remove all sessions older than $SESSION_HISTORY seconds in failed/closed.
+
+session_cleanup()
+{
+	[ "$SESSION_HISTORY" -gt "-1" ] || return
+	let SESSION_HISTORY_MINUTES=$SESSION_HISTORY/60
+	find $NX_SESS_DIR/closed/ $NX_SESS_DIR/failed/ -type f -mmin +"$SESSION_HISTORY_MINUTES" -exec rm -f '{}' ';'
+}
+
 session_list_all()
 {
 	echo "NX> 127 Sessions list:"
@@ -321,14 +330,16 @@ session_close()
 {
 	perl -pi -e "s/startTime=\(.*\)/startTime=\1\nendTime=$(date +%s)/" $NX_SESS_DIR/running/sessionId'{'$1'}'
 	session_status $1 "Finished"
-	mv -f $NX_SESS_DIR/running/sessionId'{'$1'}' $NX_SESS_DIR/closed/sessionId'{'$1'}'
+	[ "$SESSION_HISTORY" = "0" ] && rm -f $NX_SESS_DIR/running/sessionId'{'$1'}'
+	[ "$SESSION_HISTORY" = "0" ] || mv -f $NX_SESS_DIR/running/sessionId'{'$1'}' $NX_SESS_DIR/closed/sessionId'{'$1'}'
 }
 
 session_fail()
 {
 	perl -pi -e "s/startTime=\(.*\)/startTime=\1\nendTime=$(date +%s)/" $NX_SESS_DIR/running/sessionId'{'$1'}'
 	session_status $1 "Failed"
-	mv -f $NX_SESS_DIR/running/sessionId'{'$1'}' $NX_SESS_DIR/failed/sessionId'{'$1'}'
+	[ "$SESSION_HISTORY" = "0" ] && rm -f $NX_SESS_DIR/running/sessionId'{'$1'}'
+	[ "$SESSION_HISTORY" = "0" ] || mv -f $NX_SESS_DIR/running/sessionId'{'$1'}' $NX_SESS_DIR/failed/sessionId'{'$1'}'
 }
 
 session_suspend()
@@ -561,6 +572,9 @@ do
 		;;
 	esac
 done
+
+# remove old session infos from history
+session_cleanup
 
 #
 # call it with: server_get_params $CMD # no ""!
