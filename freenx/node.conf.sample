@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.10 2005/03/11 03:47:09 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.11 2005/03/12 02:49:28 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -99,9 +99,9 @@
 #SERVER_FORWARD_PORT=22
 #SERVER_FORWARD_KEY="/usr/NX/share/client.id_dsa.key"
 
-# FreeNX with ENABLE_NOMACHINE_FORWARD="1" will automatically forward all
+# FreeNX with ENABLE_NOMACHINE_FORWARD_USER="1" will automatically forward all
 # connections to the commercial NoMachine nxserver installed on the same
-# machine. This feature is introduced to enable the usage of FreeNX adn
+# machine. This feature is introduced to enable the usage of FreeNX and
 # NoMachine NX side by side on the same machine without conflicts.
 #
 # To make a connection to the FreeNX server, just use 'freenx.<user>' as 
@@ -111,9 +111,18 @@
 # To make a connection to the NoMachine nxserver, use the unmodified
 # '<user>' username.
 
-#ENABLE_NOMACHINE_FORWARD="0"
+#ENABLE_NOMACHINE_FORWARD_USER="0"
 #NOMACHINE_SERVER="/usr/NX/bin/nxserver"
 #NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
+
+# To just forward connections to the NoMachine server, which connect to a 
+# certain port enable the following two directives.
+# 
+# Note: You need to let SSHD listen to several ports to make use of this 
+#       directive.
+
+#ENABLE_NOMACHINE_FORWARD_PORT="0"
+#NOMACHINE_FORWARD_PORT="22"
 
 # When set to 1 will start nxagent in rootless mode.
 #ENABLE_ROOTLESS_MODE="0"

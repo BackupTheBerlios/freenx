@@ -8,6 +8,7 @@
 	* Added optional support for utmp/wtmp/lastlog database.
 	* Removed support for OSS components prior version 1.4.0 in nxnode.
 	  Added -option option to nxagent/nxdesktop.
+	* Added forwarding to commercial server via destination port.
 
 11.03.2005 FreeNX 0.3.1
 	* Fixed keyboard mapping problems.

@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.32 2005/03/11 16:53:02 jonno Exp $
+# CVS: $Id: nxserver,v 1.33 2005/03/12 02:49:28 fabianx Exp $
 #
 
 # Read the config file
@@ -423,9 +423,17 @@ then
 	exit 0
 fi
 
+# forward the connection to commercial NoMachine server?
+if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a "$NOMACHINE_FORWARD_PORT" = "$(echo $SSH_CLIENT | cut -d' ' -f3)" -a -n "$NOMACHINE_SERVER" ]
+then
+	log "Info: Detected SSH destination port $NOMACHINE_FORWARD_PORT. Forwarding connection to commercial NoMachine server."
+	exec $NOMACHINE_SERVER
+	log "Error: Forwarding to NoMachine Server $NOMACHINE_SERVER failed. Using FreeNX server instead."
+fi
+
 echo_x "HELLO NXSERVER - Version $NX_VERSION $NX_LICENSE"
 
-[ "$ENABLE_NOMACHINE_FORWARD" = "1" ] && RECORD_CMD=()
+[ "$ENABLE_NOMACHINE_FORWARD_USER" = "1" ] && RECORD_CMD=()
 
 # Login stage
 while true
@@ -437,7 +445,7 @@ do
 	echo_x "$CMD"
 	
 	# record $CMD in RECORD_CMD array
-	[ "$ENABLE_NOMACHINE_FORWARD" = "1" ] && RECORD_CMD=( "${RECORD_CMD[@]}" "$CMD" )
+	[ "$ENABLE_NOMACHINE_FORWARD_USER" = "1" ] && RECORD_CMD=( "${RECORD_CMD[@]}" "$CMD" )
 	
 	case "$CMD" in 
 		quit|QUIT)
@@ -479,7 +487,7 @@ do
 			echo_x $USER
 			
 			# forward the connection to commercial NoMachine server?
-			if [ "$ENABLE_NOMACHINE_FORWARD" = "1" -a -n "$NOMACHINE_SERVER" ]
+			if [ "$ENABLE_NOMACHINE_FORWARD_USER" = "1" -a -n "$NOMACHINE_SERVER" ]
 			then
 				case "$USER" in
 					freenx.*)
