@@ -11,12 +11,12 @@
 # Copyright	(c) 2004 Gentoo Foundation
 #		Released under v2 of the GNU GPL
 #
-# CVS: $Id: nxkeygen,v 1.9 2005/03/10 23:55:27 fabianx Exp $
+# CVS: $Id: nxkeygen,v 1.10 2005/03/11 16:53:01 jonno Exp $
 #
 # ========================================================================
 
 # Read the config file
-NX_LOADCONFIG=1 . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig)
+. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --
 
 NX_KEY_DIR="$NX_HOME_DIR/.ssh"
 DATE="`date '+%Y%m%d-%H%M%S'`"

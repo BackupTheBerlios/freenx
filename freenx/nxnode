@@ -13,12 +13,12 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.32 2005/03/11 02:29:15 fabianx Exp $
+# CVS: $Id: nxnode,v 1.33 2005/03/11 16:53:02 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
 # Read the config file
-NX_LOADCONFIG=1 USERCONF="yes" . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig)
+. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --userconf
 
 echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"
 

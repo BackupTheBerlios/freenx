@@ -11,11 +11,11 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.31 2005/03/11 03:47:09 fabianx Exp $
+# CVS: $Id: nxserver,v 1.32 2005/03/11 16:53:02 jonno Exp $
 #
 
 # Read the config file
-NX_LOADCONFIG=1 . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig)
+. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --
 
 # following two functions are Copyright by Klaus Knopper
 
@@ -545,7 +545,7 @@ do
 			if [ "$LOGIN_SUCCESS" = "1" ]
 			then
 				# Reread the config files (so that $USER.node.conf get sourced)
-				NX_LOADCONFIG=1 USERCONF="yes" . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig)
+				. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --userconf
 				echo_x "NX> 103 Welcome to: $SERVER_NAME user: $USER"
 				break
 			else
