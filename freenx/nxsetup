@@ -4,7 +4,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.7 2005/02/12 13:49:06 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.8 2005/02/12 14:44:21 fabianx Exp $ 
 #
 
 SETUP_NOMACHINE_KEY="no"
@@ -32,14 +32,10 @@ then
 	SETUP_NOMACHINE_KEY="yes"
 fi
 
-echo -n "Searching for nxserver binary..."
-
-# add directory from which nxsetup was run to path
-export PATH=$(cd $(dirname $0) && pwd):$PATH
-export $(grep ^NX_ $(which nxserver))
-echo "done"
-
 # Read the config file
+echo -n "Searching for nxserver binary..."
+export $(grep ^NX_CONFIG_FILE= $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxserver))
+echo "done"
 . $NX_CONFIG_FILE
 
 if [ "$(pidof sshd)" = "" ]
@@ -79,7 +75,7 @@ then
 	echo -n "Setting up user nx ..."
 	mkdir -p $NX_HOME_DIR/.ssh
 	chmod 700 $NX_HOME_DIR/ $NX_HOME_DIR/.ssh
-	useradd -d $NX_HOME_DIR -s $(which nxserver) nx
+	useradd -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
 	echo "done"
 fi
 
@@ -97,7 +93,7 @@ ssh-dss AAAAB3NzaC1kc3MAAACBAJe/0DNBePG9dYLWq7cJ0SqyRf1iiZN/IbzrmBvgPTZnBa5FT/0L
 EOF
 	else
 		# generate a new key, backup the old and copy it to $NX_AUTHORIZED_KEYS_FILE
-		nxkeygen
+		$PATH_BIN/nxkeygen
 	fi
 fi
 

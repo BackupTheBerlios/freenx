@@ -11,16 +11,12 @@
 # Copyright	(c) 2004 Gentoo Foundation
 #		Released under v2 of the GNU GPL
 #
-# CVS: $Id: nxkeygen,v 1.4 2005/02/11 15:43:33 fabianx Exp $
+# CVS: $Id: nxkeygen,v 1.5 2005/02/12 14:44:21 fabianx Exp $
 #
 # ========================================================================
 
-# Get NX_ configuration variables
-export PATH=$(cd $(dirname $0) && pwd):$PATH
-export $(grep ^NX_ $(which nxserver))
-
 # Read the config file
-
+export $(grep ^NX_CONFIG_FILE= $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxserver))
 . $NX_CONFIG_FILE
 
 NX_KEY_DIR="$NX_HOME_DIR/.ssh"

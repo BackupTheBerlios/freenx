@@ -11,7 +11,7 @@
  . $NX_CONFIG_FILE
 --- nxkeygen.old	2005-02-01 01:02:19.000000000 +0100
 +++ nxkeygen	2005-02-01 01:04:39.000000000 +0100
-@@ -55,9 +55,6 @@
+@@ -51,9 +51,6 @@
  		chmod 600 $x
  		chown nx:root $x
  	done
@@ -40,7 +40,7 @@
  
  # Logfile directives
  # Before turning logging on, please make sure that NX_LOGFILE is 
-@@ -119,4 +119,4 @@
+@@ -124,4 +124,4 @@
  NX_AUTHORIZED_KEYS_FILE=.ssh/authorized_keys2
  
  # adds LD_LIBRARY_PATH to the startup of nxagents

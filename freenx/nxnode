@@ -13,16 +13,12 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.10 2005/02/12 14:27:48 fabianx Exp $
+# CVS: $Id: nxnode,v 1.11 2005/02/12 14:44:21 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
-# Get NX_ configuration variables
-export PATH=$(cd $(dirname $0) && pwd):$PATH
-export $(grep ^NX_ $(which nxserver))
-
 # Read the config file
-
+export $(grep ^NX_CONFIG_FILE= $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxserver))
 . $NX_CONFIG_FILE
 [ -f "${NX_ETC_DIR}/${USER}.node.conf" ] && . "${NX_ETC_DIR}/${USER}.node.conf"
 
