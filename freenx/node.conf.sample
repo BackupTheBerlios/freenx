@@ -36,7 +36,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.1 2005/02/14 00:43:46 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.2 2005/02/14 08:23:16 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -101,6 +101,7 @@
 
 #ENABLE_NOMACHINE_FORWARD="0"
 #NOMACHINE_SERVER="/usr/NX/bin/nxserver"
+#NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
 
 # When set to 1 will start nxagent in rootless mode.
 #ENABLE_ROOTLESS_MODE="0"

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.2 2005/02/14 01:52:08 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.3 2005/02/14 08:23:16 jonno Exp $
 #
 # ========================================================================
 
@@ -55,6 +55,7 @@ NODE_AUTOSTART=""
 
 ENABLE_NOMACHINE_FORWARD="0"
 NOMACHINE_SERVER="/usr/NX/bin/nxserver"
+NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
 
 ENABLE_ROOTLESS_MODE="0"
 
