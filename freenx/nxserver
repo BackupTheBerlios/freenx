@@ -426,7 +426,7 @@ do
 			# Pam based auth
 			if [ "$ENABLE_PAM_AUTHENTICATION" = "1" ]
 			then
-				echo "$PASS" | $NX_DIR/bin/nxnode-login "$USER" "127.0.0.1" "-p$SSHD_AUTH_PORT" --check > /dev/null 2>/dev/null
+				echo "$PASS" | $NX_DIR/bin/nxnode-login -- "$USER" "127.0.0.1" "-p$SSHD_AUTH_PORT" --check > /dev/null 2>/dev/null
 				if [ $? -eq 0 ]
 				then 
 					REAL_PASS="$ENC_PASS"
@@ -490,7 +490,7 @@ server_nxnode_start()
 	# Use nxnode-login?
 	if [ "$PAM_LOGIN_METHOD" = "1" ]
 	then
-	  echo $PAM_PASS | $NX_DIR/bin/nxnode-login "$USER" 127.0.0.1 "-p$SSHD_AUTH_PORT" "$CMD" "$@" 2>&1 | log_tee
+	  echo $PAM_PASS | $NX_DIR/bin/nxnode-login -- "$USER" 127.0.0.1 "-p$SSHD_AUTH_PORT" "$CMD" "$@" 2>&1 | log_tee
 	else
 	  echo "$@" | ssh -l "$USER" 127.0.0.1 -p $SSHD_AUTH_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $NX_DIR/bin/nxnode "$CMD" | log_tee
 	fi
