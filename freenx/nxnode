@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.24 2005/03/06 15:26:01 fabianx Exp $
+# CVS: $Id: nxnode,v 1.25 2005/03/06 23:52:48 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -204,8 +204,10 @@ node_start_agent()
 			# nxproxy single application mode session
 			$PATH_BIN/nxproxy -C :$display $PROXY_EXTRA_OPTIONS 2>>~/.nx/C-$sess_id/session &
 		else
+			FP=""
+			[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
 			# nxagent session
-			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $B :$display $AGENT_EXTRA_OPTIONS_X 2>>~/.nx/C-$sess_id/session &
+			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>~/.nx/C-$sess_id/session &
 		fi
 	fi
 	fi
