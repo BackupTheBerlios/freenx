@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.42 2005/03/14 00:51:21 fabianx Exp $
+# CVS: $Id: nxserver,v 1.43 2005/03/14 01:17:09 fabianx Exp $
 #
 
 # Read the config file
@@ -885,10 +885,10 @@ do
 
 			status=$(getparam status)
 
-			if [ "$status" = "Suspended" ]
+			if [ "$status" = "Suspended" -a -n "$(getparam screeninfo)" ]
 			then
 				session_list_user_suspended "$USER" "Suspended" "$(getparam screeninfo)" "$(getparam type)" | log_tee
-			elif [ "$status" = "Suspended,Running" ] # since 1.4.0-5
+			elif [ "$status" = "Suspended,Running" -o "$status" = "Suspended" ] # since 1.4.0-5
 			then
 				# disabled due to problems with 1.4.0-5 client
 				#session_list_user_suspended "$USER" 'Suspended$|^status=Running$' "$(getparam geometry)" "$(getparam type)" | log_tee
