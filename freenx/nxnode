@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.13 2005/02/12 19:50:26 fabianx Exp $
+# CVS: $Id: nxnode,v 1.14 2005/02/12 20:07:56 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -233,9 +233,10 @@ node_start_monitor()
 		          echo "NX> 1004 Error: nxagent failed to start. Session timed out."
 			  echo "                Blocking $display again ..."
 			  touch /tmp/.X$display-lock
-			  kill $TAIL_PID
+			  kill $TAIL_PID 2>/dev/null
 			) &
 			TIMEOUT_PID=$!
+			disown $TIMEOUT_PID
 		fi
 
 		#
@@ -244,7 +245,7 @@ node_start_monitor()
 		
 		if stringinstring "Unrecognized option:" "$line"
 		then
-			kill $TAIL_PID
+			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1004 Error: nxagent failed to start with: $line"
 			break
 		fi
@@ -255,9 +256,9 @@ node_start_monitor()
 		
 		if stringinstring "Info: Suspending session on user request." "$line"
 		then
-			kill $TAIL_PID
+			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1005 Session status: suspended"
-			kill $PROXY_PID
+			kill $PROXY_PID 2>/dev/null
 			sleep 2
 			break
 		fi
@@ -265,16 +266,16 @@ node_start_monitor()
 		#if stringinstring "Info: Disconnected from user display."
 		if stringinstring "Info: Going to sleep waiting for reconnection." "$line"
 		then
-			kill $TAIL_PID
+			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1005 Session status: suspended"
 			break
 		fi
 
 		if stringinstring "Error: Connection with remote peer broken." "$line"
 		then
-			kill $TAIL_PID
+			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1005 Session status: suspended"
-			kill $PROXY_PID
+			kill $PROXY_PID 2>/dev/null
 			sleep 2
 			# time out faster for suspend
 			break
@@ -288,13 +289,13 @@ node_start_monitor()
 		# TODO: Kill also waiting smbmount processes
 		if stringinstring "Info: Waiting for a further signal to complete." "$line" && [ "$RECONNECT" = "0" ]
 		then
-			kill $TAIL_PID
+			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1006 Session status: closed"
 			# TODO: Need a way to remove session infos ...
 			# especially for windows/vnc mode
-			kill $PROXY_PID
+			kill $PROXY_PID 2>/dev/null
 			sleep 2
-			kill -9 $PROXY_PID
+			kill -9 $PROXY_PID 2>/dev/null
 			break
 		fi
 
@@ -316,7 +317,7 @@ node_start_monitor()
 		then
 			echo "NX> 1002 Commit"
 			echo "NX> 1006 Session status: running"
-			[ -n "$TIMEOUT_PID" ] && kill $TIMEOUT_PID
+			[ -n "$TIMEOUT_PID" ] && kill $TIMEOUT_PID 2>/dev/null
 		fi
 
 		#
@@ -354,7 +355,7 @@ node_start_monitor()
 
 		if stringinstring "Error: Connection with remote host" "$line" && [ "$RUNNING" = "0" ] 
 		then
-			kill $TAIL_PID
+			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1004 Error:"
 			echo "Session '$sess_id' has failed after reaching usable state. Session directory '$HOME/.nx/F-C-$sess_id' will be not deleted to allow for further investigation."
 		#	mv ~/.nx/C-$sess_id/ ~/.nx/F-C-$sess_id/
