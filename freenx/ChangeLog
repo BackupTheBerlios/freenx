@@ -34,7 +34,7 @@
 	* Added unix-default as session type - by Kalev Lember 
 	  <kalev@smartlink.ee>
 	* Fixed nxclient loop - by "Neil Wilson" <neil@aldur.co.uk>.
-	* Several fixes by Thorsten Sandfuchs <fux@akk.org>.
+	* Several fixes by Thorsten Sandfuchs <fux@users.berlios.de>.
 	* Optional config file support (system- and user-wide)
 		- by Jon Severinsson <jonno@users.berlios.de>.
 	* Moved logfile to /var/log/nxserver.log.
