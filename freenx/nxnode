@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.47 2005/03/16 09:50:37 fux Exp $
+# CVS: $Id: nxnode,v 1.48 2005/03/16 13:58:42 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -58,6 +58,12 @@ getparam_user()
 	[ $UID -eq 0 ] || $(whoami)
 }
 
+node_abort()
+{
+	echo "$@" 1>&2
+	exit 1
+}
+
 getparam_sessionid()
 {
 	sessionid=$(getparam sessionid)
@@ -66,13 +72,6 @@ getparam_sessionid()
 	[ -n "$sessionid" ] || node_abort "NX> 500 Error: missing parameter session id"
 	echo $sessionid
 }
-
-node_abort()
-{
-	echo "$@" 1>&2
-	exit 1
-}
-
 
 
 node_terminate_agent()
@@ -102,15 +101,15 @@ node_terminate_session()
 	# remove cookie
 	$COMMAND_XAUTH -v source $USER_FAKE_HOME/.nx/C-$sess_id/scripts/authority >/dev/null 2>&1
 	# FIXME: What to do on errors ... ?
-	# TODO: Add parsing of var ...
-	#mv $USER_FAKE_HOME/.nx/C-$1/ $USER_FAKE_HOME/.nx/F-C-$1/
-	rm -rf $USER_FAKE_HOME/.nx/C-$1/
+	[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$1/
+	[ "$SESSION_LOG_CLEAN" = "0" -a "$2" = "failed" ] && mv $USER_FAKE_HOME/.nx/C-$1/ $USER_FAKE_HOME/.nx/F-C-$1/
+	[ "$SESSION_LOG_CLEAN" = "0" -a "$2" != "failed" ] && mv $USER_FAKE_HOME/.nx/C-$1/ $USER_FAKE_HOME/.nx/T-C-$1/
 }
 
 node_fail_restore_session()
 {
 	echo "NX> 1004 Error: Could not resume session. nxagent process could not be found."
-	node_terminate_session "$sess_id"
+	node_terminate_session "$sess_id" "failed"
 	exit 1
 }
 
@@ -195,10 +194,10 @@ node_start_applications()
 	[ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ] && export LD_PRELOAD="$APPLICATION_LIBRARY_PRELOAD:$LD_PRELOAD"
 	if [ "$ENABLE_DEFAULT_X_WM" = "1" -a "$virtualdesktop" = "1" -a "$type" = "unix-application" -a -x "$(find_app $DEFAULT_X_WM)" ]
 	then
-		DISPLAY=unix:$display $DEFAULT_X_WM >> $USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
+		DISPLAY=unix:$display $DEFAULT_X_WM 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 		WM_PID=$!
 	fi
-	DISPLAY=unix:$display $STARTX >>$USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
+	DISPLAY=unix:$display $STARTX 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	APP_PID=$!
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
 	echo "$APP_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
@@ -473,8 +472,9 @@ node_start_monitor()
 		then
 			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1004 Error:"
-			echo "Session '$sess_id' has failed after reaching usable state. Session directory '$USER_FAKE_HOME/.nx/F-C-$sess_id' will be not deleted to allow for further investigation."
-		#	mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
+			echo "Session '$sess_id' has failed after reaching usable state."
+			[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$sess_id/
+			[ "$SESSION_LOG_CLEAN" = "1" ] || mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
 			break
 		fi
 	done 

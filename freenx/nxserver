@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.43 2005/03/14 01:17:09 fabianx Exp $
+# CVS: $Id: nxserver,v 1.44 2005/03/16 13:58:42 jonno Exp $
 #
 
 # Read the config file
@@ -388,20 +388,28 @@ session_suspend()
 if [ $USER = "nxfree" -o "$USER" = "nx" ]
 then
 
+# Loglevels:
+# 1: Errors
+# 2: Warnings
+# 3: Important information
+# 4: Server - Client communication
+# 5: Information
+# 6: Debugging information
+
 log()
 {
-	[ "$NX_LOGGING" = "1" -a -w "$NX_LOGFILE" ] && echo "$@" >> "$NX_LOGFILE"
+	[ "$NX_LOG_LEVEL" -ge "$1" -a -w "$NX_LOGFILE" ] && shift && echo "$@" >> "$NX_LOGFILE"
 }
 
 log_tee()
 {
-	[ "$NX_LOGGING" = "1" -a -w "$NX_LOGFILE" ] && exec tee -a "$NX_LOGFILE"
-	[ "$NX_LOGGING" = "1" -a -w "$NX_LOGFILE" ] || exec cat -
+	[ "$NX_LOG_LEVEL" -ge "4" -a -w "$NX_LOGFILE" ] && exec tee -a "$NX_LOGFILE"
+	[ "$NX_LOG_LEVEL" -ge "4" -a -w "$NX_LOGFILE" ] || exec cat -
 }
 
 echo_x()
 {
-	log "$@"
+	log "4" "$@"
 	echo "$@"
 }
 
@@ -440,7 +448,7 @@ server_forward_nomachine()
 			;;
 		esac
 	done
-	log "done."
+	log 5 "Info: Forwarding connection to NoMachine server done."
 	cat <&4 &
 	CAT_PID=$!
 	cat - >&3
@@ -451,11 +459,11 @@ server_forward_nomachine()
 }
 
 # Start!
-log "-- NX SERVER START: $@"
+log 3 "-- NX SERVER START: $@"
 
 if [ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ]
 then
-	log "Forwarding connection to $SERVER_FORWARD_HOST with secret key $SERVER_FORWARD_KEY."
+	log 3 "Info: Forwarding connection to $SERVER_FORWARD_HOST with secret key $SERVER_FORWARD_KEY."
 	ssh -i "$SERVER_FORWARD_KEY" "nx@$SERVER_FORWARD_HOST:$SERVER_FORWARD_PORT"
 	exit 0
 fi
@@ -463,9 +471,9 @@ fi
 # forward the connection to commercial NoMachine server?
 if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a "$NOMACHINE_FORWARD_PORT" = "$(echo $SSH_CLIENT | cut -d' ' -f3)" -a -n "$NOMACHINE_SERVER" ]
 then
-	log "Info: Detected SSH destination port $NOMACHINE_FORWARD_PORT. Forwarding connection to commercial NoMachine server."
+	log 3 "Info: Detected SSH destination port $NOMACHINE_FORWARD_PORT. Forwarding connection to commercial NoMachine server."
 	exec $NOMACHINE_SERVER
-	log "Error: Forwarding to NoMachine Server $NOMACHINE_SERVER failed. Using FreeNX server instead."
+	log 1 "Error: Forwarding to NoMachine Server $NOMACHINE_SERVER failed. Using FreeNX server instead."
 fi
 
 echo_x "HELLO NXSERVER - Version $NX_VERSION $NX_LICENSE"
@@ -508,7 +516,7 @@ do
 				[ "$ENABLE_AUTORECONNECT_BEFORE_140" = "1" ] && ENABLE_AUTORECONNECT="1"
 			fi
 		;;
-		set*|SET)
+		set*|SET*)
 			if [ "$CMD" = "set auth_mode password" -o "$CMD" = "SET AUTH_MODE PASSWORD" ]
 			then
 				echo_x "Set auth_mode: password"
@@ -528,13 +536,13 @@ do
 			then
 				case "$USER" in
 					freenx.*)
-						log "Not forwarding connection. FreeNX user found."
+						log 3 "Info: Not forwarding connection. FreeNX user found."
 						USER=${USER##freenx.}
 					;;
 					*)
-						log -n "Forwarding connection to NoMachine server..."
+						log 3 "Info: Forwarding connection to NoMachine server"
 						server_forward_nomachine
-						log "failed."
+						log 1 "Error: Forwarding connection to NoMachine server failed."
 					;;
 				esac
 			fi
@@ -542,12 +550,12 @@ do
 			echo_x -n "NX> 102 Password: "
 			read -s PASS
 			echo_x ""
-			log -n "Auth method: "
+			log 6 -n "Info: Auth method: "
 			
 			# PASSDB based auth
 			if [ "$ENABLE_PASSDB_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
-				log -n "passdb "
+				log 6 -n "passdb "
 				if [ $(passdb_get_crypt_pass "$PASS") = $(passdb_get_pass "$USER") ]
 				then
 					LOGIN_SUCCESS="1"
@@ -558,7 +566,7 @@ do
 			# SSH based auth
 			if [ "$ENABLE_SSH_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
-				log -n "ssh "
+				log 6 -n "ssh "
 				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
 				if [ $? -eq 0 ]
 				then
@@ -570,7 +578,7 @@ do
 			# SU based auth
 			if [ "$ENABLE_SU_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
-				log -n "su "
+				log 6 -n "su "
 				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
 				if [ $? -eq 0 ]
 				then
@@ -578,14 +586,14 @@ do
 					LOGIN_METHOD="SU"
 				fi
 			fi
-			log ""
 			
 			# Check if user in passdb
 			if [ "$ENABLE_USER_DB" = "1" ]
 			then
-				log "userdb check"
+				log 6 "userdb check"
 				passdb_user_exists "$USER" || LOGIN_SUCCESS="0"
 			fi
+			log 6 ""
 
 			if [ "$LOGIN_SUCCESS" = "1" ]
 			then
@@ -753,12 +761,12 @@ server_startrestore_session()
 	then 
 		if [ "$SSHD_CHECK_IP" = "1" ]
 		then
-			echo "NX> 504 Session startup failed. (Missing SSH_CLIENT environment variable)"
+			echo_x "NX> 504 Session startup failed. (Missing SSH_CLIENT environment variable)"
 			return 1
 		else
-			log "WARNING: Failed to determine the client IP."
-			log "WARNING: The SSH_CLIENT variable was not provided by SSHD."
-			log "WARNING: Please set SSHD_CHECK_IP=1 if you want to refuse the connection."
+			log 2 "Warning: Failed to determine the client IP."
+			log 2 "Warning: The SSH_CLIENT variable was not provided by SSHD."
+			log 2 "Warning: Please set SSHD_CHECK_IP=1 if you want to refuse the connection."
 		fi
 	fi
 
@@ -811,7 +819,7 @@ server_startrestore_session()
 	
 		uniqueid=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
 		FULL_PARAMS="user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY&$PARAMS"
-		log "$FULL_PARAMS"
+		log 6 "$FULL_PARAMS"
 
 		# now update the session listing
 		CMDLINE="a=b&$FULL_PARAMS"
@@ -923,8 +931,8 @@ do
 			server_startrestore_session "resume"
 		;;
 		passwd)
-			echo "NX> 113 Changing password of user '$USER'"
-			echo -n "NX> 102 Current password:"
+			echo_x "NX> 113 Changing password of user '$USER'"
+			echo_x -n "NX> 102 Current password:"
 			read -s PASS
 			ENC_PASS=$(passdb_get_crypt_pass "$PASS")
 			REAL_PASS=$(passdb_get_pass "$USER")

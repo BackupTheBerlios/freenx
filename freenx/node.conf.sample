@@ -37,19 +37,34 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.16 2005/03/13 15:12:16 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.17 2005/03/16 13:58:42 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
 #########################################################################
 
-# Logfile directives
+# This directives controls the verbosity of the server-wide log.
+# 0: No Logging, 
+# 1: Errors
+# 2: Warnings
+# 3: Important information
+# 4: Server - Client communication
+# 5: Information
+# 6: Debugging information
+#NX_LOG_LEVEL=0
+
 # Before turning logging on, please make sure that NX_LOGFILE is 
 # writeable for the "nx" user
-#NX_LOGGING=0
 #NX_LOGFILE=/var/log/nxserver.log
 
-# Amount of seconds nxserver is to keep session data. The default of 2592000
+# This directive controls if the temporary session directory 
+# ($HOME/.nx/C-<hostname>-<display>-<session_id>) should be kept after a 
+# session has ended. A successfullty terminated session will be saved as 
+# T-C-<hostname>-<display>-<session_id> while a failed session will be saved 
+# as F-C-<hostname>-<display>-<session_id>.
+#SESSION_LOG_CLEAN=0
+
+# Amount of seconds nxserver is to keep session history. The default of 2592000
 # is equivalent to 30 days. If this is 0 no session history will be kept,
 # and a negative value denotes infinity.
 #SESSION_HISTORY=2592000

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.20 2005/03/13 15:12:16 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.21 2005/03/16 13:58:42 jonno Exp $
 #
 # ========================================================================
 
@@ -68,8 +68,9 @@ SSH_AUTHORIZED_KEYS="authorized_keys2"
 # DO NOT EVER TOUCH THIS, edit $NX_ETC_DIR/node.conf instead
 #########################################################################
 
-NX_LOGGING=0
+NX_LOG_LEVEL=0
 NX_LOGFILE=/var/log/nxserver.log
+SESSION_LOG_CLEAN=1
 SESSION_HISTORY=2592000
 
 ENABLE_PASSDB_AUTHENTICATION="1"
@@ -209,12 +210,14 @@ then
 	[ -z "$SSH_AUTHORIZED_KEYS" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS\"" 
 	
-	[ -z $(echo "$NX_LOGGING" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"NX_LOGGING=$NX_LOGGING\""
-	[ "$NX_LOGGING" = "1" -a ! -e "$NX_LOGFILE" ] && \
+	[ -z $(echo "$NX_LOG_LEVEL" | egrep "^[0-7]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NX_LOG_LEVEL=$NX_LOG_LEVEL\""
+	[ "$NX_LOG_LEVEL" != "0" -a ! -e "$NX_LOGFILE" ] && \
 		WARNING="yes" && echo "Warning: Invalid value \"NX_LOGFILE=$NX_LOGFILE\"" \
 					  && echo "         No loggfile will be kept."
 		# How do I check if another user might write to a file? ( -w checks only current user)
+	[ -z $(echo "$SESSION_LOG_CLEAN" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SESSION_LOG_CLEAN=$SESSION_LOG_CLEAN\""
 	[ -z $(echo "$SESSION_HISTORY" | egrep "^-?[0-9]+$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SESSION_HISTORY=$SESSION_HISTORY\""
 	
