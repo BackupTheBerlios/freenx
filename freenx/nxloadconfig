@@ -5,9 +5,44 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.7 2005/03/10 11:00:25 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.8 2005/03/10 12:47:48 jonno Exp $
 #
 # ========================================================================
+
+#########################################################################
+# Commandline support for --help, --check and --userconf
+#######################################################################
+
+HELP="no"
+CHECK="no"
+USERCONF="no"
+
+while [ "$1" ]
+do
+	case "$1" in
+		--help) HELP="yes"; shift ;;
+		--check) CHECK="yes"; shift ;;
+		--userconf) USERCONF="yes" ; 
+					case "$2" in
+						"" | --*) shift ;;
+						*) USER=$2 ; shift 2 ;;
+					esac ;;
+		--) shift ; break ;;
+		*) echo "Invalid flag $1" ; HELP="yes"; shift ; break ;;
+	esac
+done
+
+if [ "$HELP" = "yes" ]
+then
+	echo "nxloadconfig - Load the FreeNX configuration variables into the environment."
+	echo "Syntax: nxloadconfig --help"
+	echo "        nxloadconfig [--check] [--userconf [<username>]]"
+	echo
+	echo "  --check                  Write errors to standard output."
+	echo "  --userconf [<username>]  Parse <username>.node.conf as well as node.conf."
+	echo "                           Assume current user if no username is specified."
+	exit 0
+fi
 
 #########################################################################
 # INTERNAL STUFF
@@ -123,7 +158,7 @@ APPLICATION_LIBRARY_PRELOAD=""
 #########################################################################
 
 [ -e $NX_ETC_DIR/node.conf ] && . $NX_ETC_DIR/node.conf
-[ "$1" = "--userconf" -a -e $NX_ETC_DIR/$USER.node.conf ] && . $NX_ETC_DIR/$USER.node.conf
+[ "$USERCONF" = "yes" -a -e $NX_ETC_DIR/$USER.node.conf ] && . $NX_ETC_DIR/$USER.node.conf
 
 #########################################################################
 # Calculated values
@@ -136,3 +171,168 @@ APPLICATION_LIBRARY_PRELOAD=""
 [ -z "$PROXY_LIBRARY_PATH" ] && PROXY_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PATH" ] && APPLICATION_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PRELOAD" ] && APPLICATION_LIBRARY_PRELOAD="$APPLICATION_LIBRARY_PATH/libX11.so.6.2:$APPLICATION_LIBRARY_PATH/libXext.so.6.4:$APPLICATION_LIBRARY_PATH/libXcomp.so.1:$APPLICATION_LIBRARY_PATH/libXcompext.so.1:$APPLICATION_LIBRARY_PATH/libXrender.so.1.2"
+
+#########################################################################
+# Support for --check
+#########################################################################
+
+if [ "$CHECK" = "yes" ]
+then
+	ERROR="no"
+	WARNING="no"
+	
+	[ -z $(echo "$NX_LOGGING" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NX_LOGGING=$NX_LOGGING\""
+	[ "$NX_LOGGING" = "1" -a ! -e "$NX_LOGFILE" ] && \
+		WARNING="yes" && echo "Warning: Invalid value \"NX_LOGFILE=$NX_LOGFILE\"" \
+					  && echo "         No loggfile will be kept."
+		# How do I check if another user might write to a file? ( -w checks only current user)
+	[ -z $(echo "$SESSION_HISTORY" | egrep "^-?[0-9]*$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SESSION_HISTORY=$SESSION_HISTORY\""
+	
+	[ -z $(echo "$ENABLE_PASSDB_AUTHENTICATION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_PASSDB_AUTHENTICATION=$ENABLE_PASSDB_AUTHENTICATION\""
+	[ -z $(echo "$ENABLE_SSH_AUTHENTICATION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SSH_AUTHENTICATION=$ENABLE_SSH_AUTHENTICATION:\""
+	[ -z $(echo "$ENABLE_SU_AUTHENTICATION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SU_AUTHENTICATION=$NENABLE_SU_AUTHENTICATION\""
+	[ -z $(echo "$ENABLE_USER_DB" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USER_DB=$ENABLE_USER_DB\""
+	
+	[ -z $(echo "$ENABLE_AUTORECONNECT" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_AUTORECONNECT=$ENABLE_AUTORECONNECT\""
+	[ -z $(echo "$ENABLE_AUTORECONNECT_BEFORE_140" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_AUTORECONNECT_BEFORE_140=$ENABLE_AUTORECONNECT_BEFORE_140\""
+	
+	[ -z $(echo "$EXPORT_USERIP" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"EXPORT_USERIP=$EXPORT_USERIP\""
+	[ -z $(echo "$EXPORT_SESSIONID" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"EXPORT_SESSIONID=$EXPORT_SESSIONID\""
+	[ -n "$NODE_AUTOSTART" ] && ! which "$NODE_AUTOSTART" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"NODE_AUTOSTART=$NODE_AUTOSTART\"" \
+					  && echo "         No autostart will be performed."
+	
+	[ -z $(echo "$ENABLE_SERVER_FORWARD" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SERVER_FORWARD=$ENABLE_SERVER_FORWARD\""
+	[ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SERVER_FORWARD_HOST=$SERVER_FORWARD_HOST\"" 
+		# Any ideas on how I can check for a VALID host is velcome!
+		# In my private scripts I use 'resolveip -q' and check if output conforms to [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}, 
+		# but resolveip is part of mysql, and I don't think I should add that dependancy...
+	[ "$ENABLE_SERVER_FORWARD" = "1" -a ! -e "$SERVER_FORWARD_KEY" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SERVER_FORWARD_KEY=$SERVER_FORWARD_KEY\""
+	
+	[ -z $(echo "$ENABLE_NOMACHINE_FORWARD" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_NOMACHINE_FORWARD=$ENABLE_NOMACHINE_FORWARD\""
+	[ "$ENABLE_NOMACHINE_FORWARD" = "1" ] && ! which "$NOMACHINE_SERVER" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_SERVER=$NOMACHINE_SERVER\""
+	[ "$ENABLE_NOMACHINE_FORWARD" = "1" -a ! -d "$NOMACHINE_NX_HOME_DIR" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_NX_HOME_DIR=$NOMACHINE_NX_HOME_DIR\""
+	
+	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
+	
+	[ -z $(echo "$ENABLE_ESD_PRELOAD" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ESD_PRELOAD=$ENABLE_ESD_PRELOAD\""
+	[ "$ENABLE_ESD_PRELOAD" = "1" ] && ! which "$ESD_BIN_PRELOAD" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"ESD_BIN_PRELOAD=$ESD_BIN_PRELOAD\"" \
+					  && echo "         No esd preload will be performed."
+	
+	[ -z "$SERVER_NAME" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SERVER_NAME=$SERVER_NAME\"" 
+	
+	[ -z $(echo "$SSHD_CHECK_IP" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SSHD_CHECK_IP=$SSHD_CHECK_IP\""
+	[ -z $(echo "$SSHD_PORT" | egrep "^[0-9]*$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SSHD_PORT=$SSHD_PORT\""
+	
+	[ -z $(echo "$DISPLAY_BASE" | egrep "^[0-9]*$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_BASE=$DISPLAY_BASE\""
+		[ -z $(echo "$SESSION_LIMIT" | egrep "^[0-9]*$") ] &&  \
+			ERROR="yes" && echo "Error: Invalid value \"SESSION_LIMIT=$SESSION_LIMIT\""
+	[ -z $(echo "$SESSION_USER_LIMIT" | egrep "^[0-9]*$") -o $SESSION_USER_LIMIT -gt $SESSION_LIMIT ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SESSION_USER_LIMIT=$SESSION_USER_LIMIT\""
+	[ -z $(echo "$DISPLAY_LIMIT" | egrep "^[0-9]*$") -o $DISPLAY_LIMIT -lt $SESSION_LIMIT ] && \
+		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_LIMIT=$DISPLAY_LIMIT\""
+	
+	! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_WM=$DEFAULT_X_WM\""
+	! which "$DEFAULT_X_SESSION" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_SESSION=$DEFAULT_X_SESSION\""
+	! which "$COMMAND_START_KDE" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_KDE=$COMMAND_START_KDE\"" \
+					  && echo "         Users will not be able to request a KDE session."
+	! which "$COMMAND_START_GNOME" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_GNOME=$COMMAND_START_GNOME\"" \
+					  && echo "         Users will not be able to request a Gnome session."
+	! which "$COMMAND_START_CDE" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_CDE=$COMMAND_START_CDE\"" \
+					  && echo "         Users will not be able to request a CDE session."
+	! which "$COMMAND_XTERM" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_XTERM:=$COMMAND_XTERM:\"" \
+					  && echo "         Users will not be able to request an xterm session."
+	! which "$COMMAND_XAUTH" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XAUTH=$COMMAND_XAUTH\""
+	! which "$COMMAND_XSET" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XSET=$COMMAND_XSET\""
+	! which "$COMMAND_XMODMAP" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XMODMAP=$COMMAND_XMODMAP\""
+	! which "$COMMAND_XKBCOMP" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XKBCOMP=$COMMAND_XKBCOMP\""
+	[ ! -e "$XKBCOMP_KEYMAP_FILE" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"XKBCOMP_KEYMAP_FILE=$XKBCOMP_KEYMAP_FILE\""
+	! which "$COMMAND_SMBMOUNT" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SMBMOUNT=$COMMAND_SMBMOUNT\""
+	! which "$COMMAND_SMBUMOUNT" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SMBUMOUNT=$COMMAND_SMBUMOUNT\""
+	
+	OLD_IFS=$IFS
+	IFS=","
+	if [ "$ENABLE_PERSISTENT_SESSION" != "all" ]
+	then
+		for USERNAME in $ENABLE_PERSISTENT_SESSION; do
+			[ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
+		done
+	fi
+	for USERNAME in $DISABLE_PERSISTENT_SESSION; do
+		[ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
+	done
+	IFS=$OLD_IFS
+	
+	#AGENT_FONT_SERVER=""
+		#Any ideas on how I can check for a VALID host is velcome!
+	
+	[ -z $(echo "$CUPS_SUPPORT" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"CUPS_SUPPORT=$CUPS_SUPPORT\""
+	# CUPS_BACKEND=""
+		# As this isn't used yet I don't know how to realy check for it. Fix this when adding support!
+	[ "$CUPS_SUPPORT" = "1" -a ! -d "$CUPS_BIN" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"CUPS_BIN=$CUPS_BIN\""
+	[ "$CUPS_SUPPORT" = "1" -a ! -d "$CUPS_SBIN" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"CUPS_SBIN=$CUPS_SBIN\""
+	
+	[ ! -d "$AGENT_LIBRARY_PATH" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"AGENT_LIBRARY_PATH=$AGENT_LIBRARY_PATH\""
+	[ ! -d "$PROXY_LIBRARY_PATH" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"PROXY_LIBRARY_PATH=$PROXY_LIBRARY_PATH\""
+	[ ! -d "$APPLICATION_LIBRARY_PATH" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PATH=$APPLICATION_LIBRARY_PATH\""
+	#APPLICATION_LIBRARY_PRELOAD=""
+		# As this isn't used yet I don't know how to realy check for it. Fix this when adding support!
+	
+	if [ "$ERROR" = "yes" ]
+	then
+		echo
+		echo "  Errors occured during config check."
+		echo "  Please correct the configuration file."
+		echo
+	elif [ "$WARNING" = "yes" ]
+	then
+		echo
+		echo "  Warnings occured during config check."
+		echo "  To enable these features please correct the configuration file."
+		echo
+	fi
+fi
