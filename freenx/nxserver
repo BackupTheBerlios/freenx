@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.41 2005/03/13 15:39:33 fabianx Exp $
+# CVS: $Id: nxserver,v 1.42 2005/03/14 00:51:21 fabianx Exp $
 #
 
 # Read the config file
@@ -232,13 +232,16 @@ session_list_user_suspended()
 		if egrep -q "^userName=$1$" $i && egrep -q "^status=$2$" $i #&& grep -q "screeninfo=$3" $i
 		then
 			CMDLINE=$(session_get_cmdline $i)
-			options="-R---PSA"
 			depth=$(getparam screeninfo | cut -d "x" -f3 | cut -d "+" -f1 )
 			geom=$(getparam screeninfo | cut -d "x" -f1,2) 
 			render=$(getparam screeninfo | cut -d "+" -f2 )
 			available="N/A"
 			udepth=$(echo $3 | cut -d "x" -f3 | cut -d "+" -f1 )
 			urender=$(echo $3 | cut -d "+" -f2 )
+			[ "$(getparam geometry)" = "fullscreen" ] && options="F"
+			[ "$(getparam geometry)" = "fullscreen" ] || options="-"
+			[ "$urender" = "render" ] && options="${options}R---PSA"
+			[ "$urender" = "render" ] || options="${options}----PSA"
 			[ "$udepth" = "$depth" -a "$urender" = "$render" ] && available=$(getparam status)
 			# FIXME: HACK !!! to keep compatibility with old snapshot version (Knoppix 3.6 based for example)
 			if [ -z "$4" -a "$available" != "N/A" ] 
