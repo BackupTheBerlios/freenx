@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.12 2005/02/12 14:06:48 fabianx Exp $
+# CVS: $Id: nxserver,v 1.13 2005/02/12 14:21:35 fabianx Exp $
 #
 
 # Important constants
@@ -170,6 +170,14 @@ session_get_cmdline()
 {
 	echo "a=b" | cat - $1 | tr '\n' '&'
 }
+
+# session_get <uniqueid>
+
+session_get()
+{
+	session_get_cmdline $NX_SESS_DIR/running/sessionId"{$1}"
+}
+
 
 # Get the first session, which can be resumed
 
@@ -553,10 +561,10 @@ server_startrestore_session()
 		fi
 	fi
 
+	USERIP=$(echo $SSH_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
 	if [ "$ACTION" = "start" ]
 	then
 		# start nxnode
-		USERIP=$(echo $SSH_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
 		SESS_DISPLAY=1000
 				
 		# nxnode.conf paramaters
@@ -583,11 +591,11 @@ server_startrestore_session()
 		uniqueid=$(getparam restore)
 		[ -z "$uniqueid" ] && uniqueid=$(getparam id) # 1.4.0-5 compatibility
 		export ENCRYPTION=$(getparam encryption)
+		session_change "$uniqueid" "foreignAddress" "$USERIP"
 
-		CMDLINE=$(cat $NX_SESS_DIR/running/sessionId"{$uniqueid}" | tr '\n' '&')
+		CMDLINE=$(session_get "$uniqueid")
 		FULL_PARAMS="user=$USER&userip=$(getparam foreignAddress)&uniqueid=$uniqueid&display=$(getparam display)$PARAMS"
 		SESS_DISPLAY=$(getparam display)
-
 	fi
 
 	# now start the node
