@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.9 2005/02/11 16:12:54 fabianx Exp $
+# CVS: $Id: nxserver,v 1.10 2005/02/12 13:49:06 fabianx Exp $
 #
 
 # Important constants
@@ -19,9 +19,6 @@ NX_CONFIG_FILE=/etc/nxserver/node.conf
 
 # Read the config file
 . $NX_CONFIG_FILE
-
-# for using PATH_BIN in nxnode-login you need to export them first
-export PATH_BIN
 
 # following two functions are Copyright by Klaus Knopper
 
@@ -386,33 +383,60 @@ do
 			fi
 		;;
 		login|LOGIN)
-			PAM_LOGIN_METHOD="0"
+			LOGIN_SUCCESS="0"
+			
 			echo_x -n "NX> 101 User: "
 			read USER
 			echo_x $USER
 			echo_x -n "NX> 102 Password: "
 			read -s PASS
-			ENC_PASS=$(passdb_get_crypt_pass "$PASS")
-			REAL_PASS=$(passdb_get_pass "$USER")
-			# Pam based auth
-			if [ "$ENABLE_PAM_AUTHENTICATION" = "1" ]
+			echo_x ""
+			log -n "Auth method: "
+			
+			# PASSDB based auth
+			if [ "$ENABLE_PASSDB_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
-				echo "$PASS" | $PATH_BIN/nxnode-login -- "$USER" "127.0.0.1" "-p$SSHD_PORT" --check > /dev/null 2>/dev/null
-				if [ $? -eq 0 ]
-				then 
-					REAL_PASS="$ENC_PASS"
-					if [ "$ENABLE_USER_DB" = "1" ]
-					then
-						passdb_user_exists "$USER" || REAL_PASS="invalid"
-					else
-						PAM_LOGIN_METHOD="1"
-						PAM_PASS="$PASS"
-					fi
+				log -n "passdb "
+				if [ $(passdb_get_crypt_pass "$PASS") = $(passdb_get_pass "$USER") ]
+				then
+					LOGIN_SUCCESS="1"
+					LOGIN_METHOD="PASSDB"
 				fi
 			fi
 			
-			echo_x
-			if [ "$ENC_PASS" = "$REAL_PASS" ]
+			# SSH based auth
+			if [ "$ENABLE_SSH_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
+			then
+				log -n "ssh "
+				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
+				if [ $? -eq 0 ]
+				then
+					LOGIN_SUCCESS="1"
+					LOGIN_METHOD="SSH"
+				fi
+			fi
+			
+			# SU based auth
+			if [ "$ENABLE_SU_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
+			then
+				log -n "su "
+				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
+				if [ $? -eq 0 ]
+				then
+					LOGIN_SUCCESS="1"
+					LOGIN_METHOD="SU"
+				fi
+			fi
+			log ""
+			
+			# Check if user in passdb
+			if [ "$ENABLE_USER_DB" = "1" ]
+			then
+				log "userdb check"
+				passdb_user_exists "$USER" || LOGIN_SUCCESS="0"
+			fi
+
+			if [ "$LOGIN_SUCCESS" = "1" ]
 			then
 				echo_x "NX> 103 Welcome to: $HOSTNAME user: $USER"
 				break
@@ -459,11 +483,14 @@ server_nxnode_start()
 	shift
 	shift
 	# Use nxnode-login?
-	if [ "$PAM_LOGIN_METHOD" = "1" ]
+	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
-	  echo $PAM_PASS | $PATH_BIN/nxnode-login -- "$USER" 127.0.0.1 "-p$SSHD_PORT" "$CMD" "$@" 2>&1 | log_tee
-	else
-	  echo "$@" | ssh -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
+	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
+	elif [ "$LOGIN_METHOD" = "SU" ]
+	then
+	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
+	else 
+	    echo "$@" | ssh -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
 }
 

@@ -3,29 +3,38 @@
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
 #
-# CVS: $Id: nxnode-login,v 1.5 2005/02/11 16:12:54 fabianx Exp $
+# CVS: $Id: nxnode-login,v 1.6 2005/02/12 13:49:06 fabianx Exp $
 #
 
-# Syntax: nxnode-login user host ssh-parameter command tosend
+# Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
 
-set user [lindex $argv 0]
-set host [lindex $argv 1]
-set parameter [lindex $argv 2]
-set command [lindex $argv 3]
-set tosend [lindex $argv 4]
+set auth_method [lindex $argv 0]
+set user [lindex $argv 1]
+set port [lindex $argv 2]
+set executable [lindex $argv 3]
+set command [lindex $argv 4]
+set tosend [lindex $argv 5]
 
 expect_user -re "(.*)\n" 
 set password $expect_out(1,string)
 
 set stty_init "raw icrnl"
 
-set pid [spawn -noecho ssh -2 -l "$user" "$host" -o "NumberOfPasswordPrompts 1" $parameter "$env(PATH_BIN)/nxnode $command" ]
+if { "$auth_method"=="ssh" } { 
+	set pid [spawn -noecho ssh -2 -l "$user" "127.0.0.1" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $command" ]
+} elseif { "$auth_method"=="su" } {
+	set pid [spawn -noecho su - "$user" -c "$executable $command" ]
+# 	sleep 1
+} else {
+	exit 1
+}
 
 while {1} {
 	expect {
 		"Are you sure you want to continue connecting (yes/no)?" { send "yes\r" }
 		"assword:"  { send "$password\r" }
 		"Permission denied*" { exit 1 }
+		"su: Authentication failure" { exit 1 }
 		"NX> 1000 NXNODE - Version" { 
 			break
 		}

@@ -4,7 +4,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.6 2005/02/11 16:21:16 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.7 2005/02/12 13:49:06 fabianx Exp $ 
 #
 
 SETUP_NOMACHINE_KEY="no"
@@ -118,21 +118,43 @@ echo "done"
 
 echo "Ok, nxserver is ready."
 echo ""
-if [ "$ENABLE_PAM_AUTHENTICATION" = "1" ]
+if [ "$ENABLE_SSH_AUTHENTICATION" = "1" -o "$ENABLE_SU_AUTHENTICATION" = "1" ]
 then
 	echo "PAM authentication enabled:"
-	echo "  All users will be able to login with their"
-	echo "  normal passwords."
+	if [ "$ENABLE_USER_DB" = "1" ]
+	then
+		echo "  Users will be able to login with their normal passwords,"
+		echo "  but they have to be registered in the nx database to do so."
+		echo "  To add new users to the nx database do:"
+		echo "    nxserver --adduser <username>"
+	else
+		echo "  All users will be able to login with their normal passwords."
+	fi
 	echo
-       echo "You can change this behaviour in the $NX_CONFIG_FILE file."
+	if [ "$ENABLE_SSH_AUTHENTICATION" = "1" -a "$ENABLE_SU_AUTHENTICATION" = "1" ]
+	then
+		echo "  Both SSH and SU authentication is enabled."
+		echo "  This does work, but is redundant."
+		echo "  Please check if this is realy what you intended."
+	elif [ "$ENABLE_SSH_AUTHENTICATION" = "1" ]
+	then
+		echo "  PAM authentication will be done through SSH."
+		echo "  Please ensure that SSHD on localhost accepts password authentication."
+	else
+		echo "  PAM authentication will be done through SU."
+		echo "  Please ensure that the user "nx" is a member of the wheel group."
+	fi
 else
 	echo "PAM authentication disabled."
-	echo ""
-	echo "To add new users to the nx database do:"
-	echo "  nxserver --adduser <username>"
-	echo "Afterwards change the password with:"
-	echo "  nxserver --passwd <username>"
+	echo "  Only users in the nx database will be able to log in."
+	echo
+	echo "  To add new users to the nx database do:"
+	echo "    nxserver --adduser <username>"
+	echo "  Afterwards change the password with:"
+	echo "    nxserver --passwd <username>"
 fi
+echo
+echo "  You can change this behaviour in the $NX_CONFIG_FILE file."
 
 if [ "$SETUP_NOMACHINE_KEY" = "no" -a "$SETUP_NX_KEY" = "yes" ]
 then
