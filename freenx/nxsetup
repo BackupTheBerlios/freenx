@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.23 2005/04/04 06:45:15 fux Exp $ 
+# CVS: $Id: nxsetup,v 1.24 2005/04/04 07:00:58 fux Exp $ 
 #
 
 HELP="no"
@@ -16,6 +16,7 @@ CLEAN="no"
 UNINSTALL="no"
 PURGE="no"
 SETUP_SSH2_KEY="no"
+BUILD_KNOWN_HOSTS="yes"
 
 while [ "$1" ]
 do
@@ -24,6 +25,7 @@ do
 		--install) INSTALL="yes"; shift ;;
 		--setup-nomachine-key) SETUP_NOMACHINE_KEY="yes"; shift ;;
 		--ssh2) SETUP_SSH2_KEY="yes"; shift;;
+		--dont-build-known-hosts) BUILD_KNOWN_HOSTS="no"; shift;;
 		--uid) SETUP_UID=$2; shift 2 ;;
 		--clean) CLEAN="yes"; shift ;;
 		--uninstall) UNINSTALL="yes"; shift ;;
@@ -54,7 +56,7 @@ then
 	echo "                         client. This is not as secure, but it simplifies the "
 	echo "                         configuration of clients."
 	echo "                         Use this option at your own risk."
-	echo "  --ssh2		       additionally create commercial pubkey-support, beware"
+	echo "  --ssh2		       Additionally create commercial pubkey-support, beware"
 	echo "			       own _commercial_ ssh2-key is not supported!."
 	echo "  --uid <number>         The nx user will be given the uid <number>."
 	echo "  --clean                Performs an uninstall prior to the installation"
@@ -63,6 +65,11 @@ then
 	echo "                         keys as well. Note that node.conf will always be saved."
 	exit 0
 fi
+#Undocumented
+#
+#    --dont-build-known-hosts		For system without /etc/ssh/ssh_host_key.rsa.pub and 
+#					expect should handle nx-users known-hosts keys and 
+#					
 
 if [ $UID -ne 0 ]
 then
@@ -199,7 +206,7 @@ EOF
 		chmod 600 ${SSH2_HOME_DIR}/$SSH2_AUTHORIZATION ${SSH2_HOME_DIR}/$SSH2_PUBKEY
 	fi
 	
-	if [ ! -f $NX_HOME_DIR/.ssh/known_hosts ]
+	if [ ! -f $NX_HOME_DIR/.ssh/known_hosts -a "$BUILD_KNOWN_HOSTS" = "yes" ]
 	then
 		echo -n "127.0.0.1 " > $NX_HOME_DIR/.ssh/known_hosts
 		cat /etc/ssh/ssh_host_rsa_key.pub >> $NX_HOME_DIR/.ssh/known_hosts
