@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.22 2005/02/14 00:43:46 jonno Exp $
+# CVS: $Id: nxserver,v 1.23 2005/02/14 17:46:06 jonno Exp $
 #
 
 # Read the config file
@@ -539,7 +539,7 @@ do
 			then
 				# Reread the config files (so that $USER.node.conf get sourced)
 				. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --userconf
-				echo_x "NX> 103 Welcome to: $HOSTNAME user: $USER"
+				echo_x "NX> 103 Welcome to: $SERVER_NAME user: $USER"
 				break
 			else
 				echo_x "NX> 404 ERROR: wrong password or login"
