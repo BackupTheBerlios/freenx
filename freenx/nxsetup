@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.20 2005/03/17 23:21:15 fux Exp $ 
+# CVS: $Id: nxsetup,v 1.21 2005/03/31 07:40:11 fux Exp $ 
 #
 
 HELP="no"
@@ -177,6 +177,7 @@ EOF
 	chown -R nx:root $NX_ETC_DIR
 	chown -R nx:root $NX_HOME_DIR
 	chown nx:root "$NX_LOGFILE"
+	chmod 600 $NX_HOME_DIR/.ssh/$SSH_AUTHORIZED_KEYS
 	echo "done"
 }
 
