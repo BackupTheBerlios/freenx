@@ -4,7 +4,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.5 2005/02/11 15:53:49 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.6 2005/02/11 16:21:16 fabianx Exp $ 
 #
 
 SETUP_NOMACHINE_KEY="no"
@@ -68,6 +68,12 @@ mkdir -p $NX_SESS_DIR/closed $NX_SESS_DIR/running $NX_SESS_DIR/failed
 chmod 700 $NX_SESS_DIR/*
 echo "done"
 
+echo -n "Setting up $NX_LOGFILE ..."
+mkdir -p $(dirname "$NX_LOGFILE")
+touch "$NX_LOGFILE"
+chmod 600 "$NX_LOGFILE"
+echo "done"
+
 if ! { getent passwd | egrep -q "^nx:"; }
 then
 	echo -n "Setting up user nx ..."
@@ -107,6 +113,7 @@ echo -n "Setting up permissions ..."
 chown -R nx:root $NX_SESS_DIR
 chown -R nx:root $NX_ETC_DIR
 chown -R nx:root $NX_HOME_DIR
+chown nx:root "$NX_LOGFILE"
 echo "done"
 
 echo "Ok, nxserver is ready."
