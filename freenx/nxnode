@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.9 2005/02/11 16:12:54 fabianx Exp $
+# CVS: $Id: nxnode,v 1.10 2005/02/12 14:27:48 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -24,6 +24,7 @@ export $(grep ^NX_ $(which nxserver))
 # Read the config file
 
 . $NX_CONFIG_FILE
+[ -f "${NX_ETC_DIR}/${USER}.node.conf" ] && . "${NX_ETC_DIR}/${USER}.node.conf"
 
 echo "NX> 1000 NXNODE - Version $NX_VERSION $NX_LICENSE"
 

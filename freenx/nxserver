@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.13 2005/02/12 14:21:35 fabianx Exp $
+# CVS: $Id: nxserver,v 1.14 2005/02/12 14:27:48 fabianx Exp $
 #
 
 # Important constants
@@ -446,6 +446,7 @@ do
 
 			if [ "$LOGIN_SUCCESS" = "1" ]
 			then
+				[ -f "${NX_ETC_DIR}/${USER}.node.conf" ] && . "${NX_ETC_DIR}/${USER}.node.conf"
 				echo_x "NX> 103 Welcome to: $HOSTNAME user: $USER"
 				break
 			else
