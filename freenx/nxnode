@@ -125,6 +125,13 @@ node_start_applications()
 		unix-application)
 			STARTX=$(which $application)
 		;;
+		unix-default)
+			if [ -f "$HOME/.Xclients" ]; then
+				STARTX="$HOME/.Xclients"
+			elif [ -f "/etc/X11/xdm/Xsession" ]; then
+				STARTX="/etc/X11/xdm/Xsession"
+			fi
+		;;
 	esac
 	[ -n "$STARTX" ] || return
 
