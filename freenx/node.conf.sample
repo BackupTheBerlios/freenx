@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.12 2005/03/12 17:55:13 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.13 2005/03/13 10:57:36 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -265,12 +265,12 @@
 #COMMAND_SMBUMOUNT=smbumount
 
 
-# User for which sessions should be persistent. Either a comma-separated
-# list of usernames or the word "all".
+# User for which sessions should be persistent. Either the keyword "all" or a
+# comma-separated list of usernames or groups in the @groupname syntax.
 #ENABLE_PERSISTENT_SESSION="all"
 
-# Users in the ENABLE_PERSISTENT_SESSION for which persistent should be
-# disabled. Especially usefull if ENABLE_PERSISTENT_SESSION="all"
+# Users and groups for whom persistent sessions should be disabled. 
+# Especially usefull if ENABLE_PERSISTENT_SESSION="all"
 #DISABLE_PERSISTENT_SESSION=""
 
 # Extra options sent to the different nx agents. See !M documentation

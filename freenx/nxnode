@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.40 2005/03/12 18:19:02 fabianx Exp $
+# CVS: $Id: nxnode,v 1.41 2005/03/13 10:57:36 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -241,9 +241,22 @@ node_start_agent()
 	else
 		# nxagent session (X11)
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$AGENT_LIBRARY_PATH:$LD_LIBRARY_PATH"
+		P="-nopersistent"
+		OLD_IFS=$IFS
+		IFS=","
+		[ "$ENABLE_PERSISTENT_SESSION" = "all" ] && P="-persistent"
+		[ "$ENABLE_PERSISTENT_SESSION" = "all" ] || for USERNAME in $ENABLE_PERSISTENT_SESSION; do
+			[ "${USERNAME:0:1}" != "@" ] && [ "$USER" = "$USERNAME" ] && P="-persistent" && break ;
+			[ "${USERNAME:0:1}" = "@" ] && [ -z $(groups "$USER" | egrep "^${USERNAME:1}:") ] && P="-persistent" && break ;
+		done
+		for USERNAME in $DISABLE_PERSISTENT_SESSION; do
+			[ "${USERNAME:0:1}" != "@" ] && [ "$USER" = "$USERNAME" ] && P="-nopersistent" && break ;
+			[ "${USERNAME:0:1}" = "@" ] && [ -z $(groups "$USER" | egrep "^${USERNAME:1}:") ] && P="-nopersistent" && break ;
+		done
+		IFS=$OLD_IFS
 		FP=""
 		[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
-		$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		$PATH_BIN/nxagent $P $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	fi
 	PID=$!
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
