@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.14 2005/03/13 12:57:59 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.15 2005/03/13 13:31:10 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -152,8 +152,8 @@
 # The key that contains the name of the complete path of the 'netcat' command. 
 #COMMAND_NETCAT=netcat
 
-# If enabled writes entries via the COMMAND_SESSREG program into utmp/wtmp/lastlog 
-# database.
+# If enabled writes entries via the COMMAND_SESSREG program 
+# into utmp/wtmp/lastlog database.
 #
 # Note: You have to make sure that you add the nx user to the 
 #       utmp or tty group or how its called on your system
@@ -169,8 +169,8 @@
 #USER_FAKE_HOME=$HOME
 
 # Add the nx libraries to LD_LIBRARY_PATH before starting nx agents.
-# WARNING: This will NOT (and should not) affect aplications. ONLY Disable this
-#          if the nx libraries is in a standard system path (such as /usr/lib)!
+# WARNING: This will NOT (and should not) affect applications. ONLY Disable this
+#          if the nx libraries are in a standard system path (such as /usr/lib)!
 #SET_LD_LIBRARY_PATH="1"
 
 #########################################################################
@@ -252,17 +252,25 @@
 
 # The key that contains the name of the complete path of command name 
 # 'xset'. 
+# FreeNX: This key is not used in the FreeNX project.
+
 #COMMAND_XSET=/usr/X11R6/bin/xset
 
 # The key that contains the name of the complete path of command name 
 # 'xmodmap'. 
+# FreeNX: This key is not used in the FreeNX project.
+
 #COMMAND_XMODMAP=/usr/X11R6/bin/xmodmap
 
 # The key that contains the name of the complete path of command name 
 # 'xkbcomp'. 
+# FreeNX: This key is not used in the FreeNX project.
+
 #COMMAND_XKBCOMP=/usr/X11R6/bin/xkbcomp
 
 # The keymap file for xkbcomp
+# FreeNX: This key is not used in the FreeNX project.
+
 #XKBCOMP_KEYMAP_FILE=/etc/X11/xkb/keymap/xfree86
 
 # The key that contains the name of the complete path of command name 
@@ -279,11 +287,11 @@
 #ENABLE_PERSISTENT_SESSION="all"
 
 # Users and groups for whom persistent sessions should be disabled. 
-# Especially usefull if ENABLE_PERSISTENT_SESSION="all"
+# Especially useful if ENABLE_PERSISTENT_SESSION="all"
 #DISABLE_PERSISTENT_SESSION=""
 
 # Extra options sent to the different nx agents. See !M documentation
-# for examples of usefull parameters.
+# for examples of useful parameters.
 #AGENT_EXTRA_OPTIONS_RFB=""
 #AGENT_EXTRA_OPTIONS_RDP=""
 #AGENT_EXTRA_OPTIONS_X=""
@@ -301,6 +309,6 @@
 # loss of interaction in sessions.
 #PROXY_TCP_NODELAY="0"
 
-# Extra options to nxproxy. See !M documentation for usefull parameters.
+# Extra options to nxproxy. See !M documentation for useful parameters.
 #PROXY_EXTRA_OPTIONS=""
 
