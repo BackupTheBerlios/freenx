@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.16 2005/02/16 00:00:31 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.17 2005/03/10 15:07:28 jonno Exp $ 
 #
 
 HELP="no"
@@ -270,7 +270,7 @@ then
 		echo "    nxserver --passwd <username>"
 	fi
 	echo
-	echo "  You can change this behaviour in the $NX_CONFIG_FILE file."
+	echo "  You can change this behaviour in the $NX_ETC_DIR/node.conf file."
 	
 	if [ "$SETUP_NOMACHINE_KEY" = "no" -a "$SETUP_NX_KEY" = "yes" ]
 	then
@@ -295,7 +295,7 @@ then
 	if [ "$PURGE" = "yes" ]
 	then
 		echo "To complete the uninstallation process, remove the nx scripts in $PATH_BIN"
-		echo "and the $NX_CONFIG_FILE configuration file."
+		echo "and the $NX_ETC_DIR/node.conf configuration file."
 	else
 		echo "To complete the uninstallation process, remove the nx scripts in $PATH_BIN"
 		echo
