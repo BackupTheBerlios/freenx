@@ -11,7 +11,8 @@
 	* Added support for user based configs like in !M AR01C00135.
 	* Added NODE_AUTOSTART, EXPORT_{USERIP/SESSIONID} config file
 	  directives.
-	* Added mechanism to forward connection to commercial nxserver.
+	* Added mechanism to forward connection to commercial NoMachine 
+	  nxserver (as available from www.nomachine.com).
 	* Added "floating window" support by using rootless nxagent as
 	  it will be standard in NX 1.5.0.
 	* Added "floating window" support by just nxproxy/nxproxy connection
