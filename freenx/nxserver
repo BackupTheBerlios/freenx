@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.39 2005/03/13 12:04:49 jonno Exp $
+# CVS: $Id: nxserver,v 1.40 2005/03/13 15:12:17 fabianx Exp $
 #
 
 # Read the config file
@@ -190,10 +190,29 @@ session_get_user_suspended()
 	done
 }
 
+# Count all sessions of a user
+# and save it in SESSION_COUNT and SESSION_COUNT_USER
+
+session_count_user()
+{
+	SESSION_COUNT=0
+	SESSION_COUNT_USER=0
+
+	for i in $NX_SESS_DIR/running/*
+	do
+		[ -f $i ] || break
+		let SESSION_COUNT=$SESSION_COUNT+1
+		egrep -q "^userName=$1$" $i && let SESSION_COUNT_USER=$SESSION_COUNT_USER+1
+	done
+}
+
 # List all sessions of a user
 
 session_list_user_suspended()
 {
+	SESSION_COUNT=0
+	SESSION_COUNT_USER=0
+
 	TMPFILE=$(mktemp /tmp/nxserver_tmp.XXXXXXXXX)
 	echo "NX> 127 Sessions list of user '$1' for reconnect:" > $TMPFILE
 	echo >> $TMPFILE
@@ -209,6 +228,7 @@ session_list_user_suspended()
 	for i in $NX_SESS_DIR/running/*
 	do
 		[ -f $i ] || break
+		let SESSION_COUNT=$SESSION_COUNT+1
 		if egrep -q "^userName=$1$" $i && egrep -q "^status=$2$" $i #&& grep -q "screeninfo=$3" $i
 		then
 			CMDLINE=$(session_get_cmdline $i)
@@ -227,12 +247,18 @@ session_list_user_suspended()
 			fi
 			echo -e "$(getparam display)\t$(getparam type)\t$(getparam sessionId)\t$options\t$depth\t$geom\t$available\t$(getparam sessionName)" >> $TMPFILE
 		fi
+		egrep -q "^userName=$1$" $i && let SESSION_COUNT_USER=$SESSION_COUNT_USER+1
 	done
 	echo "" >> $TMPFILE
 	echo "" >> $TMPFILE
 	cat $TMPFILE
 	rm -f $TMPFILE
-	echo "NX> 148 Server capacity: not reached for user: $1"
+	if [ "$SESSION_COUNT" -ge "$SESSION_LIMIT" -o "$SESSION_COUNT_USER" -ge "$SESSION_USER_LIMIT" ]
+	then
+		echo "NX> 147 Server capacity: reached for user: $1"
+	else
+		echo "NX> 148 Server capacity: not reached for user: $1"
+	fi
 }
 
 session_list_user()
@@ -683,6 +709,27 @@ server_nxnode_start_wait()
 	[ -e "/tmp/.nX$SESS_DISPLAY-lock" ] && rm -f /tmp/.nX$SESS_DISPLAY-lock
 }
 
+server_check_session_count()
+{
+	session_count_user "$USER"
+	
+	if [ "$SESSION_COUNT" -ge "$SESSION_LIMIT" ]
+	then
+		echo_x "NX> 599 Reached the maximum number of concurrent sessions on this server."
+		echo_x "NX> 500 ERROR: Last operation failed."
+		return 1
+	fi
+	
+	if [ "$SESSION_COUNT_USER" -ge "$SESSION_USER_LIMIT" ]
+	then
+		echo_x "NX> 599 Server capacity: reached for user: $USER"
+		echo_x "NX> 500 ERROR: Last operation failed."
+		return 1
+	fi
+
+	return 0
+}
+
 server_startrestore_session()
 {
 	ACTION="$1"
@@ -723,6 +770,8 @@ server_startrestore_session()
 	[ -z "$USERIP" ] && USERIP="*"
 	if [ "$ACTION" = "start" ]
 	then
+		server_check_session_count || return 1
+		
 		# start nxnode
 		SESS_DISPLAY=$DISPLAY_BASE
 		let SESS_DISPLAY_LIMIT=$DISPLAY_BASE+$DISPLAY_LIMIT

@@ -16,6 +16,7 @@
 	* Implemented SSHD_CHECK_IP directive.
 	* Added the SESSION_HISTORY directive. Session history will by default be kept for 30 days.
 	* Implemented DEFAULT_X_WM for unix-application virtual desktop mode.
+	* Implemented SESSION_LIMIT and SESSION_USER_LIMIT.
 
 11.03.2005 FreeNX 0.3.1
 	* Fixed keyboard mapping problems.
