@@ -20,6 +20,7 @@
 	* Fixed nxviewer commandline for geometry and fullscreen-support
 	* Added NX_LOG_LEVEL instead of NX_LOGGING, allowing less verbose logfile.
 	* Added SESSION_LOG_CLEAN for configurable removal of the temporary session directory.
+	* Added "--ssh2" cmdline switch for commercial ssh2-server support in nxsetup
 
 XX.03.2005 FreeNX 0.3.1-CVS
 	* Fixed keyboard mapping problems.
