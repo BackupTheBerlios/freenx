@@ -17,6 +17,8 @@
 	  it will be standard in NX 1.5.0.
 	* Added "floating window" support by just nxproxy/nxproxy connection
 	  and added configuration directive to enable rootless mode.
+	* Added nxsetup --uninstall and added more feature to nxsetup.
+	  Note: You need to use nxsetup --install for installation now.
 
 20.11.2004 FreeNX 0.2.7 "Skolelinux Edition"
 	* Fix nxserver to work again with KNX-Client. ('\r' is evil)
