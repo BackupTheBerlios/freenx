@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.17 2005/02/13 13:11:38 fabianx Exp $
+# CVS: $Id: nxnode,v 1.18 2005/02/13 14:22:59 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -73,11 +73,12 @@ node_abort()
 
 node_terminate_session()
 {
+	[ -d "$HOME/.nx/C-$1/" ] || return
 	AGENT_PID=$(cat $HOME/.nx/C-$1/pids/agent 2>/dev/null)
 	if [ -n "$AGENT_PID" ]
 	then 
 		kill $AGENT_PID 2>/dev/null
-		if [ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
+		if ! [ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
 		then
 			sleep 1
 			kill -9 $AGENT_PID 2>/dev/null
@@ -311,6 +312,9 @@ node_start_monitor()
 			kill $PROXY_PID 2>/dev/null
 			sleep 2
 			kill -9 $PROXY_PID 2>/dev/null
+
+			# kill the session
+			node_terminate_session "$sess_id"
 			
 			break
 		fi
