@@ -9,7 +9,7 @@
 #       but we set it to a "good value" anyway in case 
 #       it does check it someday.
 #
-# CVS: $Id: nxclient,v 1.3 2005/02/11 15:43:33 fabianx Exp $
+# CVS: $Id: nxclient,v 1.4 2005/03/24 01:33:19 fabianx Exp $
 #
 # ========================================================================
 
@@ -19,7 +19,7 @@ NXCLIENT="/usr/NX/bin/nxclient"
 [ -x "$NXCLIENT" -a "$(file -bi $NXCLIENT)" != 'application/x-shellscript' ] \
 	&& exec ${NXCLIENT} "$@"
 
-TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display: -n $(basename $0) -- "$@"`
+TEMP=`getopt -a -o d: --long local,noautokill,dialog:,caption:,message:,display:,printer: -n $(basename $0) -- "$@"`
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
 
@@ -31,6 +31,7 @@ DIALOG_CAPTION=""
 DIALOG_MESSAGE=""
 DIALOG_LOCAL=""
 DIALOG_NOAUTOKILL=""
+DIALOG_PRINTER=""
 
 while true
 do
@@ -41,12 +42,16 @@ do
 		--local) DIALOG_LOCAL="yes"; shift ;;
 		--noautokill) DIALOG_NOAUTOKILL="yes"; shift ;;
 		--display) DISPLAY="$2"; shift 2 ;;
+		--printer) DIALOG_PRINTER="$2"; shift 2 ; break ;;
 		--) shift ; break ;;
                 *) echo "Internal error!" ; exit 1; ;;
 	esac
 done
 
 export DISPLAY
+
+# if --printer is set, the dialog type is overridden
+[ -n "$DIALOG_PRINTER" ] && DIALOG_TYPE="printer"
 
 if [ -x /usr/bin/Xdialog ] 
 then
@@ -57,6 +62,62 @@ else
 	xmessage=$(which xmessage 2>/dev/null)
 	[ -z "$xmessage" ] && xmessage="/usr/X11R6/bin/xmessage"
 fi
+
+#
+# utility functions for all interfaces
+#
+
+# utility_printer "get|set|getlist|getvendlist|getdrvlist"
+#
+#	get <name> - gets the current driver for name
+#	set <name> <driver> <description> - sets the current driver and description for name
+#	getvendlist - gets a list of vendors
+#	getdrvlist <vendor> - gets a list of drivers for vendor
+#	getlist - gets a list of drivers
+
+#
+# drivers.cache has the following format:
+#	
+#	driver|<printername>|<ppdfile>|<description>
+#
+
+#
+# Example: IFS='|' DEFAULT_PRINTER=( $(utility_printer get <myprinter>) )
+# 	  
+#	You can then select ${DEFAULT_PRINTER[1]} for <printername>.
+# 
+
+utility_printer()
+{
+	UTILITY_DRIVERS_CACHE="$HOME/.nx/config/drivers.cache"
+	[ -n "$USER_FAKE_HOME" ] && UTILITY_DRIVERS_CACHE="$USER_FAKE_HOME/.nx/config/drivers.cache"
+	UTILITY_NXPRINT="nxprint"
+	[ -n "$PATH_BIN" ] && UTILITY_NXPRINT="$PATH_BIN/nxprint"
+	case "$1" in 
+		get)
+			grep "driver|$2|" "$UTILITY_DRIVERS_CACHE" 2>/dev/null
+		;;
+		set)
+			# FIXME: Handle possible race conditions?
+			grep -v "driver|$2|" "$UTILITY_DRIVERS_CACHE" 2>/dev/null > $UTILITY_DRIVERS_CACHE.tmp
+			echo "driver|$2|$3|$4" >> $UTILITY_DRIVERS_CACHE.tmp
+			mv -f $UTILITY_DRIVERS_CACHE.tmp $UTILITY_DRIVERS_CACHE
+		;;
+		getvendlist)
+			$UTILITY_NXPRINT -d | awk -F'|' '{ print $2 }' | uniq
+		;;
+		getdrvlist)
+			$UTILITY_NXPRINT -d | awk -F'|' '($2=="'$2'") { print $4 }'
+		;;
+		getlist)
+			$UTILITY_NXPRINT -d
+		;;
+	esac
+}
+
+#
+# xmessage dialog interface
+#
 
 xmessage_ok()
 {
@@ -84,6 +145,20 @@ xmessage_quit()
 	$xmessage -buttons "Quit:0" -center "$DIALOG_MESSAGE"
 	return 0 # Give cancel on close ...
 }
+
+xmessage_printer_ask()
+{
+	$xmessage -buttons "Ok:0,Configure:1,Cancel:2" -center "$DIALOG_MESSAGE"
+}
+
+xmessage_printer()
+{
+	:
+}
+
+#
+# xdialog interface
+#
 
 xdialog_ok()
 {
@@ -121,6 +196,54 @@ xdialog_quit()
         return 0 # Give cancel on close ...
 }
 
+xdialog_printer_ask()
+{
+		$DIALOG --title "$DIALOG_CAPTION" --buttons-style text --ok-label "Ok" --cancel-label "Configure" --yesno "$DIALOG_MESSAGE\n\nClose window to cancel." 400x250
+	RC=$?
+	[ $RC -eq 255 ] && return 2
+	return $RC
+}
+
+xdialog_printer()
+{
+	:
+}
+
+#
+# helper functions
+#
+
+helper_dialog_printer()
+{
+	IFS="|" PRINTER_INFORMATION=( $(utility_printer get "$DIALOG_PRINTER") )
+	PRINTER_CONFIGURE="yes"
+	[ -z "$DIALOG_CAPTION" ] && DIALOG_CAPTION="NX Printer configuration for $DIALOG_PRINTER"
+	
+	# Do we have old printer information present?
+	if [ -n "$PRINTER_INFORMATION" ]
+	then
+		DIALOG_MESSAGE=$(echo -e "Found driver for printer $DIALOG_PRINTER.\n\nOld choice was: ${PRINTER_INFORMATION[3]}.\n\nIf you want to keep the settings click on 'Ok' \n- else click on 'Configure'.") ${dialog_interface}_printer_ask
+		RC=$?
+		# bail out with exit code 2 in case the user cancelled the operation
+		[ $RC -eq 2 ] && exit 2
+		[ $RC -eq 0 ] && PRINTER_CONFIGURE="no"
+	fi
+
+	if [ "$PRINTER_CONFIGURE" = "yes" ]
+	then
+		DIALOG_MESSAGE="Not implemented." ${dialog_interface}_ok
+	fi
+
+	# echo the choosen <ppdfile> to stdout
+	echo "${PRINTER_INFORMATION[2]}"
+			
+	exit 0
+}
+
+#
+# main case statement
+#
+
 case $DIALOG_TYPE in 
 	ok)
 		${dialog_interface}_ok
@@ -137,9 +260,15 @@ case $DIALOG_TYPE in
 	quit)
 		${dialog_interface}_quit
 	;;
+	printer)
+		helper_dialog_printer
+	;;
 esac
 
+#
 # Time for exit code checks :)
+#
+
 RC=$?
 	[ $RC -eq 2 ] && kill -TERM $PPID
 	[ $RC -eq 3 ] && kill -HUP $PPID
