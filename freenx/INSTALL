@@ -46,15 +46,15 @@ cp -a nxviewer/nxviewer ${NXPREFIX}/bin
 cp -a nxviewer/nxpasswd ${NXPREFIX}/bin
 
 # scripts
-cp -a freenx-0.2-*/nxnode ${NXPREFIX}/bin
-cp -a freenx-0.2-*/nxserver ${NXPREFIX}/bin
-cp -a freenx-0.2-*/nxsetup ${NXPREFIX}/bin
-cp -a freenx-0.2-*/nxkeygen ${NXPREFIX}/bin
-cp -a freenx-0.2-*/nxnode-login ${NXPREFIX}/bin
+cp -a freenx*/nxnode ${NXPREFIX}/bin
+cp -a freenx*/nxserver ${NXPREFIX}/bin
+cp -a freenx*/nxsetup ${NXPREFIX}/bin
+cp -a freenx*/nxkeygen ${NXPREFIX}/bin
+cp -a freenx*/nxnode-login ${NXPREFIX}/bin
 
 # config file
-cp -a freenx-0.2-*/node.conf ${NXPREFIX}/etc/
+cp -a freenx*/node.conf ${NXPREFIX}/etc/
 
-You should also install the nxclient from NoMachine or also copy the nxclient program from freenx-0.2. 
+You should also install the nxclient from NoMachine or also copy the nxclient program from freenx. 
 
 Then you need to run 'nxsetup' and follow the instructions given.
