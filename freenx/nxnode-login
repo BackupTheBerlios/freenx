@@ -3,7 +3,7 @@
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
 #
-# CVS: $Id: nxnode-login,v 1.8 2005/02/13 13:12:17 fabianx Exp $
+# CVS: $Id: nxnode-login,v 1.9 2005/03/11 00:50:15 fabianx Exp $
 #
 
 # Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
@@ -31,7 +31,7 @@ if { "$auth_method"=="ssh" } {
 while {1} {
 	expect {
 		"Are you sure you want to continue connecting (yes/no)?" { send "yes\r" }
-		"assword:"  { sleep 0.3; send "$password\r" }
+		"assword*:"  { sleep 0.3; send "$password\r" }
 		"Permission denied*" { exit 1 }
 		"su: Authentication failure" { exit 1 }
 		"NX> 1000 NXNODE - Version" { 
