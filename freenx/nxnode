@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.33 2005/03/11 16:53:02 jonno Exp $
+# CVS: $Id: nxnode,v 1.34 2005/03/12 02:42:02 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -216,7 +216,7 @@ node_start_agent()
 		P=""
 		[ -n "$agent_user" ] && U="-u $agent_user"
 		[ -n "$agent_password" ] && P="-p -"
-		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $U $P $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $U $P $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	else
 
 	# nxviewer session
@@ -236,7 +236,7 @@ node_start_agent()
 			FP=""
 			[ -n "$AGENT_FONT_SERVER" ] && FP="-fp $AGENT_FONT_SERVER"
 			# nxagent session
-			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+			$PATH_BIN/nxagent -persistent $R -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $B $FP :$display $AGENT_EXTRA_OPTIONS_X 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 		fi
 	fi
 	fi

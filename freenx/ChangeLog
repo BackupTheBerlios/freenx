@@ -6,6 +6,8 @@
 	* Added support for 'nxloadconfig --check' to validate node.conf settings
 	* Added initial support for sound (esd/artsd).
 	* Added optional support for utmp/wtmp/lastlog database.
+	* Removed support for OSS components prior version 1.4.0 in nxnode.
+	  Added -option option to nxagent/nxdesktop.
 
 11.03.2005 FreeNX 0.3.1
 	* Fixed keyboard mapping problems.
