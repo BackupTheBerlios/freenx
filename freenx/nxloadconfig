@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.15 2005/03/12 02:49:28 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.16 2005/03/12 12:13:25 jonno Exp $
 #
 # ========================================================================
 
@@ -193,13 +193,30 @@ then
 	ERROR="no"
 	WARNING="no"
 	
+	[ ! -d "$PATH_BIN" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"PATH_BIN=$PATH_BIN\""
+	[ ! -d "$PATH_LIB" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"PATH_LIB=$PATH_LIB\""
+	[ ! -d "$NX_ETC_DIR" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NX_ETC_DIR=$NX_ETC_DIR\""
+	[ ! -d "$NX_SESS_DIR" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NX_SESS_DIR=$NX_SESS_DIR\""
+	[ ! -d "$NX_HOME_DIR" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NX_HOME_DIR=$NX_HOME_DIR\""
+	
+	[ -z $(echo "$NX_NOMACHINE_WAY" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NX_NOMACHINE_WAY=$NX_NOMACHINE_WAY\""
+
+	[ -z "$SSH_AUTHORIZED_KEYS" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS\"" 
+	
 	[ -z $(echo "$NX_LOGGING" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NX_LOGGING=$NX_LOGGING\""
 	[ "$NX_LOGGING" = "1" -a ! -e "$NX_LOGFILE" ] && \
 		WARNING="yes" && echo "Warning: Invalid value \"NX_LOGFILE=$NX_LOGFILE\"" \
 					  && echo "         No loggfile will be kept."
 		# How do I check if another user might write to a file? ( -w checks only current user)
-	[ -z $(echo "$SESSION_HISTORY" | egrep "^-?[0-9]*$") ] && \
+	[ -z $(echo "$SESSION_HISTORY" | egrep "^-?[0-9]+$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SESSION_HISTORY=$SESSION_HISTORY\""
 	
 	[ -z $(echo "$ENABLE_PASSDB_AUTHENTICATION" | egrep "^[0|1]$") ] && \
@@ -226,22 +243,26 @@ then
 	
 	[ -z $(echo "$ENABLE_SERVER_FORWARD" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SERVER_FORWARD=$ENABLE_SERVER_FORWARD\""
-	[ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ] && \
+	[ "$ENABLE_SERVER_FORWARD" = "1" -a -z "$SERVER_FORWARD_HOST" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SERVER_FORWARD_HOST=$SERVER_FORWARD_HOST\"" 
 		# Any ideas on how I can check for a VALID host is velcome!
 		# In my private scripts I use 'resolveip -q' and check if output conforms to [0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}, 
 		# but resolveip is part of mysql, and I don't think I should add that dependancy...
-	[ "$ENABLE_SERVER_FORWARD" = "1" -a -z $(echo "$SERVER_FORWARD_PORT" | egrep "^[0-9]*$") ] && \
+	[ "$ENABLE_SERVER_FORWARD" = "1" -a -z $(echo "$SERVER_FORWARD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SERVER_FORWARD_PORT=$SERVER_FORWARD_PORT\""
 	[ "$ENABLE_SERVER_FORWARD" = "1" -a ! -e "$SERVER_FORWARD_KEY" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SERVER_FORWARD_KEY=$SERVER_FORWARD_KEY\""
 	
-	[ -z $(echo "$ENABLE_NOMACHINE_FORWARD" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_NOMACHINE_FORWARD=$ENABLE_NOMACHINE_FORWARD\""
-	[ "$ENABLE_NOMACHINE_FORWARD" = "1" ] && ! which "$NOMACHINE_SERVER" >/dev/null 2>&1 && \
+	[ -z $(echo "$ENABLE_NOMACHINE_FORWARD_USER" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_NOMACHINE_FORWARD_USER=$ENABLE_NOMACHINE_FORWARD_USER\""
+	[ -z $(echo "$ENABLE_NOMACHINE_FORWARD_PORT" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_NOMACHINE_FORWARD_PORT=$ENABLE_NOMACHINE_FORWARD_PORT\""
+	[ "$ENABLE_NOMACHINE_FORWARD_USER" = "1" -o "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" ] && ! which "$NOMACHINE_SERVER" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_SERVER=$NOMACHINE_SERVER\""
-	[ "$ENABLE_NOMACHINE_FORWARD" = "1" -a ! -d "$NOMACHINE_NX_HOME_DIR" ] && \
+	[ "$ENABLE_NOMACHINE_FORWARD_USER" = "1" -a ! -d "$NOMACHINE_NX_HOME_DIR" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_NX_HOME_DIR=$NOMACHINE_NX_HOME_DIR\""
+	[ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a -z $(echo "$NOMACHINE_FORWARD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_FORWARD_PORT=$NOMACHINE_FORWARD_PORT\""
 	
 	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
@@ -252,6 +273,21 @@ then
 		WARNING="yes" && echo "Warning: Invalid value \"ESD_BIN_PRELOAD=$ESD_BIN_PRELOAD\"" \
 					  && echo "         No esd preload will be performed."
 	
+	[ -z $(echo "$ENABLE_ARTSD_PRELOAD" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ARTSD_PRELOAD=$ENABLE_ARTSD_PRELOAD\""
+	[ "$ARTSD_BIN_PRELOAD" = "1" ] && ! which "$ARTSD_BIN_PRELOAD" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"ARTSD_BIN_PRELOAD=$ARTSD_BIN_PRELOAD\"" \
+					  && echo "         No arts preload will be performed."
+	
+	! which "$COMMAND_NETCAT" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_NETCAT=$COMMAND_NETCAT\""
+	
+	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""
+	[ "$ENABLE_USESSION" = "1" ] && ! which "$COMMAND_SESSREG" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_SESSREG=$COMMAND_SESSREG\"" \
+					  && echo "         Logged in users will not be registered with sessreg."
+	
 	[ ! -d "$USER_FAKE_HOME" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"USER_FAKE_HOME=$USER_FAKE_HOME\""
 	
@@ -260,22 +296,23 @@ then
 	
 	[ -z $(echo "$SSHD_CHECK_IP" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SSHD_CHECK_IP=$SSHD_CHECK_IP\""
-	[ -z $(echo "$SSHD_PORT" | egrep "^[0-9]*$") ] && \
+	[ -z $(echo "$SSHD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SSHD_PORT=$SSHD_PORT\""
 	
-	[ -z $(echo "$DISPLAY_BASE" | egrep "^[0-9]*$") ] && \
+	[ -z $(echo "$DISPLAY_BASE" | egrep "^[1-9][0-9]{0,4}$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_BASE=$DISPLAY_BASE\""
-		[ -z $(echo "$SESSION_LIMIT" | egrep "^[0-9]*$") ] &&  \
-			ERROR="yes" && echo "Error: Invalid value \"SESSION_LIMIT=$SESSION_LIMIT\""
-	[ -z $(echo "$SESSION_USER_LIMIT" | egrep "^[0-9]*$") -o $SESSION_USER_LIMIT -gt $SESSION_LIMIT ] && \
+	[ -z $(echo "$SESSION_LIMIT" | egrep "^[1-9][0-9]{0,4}$") ] &&  \
+		ERROR="yes" && echo "Error: Invalid value \"SESSION_LIMIT=$SESSION_LIMIT\""
+	[ -z $(echo "$SESSION_USER_LIMIT" | egrep "^[1-9][0-9]{0,4}$") -o $SESSION_USER_LIMIT -gt $SESSION_LIMIT ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SESSION_USER_LIMIT=$SESSION_USER_LIMIT\""
-	[ -z $(echo "$DISPLAY_LIMIT" | egrep "^[0-9]*$") -o $DISPLAY_LIMIT -lt $SESSION_LIMIT ] && \
+	[ -z $(echo "$DISPLAY_LIMIT" | egrep "^[1-9][0-9]{0,4}$") -o $DISPLAY_LIMIT -lt $SESSION_LIMIT ] && \
 		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_LIMIT=$DISPLAY_LIMIT\""
 	
 	! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_WM=$DEFAULT_X_WM\""
 	! which "$DEFAULT_X_SESSION" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_SESSION=$DEFAULT_X_SESSION\""
+		WARNING="yes" && echo "Warning: Invalid value \"DEFAULT_X_SESSION=$DEFAULT_X_SESSION\"" \
+					  && echo "         Users might not be able to request a default X session."
 	! which "$COMMAND_START_KDE" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_START_KDE=$COMMAND_START_KDE\"" \
 					  && echo "         Users will not be able to request a KDE session."
@@ -303,23 +340,17 @@ then
 	! which "$COMMAND_SMBUMOUNT" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SMBUMOUNT=$COMMAND_SMBUMOUNT\""
 	
-	OLD_IFS=$IFS
-	IFS=","
-	if [ "$ENABLE_PERSISTENT_SESSION" != "all" ]
-	then
-		for USERNAME in $ENABLE_PERSISTENT_SESSION; do
-			[ -z $(getent passwd | egrep "^$USERNAME:") ] && \
-				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
-		done
-	fi
-	for USERNAME in $DISABLE_PERSISTENT_SESSION; do
-		[ -z $(getent passwd | egrep "^$USERNAME:") ] && \
-			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
-	done
-	IFS=$OLD_IFS
+	#AGENT_EXTRA_OPTIONS_RFB=""
+	#AGENT_EXTRA_OPTIONS_RDP=""
+	#AGENT_EXTRA_OPTIONS_X=""
+	#PROXY_EXTRA_OPTIONS=""
+		#Can these be checked???
 	
 	#AGENT_FONT_SERVER=""
 		#Any ideas on how I can check for a VALID host is velcome!
+	
+	[ -z $(echo "$PROXY_TCP_NODELAY" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"PROXY_TCP_NODELAY=$PROXY_TCP_NODELAY\""
 	
 	[ -z $(echo "$CUPS_SUPPORT" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"CUPS_SUPPORT=$CUPS_SUPPORT\""
@@ -336,8 +367,27 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"PROXY_LIBRARY_PATH=$PROXY_LIBRARY_PATH\""
 	[ ! -d "$APPLICATION_LIBRARY_PATH" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PATH=$APPLICATION_LIBRARY_PATH\""
-	#APPLICATION_LIBRARY_PRELOAD=""
-		# As this isn't used yet I don't know how to realy check for it. Fix this when adding support!
+	
+	OLD_IFS=$IFS
+	IFS=","
+	if [ "$ENABLE_PERSISTENT_SESSION" != "all" ]
+	then
+		for USERNAME in $ENABLE_PERSISTENT_SESSION; do
+			[ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
+		done
+	fi
+	for USERNAME in $DISABLE_PERSISTENT_SESSION; do
+		[ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
+	done
+	
+	IFS=":"
+	for LIBRARY in $APPLICATION_LIBRARY_PRELOAD; do
+		[ ! -e $LIBRARY ] && \
+			ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PRELOAD=$APPLICATION_LIBRARY_PRELOAD\"" && break ;
+	done
+	IFS=$OLD_IFS
 	
 	if [ "$ERROR" = "yes" ]
 	then

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.36 2005/03/12 08:03:45 jonno Exp $
+# CVS: $Id: nxnode,v 1.37 2005/03/12 12:13:25 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -137,9 +137,9 @@ node_start_applications()
 			STARTX=$application
 		;;
 		unix-default)
-			if [ -f "$HOME/.Xclients" ]; then
+			if [ -x "$HOME/.Xclients" ]; then
 				STARTX="$HOME/.Xclients"
-			elif [ -f "$DEFAULT_X_SESSION" ]; then
+			elif which "$DEFAULT_X_SESSION" >/dev/null 2>&1 ; then
 				STARTX="$DEFAULT_X_SESSION"
 			fi
 		;;
@@ -153,7 +153,7 @@ node_start_applications()
 		export ESPEAKER="127.0.0.1:$ESPEAKER"
 		
 		# Check for config file directive
-		if [ "$ENABLE_ESD_PRELOAD" = "1" ]
+		if [ "$ENABLE_ESD_PRELOAD" = "1" -a -x $ESD_BIN_PRELOAD ]
 		then
 			STARTX="$ESD_BIN_PRELOAD $STARTX"
 			
@@ -166,7 +166,7 @@ node_start_applications()
 	then
 		# Overwrite users mcoprc
 		echo -n "GlobalComm=Arts::X11GlobalComm" > $USER_FAKE_HOME/.mcoprc
-		if [ "$ENABLE_ARTSD_PRELOAD" = "1" ]
+		if [ "$ENABLE_ARTSD_PRELOAD" = "1" -a -x $ARTSD_BIN_PRELOAD ]
 		then
 			STARTX="$ARTSD_BIN_PRELOAD $STARTX"
 			echo "Info: NXNODE - Using $ARTSD_BIN_PRELOAD wrapper script." >> $USER_FAKE_HOME/.nx/C-$sess_id/session
@@ -539,7 +539,7 @@ else
 	node_start_applications &
 fi
 
-[ -n "$NODE_AUTOSTART" ] && "$NODE_AUTOSTART" "$1"
+which "$NODE_AUTOSTART" >/dev/null 2>&1 && "$NODE_AUTOSTART" "$1"
 	
 cat << EOF
 NX> 700 Session id: $sess_id

@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.35 2005/03/12 04:17:03 fabianx Exp $
+# CVS: $Id: nxserver,v 1.36 2005/03/12 12:13:25 jonno Exp $
 #
 
 # Read the config file
@@ -350,14 +350,13 @@ then
 
 log()
 {
-	[ "$NX_LOGGING" = "1" ] && echo "$@" >> "$NX_LOGFILE"
+	[ "$NX_LOGGING" = "1" -a -w "$NX_LOGFILE" ] && echo "$@" >> "$NX_LOGFILE"
 }
 
 log_tee()
 {
-
-  [ "$NX_LOGGING" = "1" ] && exec tee -a "$NX_LOGFILE"
-  [ "$NX_LOGGING" = "1" ] || exec cat -
+	[ "$NX_LOGGING" = "1" -a -w "$NX_LOGFILE" ] && exec tee -a "$NX_LOGFILE"
+	[ "$NX_LOGGING" = "1" -a -w "$NX_LOGFILE" ] || exec cat -
 }
 
 echo_x()
