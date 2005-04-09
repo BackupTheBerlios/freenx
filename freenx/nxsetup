@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.24 2005/04/04 07:00:58 fux Exp $ 
+# CVS: $Id: nxsetup,v 1.25 2005/04/09 19:15:43 fux Exp $ 
 #
 
 HELP="no"
@@ -41,7 +41,7 @@ done
 [ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" ] && [ "$SETUP_NOMACHINE_KEY" = "yes" -o -n "$SETUP_UID" -o "$CLEAN" = "yes" ] && HELP="yes"
 [ "$UNINSTALL" = "yes" -a "$CLEAN" = "yes" ] && HELP="yes"
-[ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP=yes"
+[ "$SETUP_SSH2_KEY" = "yes" -a "$SETUP_NOMACHINE_KEY" = "no" ] && HELP="yes"
 
 if [ "$HELP" = "yes" ]
 then
