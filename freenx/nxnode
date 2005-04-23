@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.50 2005/03/17 00:00:20 fux Exp $
+# CVS: $Id: nxnode,v 1.51 2005/04/23 12:56:54 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -155,8 +155,8 @@ node_start_applications()
 			STARTX=$application
 		;;
 		unix-default)
-			if [ -x "$HOME/.Xclients" ]; then
-				STARTX="$HOME/.Xclients"
+			if [ -x "$HOME/$USER_X_STARTUP_SCRIPT" ]; then
+				STARTX="$HOME/$USER_X_STARTUP_SCRIPT"
 			elif which "$DEFAULT_X_SESSION" >/dev/null 2>&1 ; then
 				STARTX="$DEFAULT_X_SESSION"
 			fi

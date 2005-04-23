@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.23 2005/03/17 23:21:14 fux Exp $
+# CVS: $Id: nxloadconfig,v 1.24 2005/04/23 12:56:54 jonno Exp $
 #
 # ========================================================================
 
@@ -128,6 +128,7 @@ SESSION_LIMIT=200
 DISPLAY_LIMIT=200
 
 DEFAULT_X_WM=twm
+USER_X_STARTUP_SCRIPT=.Xclients
 DEFAULT_X_SESSION=/etc/X11/xdm/Xsession
 COMMAND_START_KDE=startkde
 COMMAND_START_GNOME=gnome-session

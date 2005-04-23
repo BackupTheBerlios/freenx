@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.18 2005/03/17 23:21:14 fux Exp $
+# CVS: $Id: node.conf.sample,v 1.19 2005/04/23 12:56:54 jonno Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -59,7 +59,7 @@
 
 # This directive controls if the temporary session directory 
 # ($HOME/.nx/C-<hostname>-<display>-<session_id>) should be kept after a 
-# session has ended. A successfullty terminated session will be saved as 
+# session has ended. A successfully terminated session will be saved as 
 # T-C-<hostname>-<display>-<session_id> while a failed session will be saved 
 # as F-C-<hostname>-<display>-<session_id>.
 #SESSION_LOG_CLEAN=0
@@ -185,7 +185,7 @@
 # USER_FAKE_HOME is the base directory for the .nx directory. Use this
 # parameter instead of the users home directory if $HOME is on a NFS share.
 # Note that this directory must be unique for every user! To accomplish this 
-# it is recomended to include $USER in the path.
+# it is recommended to include $USER in the path.
 #USER_FAKE_HOME=$HOME
 
 # Add the nx libraries to LD_LIBRARY_PATH before starting nx agents.
@@ -248,6 +248,16 @@
 #ENABLE_DEFAULT_X_WM="0"
 #ENABLE_DEFAULT_X_WM_KILL="0"
 #DEFAULT_X_WM=twm
+
+# When a 'unix-default' session is requested by the client the user's X startup
+# script will be run if pressent and executable, otherwise the default X 
+# session will be run.
+# Depending on distribution USER_X_STARTUP_SCRIPT might be .Xclients, .xinitrc
+# and .Xsession
+# Depending on distribution DEFAULT_X_SESSION might be /etc/X11/xdm/Xsession,
+# /etc/X11/Sessions/Xsession or /etc/X11/xinit/xinitrc
+#USER_X_STARTUP_SCRIPT=.Xclients
+#DEFAULT_X_SESSION=/etc/X11/xdm/Xsession
 
 # The key that contains the name of the script that starts a KDE session. 
 # It's run when a unix 'kde' session is requested by the client.
