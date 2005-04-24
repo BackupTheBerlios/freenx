@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.47 2005/03/21 12:50:36 jonno Exp $
+# CVS: $Id: nxserver,v 1.48 2005/04/24 15:12:13 fabianx Exp $
 #
 
 # Read the config file
@@ -872,8 +872,8 @@ do
 			exit 0
 		;;
 		bye|BYE)
-			echo_x "Bye"
-			echo_x "NX> 999 Bye"
+			echo_x "Bye" 1>&2
+			echo_x "NX> 999 Bye" 1>&2
 			if [ "$ENCRYPTION" = "1" ] 
 			then 
 				let PROXY_DISPLAY=$SESS_DISPLAY+4000
