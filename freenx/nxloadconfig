@@ -1,17 +1,17 @@
 #!/bin/bash
 #
 # Copyright (c) 2005 by Fabian Franz <freenx@fabian-franz.de>
-#           (c) 2005 by Jon Severinsson <jon@severinsson.net>
+#           (c) 2005 by Jon Severinsson <jonno@users.berlios.de>
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.25 2005/04/24 15:51:54 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.26 2005/04/24 18:01:14 jonno Exp $
 #
 # ========================================================================
 
 #########################################################################
 # Commandline support for --help, --check and --userconf
-#######################################################################
+#########################################################################
 
 HELP="no"
 CHECK="no"
@@ -60,30 +60,57 @@ NX_ETC_DIR=/etc/nxserver
 NX_SESS_DIR=/var/lib/nxserver/db
 NX_HOME_DIR=/var/lib/nxserver/home
 
+# Advanced users ONLY
+AGENT_LIBRARY_PATH="" #Calculated
+PROXY_LIBRARY_PATH="" #Calculated
+APPLICATION_LIBRARY_PATH="" #Calculated
+APPLICATION_LIBRARY_PRELOAD="" #Calculated
+
 # the name of the authorized keys file for ssh
 SSH_AUTHORIZED_KEYS="authorized_keys2"
 
 #########################################################################
 # Default Values
-# DO NOT EVER TOUCH THIS, edit $NX_ETC_DIR/node.conf instead
+# A user should NEVER touch this, edit $NX_ETC_DIR/node.conf instead
 #########################################################################
 
-NX_LOG_LEVEL=0
-NX_LOGFILE=/var/log/nxserver.log
-SESSION_LOG_CLEAN=1
-SESSION_HISTORY=2592000
+# General FreeNX directives
+
+SERVER_NAME="$(hostname)"
+SSHD_PORT=22
+
+
+# Authentication / Security directives
 
 ENABLE_PASSDB_AUTHENTICATION="1"
 ENABLE_SSH_AUTHENTICATION="1"
 ENABLE_SU_AUTHENTICATION="0"
 ENABLE_USER_DB="0"
 
-ENABLE_AUTORECONNECT="0"
-ENABLE_AUTORECONNECT_BEFORE_140="1"
+ENABLE_FORCE_ENCRYPTION="0"
+SSHD_CHECK_IP="0"
 
-EXPORT_USERIP="0"
-EXPORT_SESSIONID="0"
-NODE_AUTOSTART=""
+
+# Limitations
+
+DISPLAY_BASE=1000
+SESSION_LIMIT=200
+SESSION_USER_LIMIT="" #Calculated
+DISPLAY_LIMIT=200
+
+ENABLE_PERSISTENT_SESSION="all"
+DISABLE_PERSISTENT_SESSION=""
+
+
+# Logging directives
+
+NX_LOG_LEVEL=0
+NX_LOGFILE=/var/log/nxserver.log
+SESSION_LOG_CLEAN=1
+SESSION_HISTORY=2592000
+
+
+# Forwarding directives
 
 ENABLE_SERVER_FORWARD="0"
 SERVER_FORWARD_HOST=""
@@ -97,40 +124,22 @@ NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
 ENABLE_NOMACHINE_FORWARD_PORT="0"
 NOMACHINE_FORWARD_PORT="22"
 
-ENABLE_ROOTLESS_MODE="0"
+
+# Services directives
 
 ENABLE_ESD_PRELOAD="0"
 ESD_BIN_PRELOAD="esddsp"
-
 ENABLE_ARTSD_PRELOAD="0"
 ARTSD_BIN_PRELOAD="artsdsp"
 
-COMMAND_NETCAT=netcat
-COMMAND_SSH=ssh
-COMMAND_SSH_KEYGEN=ssh-keygen
 
-ENABLE_USESSION="0"
-COMMAND_SESSREG="sessreg"
+# Path directives
 
+USER_FAKE_HOME="" #Calculated
 SET_LD_LIBRARY_PATH="1"
 
-ENABLE_FORCE_ENCRYPTION="0"
-
-# FreeNX + NoMachine mixed section
-
-# see below for DEFAULT_X_WM directive
 ENABLE_DEFAULT_X_WM="0"
 ENABLE_DEFAULT_X_WM_KILL="0"
-
-# NoMachine node.conf compatible vars
-
-SSHD_CHECK_IP="0"
-SSHD_PORT=22
-
-DISPLAY_BASE=1000
-SESSION_LIMIT=200
-DISPLAY_LIMIT=200
-
 DEFAULT_X_WM=twm
 USER_X_STARTUP_SCRIPT=.Xclients
 DEFAULT_X_SESSION=/etc/X11/xdm/Xsession
@@ -139,40 +148,30 @@ COMMAND_START_GNOME=gnome-session
 COMMAND_START_CDE=cdwm
 COMMAND_XTERM=xterm
 COMMAND_XAUTH=/usr/X11R6/bin/xauth
-COMMAND_XSET=/usr/X11R6/bin/xset
-COMMAND_XMODMAP=/usr/X11R6/bin/xmodmap
-COMMAND_XKBCOMP=/usr/X11R6/bin/xkbcomp
-XKBCOMP_KEYMAP_FILE=/etc/X11/xkb/keymap/xfree86
 COMMAND_SMBMOUNT=smbmount
 COMMAND_SMBUMOUNT=smbumount
+COMMAND_NETCAT=netcat
+COMMAND_SSH=ssh
+COMMAND_SSH_KEYGEN=ssh-keygen
 
-ENABLE_PERSISTENT_SESSION="all"
-DISABLE_PERSISTENT_SESSION="" 
 
+# Misc directives
+
+ENABLE_AUTORECONNECT="0"
+ENABLE_AUTORECONNECT_BEFORE_140="1"
+EXPORT_USERIP="0"
+EXPORT_SESSIONID="0"
+NODE_AUTOSTART=""
+ENABLE_ROOTLESS_MODE="0"
+ENABLE_USESSION="0"
+COMMAND_SESSREG="sessreg"
 AGENT_EXTRA_OPTIONS_RFB=""
 AGENT_EXTRA_OPTIONS_RDP=""
 AGENT_EXTRA_OPTIONS_X=""
 AGENT_FONT_SERVER=""
-
 PROXY_TCP_NODELAY="0"
 PROXY_EXTRA_OPTIONS=""
 
-CUPS_SUPPORT="0"
-CUPS_BACKEND=""
-CUPS_BIN=""
-CUPS_SBIN=""
-
-#########################################################################
-# Values that will be calculated
-#########################################################################
-
-SERVER_NAME=""
-SESSION_USER_LIMIT=""
-AGENT_LIBRARY_PATH=""
-PROXY_LIBRARY_PATH=""
-APPLICATION_LIBRARY_PATH=""
-APPLICATION_LIBRARY_PRELOAD=""
-USER_FAKE_HOME=""
 
 #########################################################################
 # node.conf file evaluation
@@ -181,18 +180,19 @@ USER_FAKE_HOME=""
 [ -e $NX_ETC_DIR/node.conf ] && . $NX_ETC_DIR/node.conf
 [ "$USERCONF" = "yes" -a -e $NX_ETC_DIR/$USER.node.conf ] && . $NX_ETC_DIR/$USER.node.conf
 
+
 #########################################################################
 # Calculated values
 #########################################################################
 
-[ -z "$SERVER_NAME" ] && SERVER_NAME=$(hostname)
 [ -z "$SESSION_USER_LIMIT" ] && SESSION_USER_LIMIT=$SESSION_LIMIT
+[ -z "$USER_FAKE_HOME" ] && USER_FAKE_HOME=$HOME
 
 [ -z "$AGENT_LIBRARY_PATH" ] && AGENT_LIBRARY_PATH=$PATH_LIB
 [ -z "$PROXY_LIBRARY_PATH" ] && PROXY_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PATH" ] && APPLICATION_LIBRARY_PATH=$PATH_LIB
 [ -z "$APPLICATION_LIBRARY_PRELOAD" ] && APPLICATION_LIBRARY_PRELOAD="$APPLICATION_LIBRARY_PATH/libX11.so.6.2:$APPLICATION_LIBRARY_PATH/libXext.so.6.4:$APPLICATION_LIBRARY_PATH/libXcomp.so.1:$APPLICATION_LIBRARY_PATH/libXcompext.so.1:$APPLICATION_LIBRARY_PATH/libXrender.so.1.2"
-[ -z "$USER_FAKE_HOME" ] && USER_FAKE_HOME=$HOME
+
 
 #########################################################################
 # Support for --check
@@ -202,6 +202,8 @@ if [ "$CHECK" = "yes" ]
 then
 	ERROR="no"
 	WARNING="no"
+	
+	# Internal Stuff
 	
 	[ ! -d "$PATH_BIN" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"PATH_BIN=$PATH_BIN\""
@@ -213,9 +215,83 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"NX_SESS_DIR=$NX_SESS_DIR\""
 	[ ! -d "$NX_HOME_DIR" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NX_HOME_DIR=$NX_HOME_DIR\""
+
+	[ ! -d "$AGENT_LIBRARY_PATH" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"AGENT_LIBRARY_PATH=$AGENT_LIBRARY_PATH\""
+	[ ! -d "$PROXY_LIBRARY_PATH" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"PROXY_LIBRARY_PATH=$PROXY_LIBRARY_PATH\""
+	[ ! -d "$APPLICATION_LIBRARY_PATH" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PATH=$APPLICATION_LIBRARY_PATH\""
+	
+	OLD_IFS=$IFS
+	IFS=":"
+	for LIBRARY in $APPLICATION_LIBRARY_PRELOAD; do
+		[ ! -e $LIBRARY ] && \
+			ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PRELOAD=$APPLICATION_LIBRARY_PRELOAD\"" && break ;
+	done
+	IFS=$OLD_IFS
 	
 	[ -z "$SSH_AUTHORIZED_KEYS" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS\"" 
+		ERROR="yes" && echo "Error: Invalid value \"SSH_AUTHORIZED_KEYS=$SSH_AUTHORIZED_KEYS\""
+	
+	
+	# General FreeNX directives
+	
+	[ -z "$SERVER_NAME" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SERVER_NAME=$SERVER_NAME\""
+	[ -z $(echo "$SSHD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SSHD_PORT=$SSHD_PORT\""
+	
+	
+	# Authentication / Security directives
+	
+	[ -z $(echo "$ENABLE_PASSDB_AUTHENTICATION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_PASSDB_AUTHENTICATION=$ENABLE_PASSDB_AUTHENTICATION\""
+	[ -z $(echo "$ENABLE_SSH_AUTHENTICATION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SSH_AUTHENTICATION=$ENABLE_SSH_AUTHENTICATION:\""
+	[ -z $(echo "$ENABLE_SU_AUTHENTICATION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SU_AUTHENTICATION=$NENABLE_SU_AUTHENTICATION\""
+	[ -z $(echo "$ENABLE_USER_DB" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USER_DB=$ENABLE_USER_DB\""
+	
+	[ -z $(echo "$ENABLE_FORCE_ENCRYPTION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_FORCE_ENCRYPTION=$ENABLE_FORCE_ENCRYPTION\""
+	[ -z $(echo "$SSHD_CHECK_IP" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SSHD_CHECK_IP=$SSHD_CHECK_IP\""
+	
+	
+	# Limitations
+	
+	[ -z $(echo "$DISPLAY_BASE" | egrep "^[1-9][0-9]{0,4}$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_BASE=$DISPLAY_BASE\""
+	[ -z $(echo "$SESSION_LIMIT" | egrep "^[1-9][0-9]{0,4}$") ] &&  \
+		ERROR="yes" && echo "Error: Invalid value \"SESSION_LIMIT=$SESSION_LIMIT\""
+	[ -z $(echo "$SESSION_USER_LIMIT" | egrep "^[1-9][0-9]{0,4}$") -o $SESSION_USER_LIMIT -gt $SESSION_LIMIT ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SESSION_USER_LIMIT=$SESSION_USER_LIMIT\""
+	[ -z $(echo "$DISPLAY_LIMIT" | egrep "^[1-9][0-9]{0,4}$") -o $DISPLAY_LIMIT -lt $SESSION_LIMIT ] && \
+		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_LIMIT=$DISPLAY_LIMIT\""
+	
+	OLD_IFS=$IFS
+	IFS=","
+	if [ "$ENABLE_PERSISTENT_SESSION" != "all" ]
+	then
+		for USERNAME in $ENABLE_PERSISTENT_SESSION; do
+			[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
+			[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group | egrep "^${USERNAME:1}:") ] && \
+				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
+		done
+	fi
+	for USERNAME in $DISABLE_PERSISTENT_SESSION; do
+		[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
+		[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group | egrep "^${USERNAME:1}:") ] && \
+			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
+	done
+	IFS=$OLD_IFS
+	
+	
+	# Logging directives
 	
 	[ -z $(echo "$NX_LOG_LEVEL" | egrep "^[0-6]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NX_LOG_LEVEL=$NX_LOG_LEVEL\""
@@ -228,27 +304,8 @@ then
 	[ -z $(echo "$SESSION_HISTORY" | egrep "^-?[0-9]+$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SESSION_HISTORY=$SESSION_HISTORY\""
 	
-	[ -z $(echo "$ENABLE_PASSDB_AUTHENTICATION" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_PASSDB_AUTHENTICATION=$ENABLE_PASSDB_AUTHENTICATION\""
-	[ -z $(echo "$ENABLE_SSH_AUTHENTICATION" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SSH_AUTHENTICATION=$ENABLE_SSH_AUTHENTICATION:\""
-	[ -z $(echo "$ENABLE_SU_AUTHENTICATION" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SU_AUTHENTICATION=$NENABLE_SU_AUTHENTICATION\""
-	[ -z $(echo "$ENABLE_USER_DB" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USER_DB=$ENABLE_USER_DB\""
 	
-	[ -z $(echo "$ENABLE_AUTORECONNECT" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_AUTORECONNECT=$ENABLE_AUTORECONNECT\""
-	[ -z $(echo "$ENABLE_AUTORECONNECT_BEFORE_140" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_AUTORECONNECT_BEFORE_140=$ENABLE_AUTORECONNECT_BEFORE_140\""
-	
-	[ -z $(echo "$EXPORT_USERIP" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"EXPORT_USERIP=$EXPORT_USERIP\""
-	[ -z $(echo "$EXPORT_SESSIONID" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"EXPORT_SESSIONID=$EXPORT_SESSIONID\""
-	[ -n "$NODE_AUTOSTART" ] && ! which "$NODE_AUTOSTART" >/dev/null 2>&1 && \
-		WARNING="yes" && echo "Warning: Invalid value \"NODE_AUTOSTART=$NODE_AUTOSTART\"" \
-					  && echo "         No autostart will be performed."
+	# Forwarding directives
 	
 	[ -z $(echo "$ENABLE_SERVER_FORWARD" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_SERVER_FORWARD=$ENABLE_SERVER_FORWARD\""
@@ -273,8 +330,8 @@ then
 	[ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a -z $(echo "$NOMACHINE_FORWARD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NOMACHINE_FORWARD_PORT=$NOMACHINE_FORWARD_PORT\""
 	
-	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
+	
+	# Services directives
 	
 	[ -z $(echo "$ENABLE_ESD_PRELOAD" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ESD_PRELOAD=$ENABLE_ESD_PRELOAD\""
@@ -288,43 +345,22 @@ then
 		WARNING="yes" && echo "Warning: Invalid value \"ARTSD_BIN_PRELOAD=$ARTSD_BIN_PRELOAD\"" \
 					  && echo "         No arts preload will be performed."
 	
-	! which "$COMMAND_NETCAT" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"COMMAND_NETCAT=$COMMAND_NETCAT\""
-
-	! which "$COMMAND_SSH" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH=$COMMAND_SSH\""
-
-	! which "$COMMAND_SSH_KEYGEN" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH_KEYGEN=$COMMAND_SSH_KEYGEN\""
 	
-	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""
-	[ "$ENABLE_USESSION" = "1" ] && ! which "$COMMAND_SESSREG" >/dev/null 2>&1 && \
-		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_SESSREG=$COMMAND_SESSREG\"" \
-					  && echo "         Logged in users will not be registered with sessreg."
+	# Path directives
 	
 	[ ! -d "$USER_FAKE_HOME" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"USER_FAKE_HOME=$USER_FAKE_HOME\""
+	[ -z $(echo "$SET_LD_LIBRARY_PATH" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"SET_LD_LIBRARY_PATH=$SET_LD_LIBRARY_PATH\""
 	
-	[ -z "$SERVER_NAME" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"SERVER_NAME=$SERVER_NAME\"" 
-	
-	[ -z $(echo "$SSHD_CHECK_IP" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"SSHD_CHECK_IP=$SSHD_CHECK_IP\""
-	[ -z $(echo "$SSHD_PORT" | egrep "^[1-9][0-9]{0,4}$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"SSHD_PORT=$SSHD_PORT\""
-	
-	[ -z $(echo "$DISPLAY_BASE" | egrep "^[1-9][0-9]{0,4}$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_BASE=$DISPLAY_BASE\""
-	[ -z $(echo "$SESSION_LIMIT" | egrep "^[1-9][0-9]{0,4}$") ] &&  \
-		ERROR="yes" && echo "Error: Invalid value \"SESSION_LIMIT=$SESSION_LIMIT\""
-	[ -z $(echo "$SESSION_USER_LIMIT" | egrep "^[1-9][0-9]{0,4}$") -o $SESSION_USER_LIMIT -gt $SESSION_LIMIT ] && \
-		ERROR="yes" && echo "Error: Invalid value \"SESSION_USER_LIMIT=$SESSION_USER_LIMIT\""
-	[ -z $(echo "$DISPLAY_LIMIT" | egrep "^[1-9][0-9]{0,4}$") -o $DISPLAY_LIMIT -lt $SESSION_LIMIT ] && \
-		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_LIMIT=$DISPLAY_LIMIT\""
-	
-	! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
+	[ -z $(echo "$ENABLE_DEFAULT_X_WM" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_DEFAULT_X_WM=$ENABLE_DEFAULT_X_WM\""
+	[ "$ENABLE_DEFAULT_X_WM" = "1" -a  -z $(echo "$ENABLE_DEFAULT_X_WM_KILL" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_DEFAULT_X_WM_KILL=$ENABLE_DEFAULT_X_WM_KILL\""
+	[ "$ENABLE_DEFAULT_X_WM" = "1" ] && ! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_WM=$DEFAULT_X_WM\""
+	[ -z "$USER_X_STARTUP_SCRIPT" ] && \
+		ERROR="yes" && echo "Error: Invalid value \"USER_X_STARTUP_SCRIPT=$USER_X_STARTUP_SCRIPT\""
 	! which "$DEFAULT_X_SESSION" >/dev/null 2>&1 && \
 		WARNING="yes" && echo "Warning: Invalid value \"DEFAULT_X_SESSION=$DEFAULT_X_SESSION\"" \
 					  && echo "         Users might not be able to request a default X session."
@@ -342,18 +378,40 @@ then
 					  && echo "         Users will not be able to request an xterm session."
 	! which "$COMMAND_XAUTH" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XAUTH=$COMMAND_XAUTH\""
-	! which "$COMMAND_XSET" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XSET=$COMMAND_XSET\""
-	! which "$COMMAND_XMODMAP" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XMODMAP=$COMMAND_XMODMAP\""
-	! which "$COMMAND_XKBCOMP" >/dev/null 2>&1 && \
-		ERROR="yes" && echo "Error: Invalid value \"COMMAND_XKBCOMP=$COMMAND_XKBCOMP\""
-	[ ! -e "$XKBCOMP_KEYMAP_FILE" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"XKBCOMP_KEYMAP_FILE=$XKBCOMP_KEYMAP_FILE\""
 	! which "$COMMAND_SMBMOUNT" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SMBMOUNT=$COMMAND_SMBMOUNT\""
 	! which "$COMMAND_SMBUMOUNT" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SMBUMOUNT=$COMMAND_SMBUMOUNT\""
+	! which "$COMMAND_NETCAT" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_NETCAT=$COMMAND_NETCAT\""
+	! which "$COMMAND_SSH" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH=$COMMAND_SSH\""
+	! which "$COMMAND_SSH_KEYGEN" >/dev/null 2>&1 && \
+		ERROR="yes" && echo "Error: Invalid value \"COMMAND_SSH_KEYGEN=$COMMAND_SSH_KEYGEN\""
+
+	# Misc directives
+	
+	[ -z $(echo "$ENABLE_AUTORECONNECT" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_AUTORECONNECT=$ENABLE_AUTORECONNECT\""
+	[ -z $(echo "$ENABLE_AUTORECONNECT_BEFORE_140" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_AUTORECONNECT_BEFORE_140=$ENABLE_AUTORECONNECT_BEFORE_140\""
+	
+	[ -z $(echo "$EXPORT_USERIP" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"EXPORT_USERIP=$EXPORT_USERIP\""
+	[ -z $(echo "$EXPORT_SESSIONID" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"EXPORT_SESSIONID=$EXPORT_SESSIONID\""
+	[ -n "$NODE_AUTOSTART" ] && ! which "$NODE_AUTOSTART" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"NODE_AUTOSTART=$NODE_AUTOSTART\"" \
+					  && echo "         No autostart will be performed."
+
+	[ -z $(echo "$ENABLE_ROOTLESS_MODE" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_ROOTLESS_MODE=$ENABLE_ROOTLESS_MODE\""
+
+	[ -z $(echo "$ENABLE_USESSION" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"ENABLE_USESSION=$ENABLE_USESSION\""
+	[ "$ENABLE_USESSION" = "1" ] && ! which "$COMMAND_SESSREG" >/dev/null 2>&1 && \
+		WARNING="yes" && echo "Warning: Invalid value \"COMMAND_SESSREG=$COMMAND_SESSREG\"" \
+					  && echo "         Logged in users will not be registered with sessreg."
 	
 	#AGENT_EXTRA_OPTIONS_RFB=""
 	#AGENT_EXTRA_OPTIONS_RDP=""
@@ -367,49 +425,6 @@ then
 	[ -z $(echo "$PROXY_TCP_NODELAY" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"PROXY_TCP_NODELAY=$PROXY_TCP_NODELAY\""
 	
-	[ -z $(echo "$CUPS_SUPPORT" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"CUPS_SUPPORT=$CUPS_SUPPORT\""
-	# CUPS_BACKEND=""
-		# As this isn't used yet I don't know how to realy check for it. Fix this when adding support!
-	[ "$CUPS_SUPPORT" = "1" -a ! -d "$CUPS_BIN" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"CUPS_BIN=$CUPS_BIN\""
-	[ "$CUPS_SUPPORT" = "1" -a ! -d "$CUPS_SBIN" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"CUPS_SBIN=$CUPS_SBIN\""
-	
-	[ -z $(echo "$SET_LD_LIBRARY_PATH" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"SET_LD_LIBRARY_PATH=$SET_LD_LIBRARY_PATH\""
-		
-	[ ! -d "$AGENT_LIBRARY_PATH" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"AGENT_LIBRARY_PATH=$AGENT_LIBRARY_PATH\""
-	[ ! -d "$PROXY_LIBRARY_PATH" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"PROXY_LIBRARY_PATH=$PROXY_LIBRARY_PATH\""
-	[ ! -d "$APPLICATION_LIBRARY_PATH" ] && \
-		ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PATH=$APPLICATION_LIBRARY_PATH\""
-	
-	OLD_IFS=$IFS
-	IFS=","
-	if [ "$ENABLE_PERSISTENT_SESSION" != "all" ]
-	then
-		for USERNAME in $ENABLE_PERSISTENT_SESSION; do
-			[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd | egrep "^$USERNAME:") ] && \
-				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
-			[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group | egrep "^${USERNAME:1}:") ] && \
-				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
-		done
-	fi
-	for USERNAME in $DISABLE_PERSISTENT_SESSION; do
-		[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd | egrep "^$USERNAME:") ] && \
-			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
-		[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group | egrep "^${USERNAME:1}:") ] && \
-			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
-	done
-	
-	IFS=":"
-	for LIBRARY in $APPLICATION_LIBRARY_PRELOAD; do
-		[ ! -e $LIBRARY ] && \
-			ERROR="yes" && echo "Error: Invalid value \"APPLICATION_LIBRARY_PRELOAD=$APPLICATION_LIBRARY_PRELOAD\"" && break ;
-	done
-	IFS=$OLD_IFS
 	
 	if [ "$ERROR" = "yes" ]
 	then

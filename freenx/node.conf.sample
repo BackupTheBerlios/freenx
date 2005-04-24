@@ -37,37 +37,23 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.20 2005/04/24 15:51:54 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.21 2005/04/24 18:01:14 jonno Exp $
 
 #########################################################################
-# FreeNX specific node.conf directives
+# General FreeNX directives
 #########################################################################
 
-# This directives controls the verbosity of the server-wide log.
-# 0: No Logging, 
-# 1: Errors
-# 2: Warnings
-# 3: Important information
-# 4: Server - Client communication
-# 5: Information
-# 6: Debugging information
-#NX_LOG_LEVEL=0
+# The host name which is used by NX server. It's should be used if it's
+# different than the default hostname (as returned by `hostname`)
+#SERVER_NAME="$(hostname)"
 
-# Before turning logging on, please make sure that NX_LOGFILE is 
-# writeable for the "nx" user
-#NX_LOGFILE=/var/log/nxserver.log
+# The port number where local 'sshd' is listening.
+#SSHD_PORT=22
 
-# This directive controls if the temporary session directory 
-# ($HOME/.nx/C-<hostname>-<display>-<session_id>) should be kept after a 
-# session has ended. A successfully terminated session will be saved as 
-# T-C-<hostname>-<display>-<session_id> while a failed session will be saved 
-# as F-C-<hostname>-<display>-<session_id>.
-#SESSION_LOG_CLEAN=0
 
-# Amount of seconds nxserver is to keep session history. The default of 2592000
-# is equivalent to 30 days. If this is 0 no session history will be kept,
-# and a negative value denotes infinity.
-#SESSION_HISTORY=2592000
+#########################################################################
+# Authentication / Security directives
+#########################################################################
 
 # Authentication directives
 # This adds the passdb to the possible authentication methods
@@ -78,41 +64,104 @@
 #ENABLE_SSH_AUTHENTICATION="1"
 
 # This adds SU to the possible authentication methods. For it to work the 
-# "nx" user must be in the wheel (RedHat, Fedora) or the users group (SUSE) 
-# and the user logging in must have a valid shell that accepts the -c 
+# "nx" user must be in the wheel (RedHat, Fedora) or the users group (SUSE)
+# and the user logging in must have a valid shell that accepts the -c
 # parameter.
 #ENABLE_SU_AUTHENTICATION="0"
 
-# Require all users to be in the passdb, regardless of authentication 
-# method
+# Require all users to be in the passdb, regardless of authentication method
 #ENABLE_USER_DB="0"
 
-# When set to 1 this will automatically resume started sessions
-#ENABLE_AUTORECONNECT="0"
 
-# When set to 1 this will automatically resume started sessions
-# but only if an older client version is used
-#ENABLE_AUTORECONNECT_BEFORE_140="1"
+# If enabled forces the user to use encryption. This will bail out
+# if the user does not have encryption enabled.
+#ENABLE_FORCE_ENCRYPTION="0"
 
-# When set to 1 exports NXUSERIP / NXSESSIONID in nxnode
-#EXPORT_USERIP="0"
-#EXPORT_SESSIONID="0"
+# Refuse the NX client connection if SSHD does not export the
+# SSH_CONNECTION and SSH_CLIENT variables in the environment
+# passed to the NX server.
+# 1: Will check the remote IP and will not accept the
+#    connection if it can't be determined.
+# 0: Will accept the connection even if the remote IP
+#    is not provided.
+#SSHD_CHECK_IP="0"
 
-# This can be set to any executable, which is started after session startup
-# like: $NODE_AUTOSTART {start|restore}
-#NODE_AUTOSTART=""
+
+#########################################################################
+# Limitations
+#########################################################################
+
+# The base display number from which sessions are started.
+#DISPLAY_BASE=1000
+
+# The maximum number of contemporary sessions that can be run on FreeNX
+#SESSION_LIMIT=200
+
+# The maximum number of contemporary sessions that a single user can run
+# on FreeNX. Defaults to the value of SESSION_LIMIT.
+#SESSION_USER_LIMIT=200
+
+# The number of displays reserved for sessions, it has to be greater or equal
+# to the maximum number of contemporary sessions that a server can run.
+#DISPLAY_LIMIT=200
+
+
+# User for which sessions should be persistent. Either the keyword "all" or a
+# comma-separated list of usernames or groups in the @groupname syntax.
+#ENABLE_PERSISTENT_SESSION="all"
+
+# Users and groups for whom persistent sessions should be disabled.
+# Especially useful if ENABLE_PERSISTENT_SESSION="all"
+#DISABLE_PERSISTENT_SESSION=""
+
+
+#########################################################################
+# Logging directives
+#########################################################################
+
+# This directives controls the verbosity of the server-wide log.
+# 0: No Logging
+# 1: Errors
+# 2: Warnings
+# 3: Important information
+# 4: Server - Client communication
+# 5: Information
+# 6: Debugging information
+#NX_LOG_LEVEL=0
+
+# Before turning logging on, please make sure that NX_LOGFILE is
+# writeable for the "nx" user
+#NX_LOGFILE=/var/log/nxserver.log
+
+# This directive controls if the temporary session directory
+# ($HOME/.nx/C-<hostname>-<display>-<session_id>) should be kept after a
+# session has ended. A successfully terminated session will be saved as
+# T-C-<hostname>-<display>-<session_id> while a failed session will be saved
+# as F-C-<hostname>-<display>-<session_id>.
+#SESSION_LOG_CLEAN=0
+
+# Amount of seconds nxserver is to keep session history. The default of 2592000
+# is equivalent to 30 days. If this is 0 no session history will be kept
+# and a negative value denotes infinity.
+#SESSION_HISTORY=2592000
+
+
+#########################################################################
+# Forwarding directives
+#########################################################################
 
 # FreeNX with ENABLE_SERVER_FORWARD="1" will automatically forward all
-# connections to the host specified in SERVER_FORWARD_HOST with the 
+# connections to the host specified in SERVER_FORWARD_HOST with the
 # secret key SERVER_FORWARD_KEY.
 #
-# This allows to have a "chain" of NX Servers. Note that you will need to 
+# This allows to have a "chain" of NX Servers. Note that you will need to
 # use "SSL encryption" for all connections.
 
 #ENABLE_SERVER_FORWARD="0"
 #SERVER_FORWARD_HOST=""
 #SERVER_FORWARD_PORT=22
 #SERVER_FORWARD_KEY="/usr/NX/share/client.id_dsa.key"
+
 
 # FreeNX with ENABLE_NOMACHINE_FORWARD_USER="1" will automatically forward all
 # connections to the commercial NoMachine nxserver installed on the same
@@ -130,131 +179,76 @@
 #NOMACHINE_SERVER="/usr/NX/bin/nxserver"
 #NOMACHINE_NX_HOME_DIR="/usr/NX/home/nx"
 
-# To just forward connections to the NoMachine server, which connect to a 
+
+# To just forward connections to the NoMachine server, which connect to a
 # certain port enable the following two directives.
 # 
-# Note: You need to let SSHD listen to several ports to make use of this 
+# Note: You need to let SSHD listen to several ports to make use of this
 #       directive.
 
 #ENABLE_NOMACHINE_FORWARD_PORT="0"
 #NOMACHINE_FORWARD_PORT="22"
 
-# When set to 1 will start nxagent in rootless mode.
-#ENABLE_ROOTLESS_MODE="0"
 
-# FreeNX with ENABLE_ESD_PRELOAD="1" will automatically try to setup 
+#########################################################################
+# Services directives
+#########################################################################
+
+# FreeNX with ENABLE_ESD_PRELOAD="1" will automatically try to setup
 # the sound with the help of the esd media helper.
 #
 # Currently ESD will be used just by the Windows NX Client.
 #
-# Be sure that $ESD_BIN_PRELOAD is in your path, does exist and work 
+# Be sure that $ESD_BIN_PRELOAD is in your path, does exist and work
 # before enabling this directive.
 
 #ENABLE_ESD_PRELOAD="0"
 #ESD_BIN_PRELOAD="esddsp"
 
-# FreeNX with ENABLE_ARTSD_PRELOAD="1" will automatically try to setup 
+# FreeNX with ENABLE_ARTSD_PRELOAD="1" will automatically try to setup
 # the sound with the help of the artsd media helper.
 #
 # Currently ARTSD will be used just by the Linux NX Client.
 #
-# Be sure that $ARTSD_BIN_PRELOAD is in your path, does exist and work 
+# Be sure that $ARTSD_BIN_PRELOAD is in your path, does exist and work
 # before enabling this directive.
 
 #ENABLE_ARTSD_PRELOAD="0"
 #ARTSD_BIN_PRELOAD="artsdsp"
 
-# The key that contains the name of the complete path of the 'netcat' command. 
-#COMMAND_NETCAT=netcat
 
-# The key that contains the name of the complete path of the 'ssh' and 
-# 'ssh-keygen' command. 
-#COMMAND_SSH=ssh
-#COMMAND_SSH_KEYGEN=ssh-keygen
-
-# If enabled writes entries via the COMMAND_SESSREG program 
-# into utmp/wtmp/lastlog database.
-#
-# Note: You have to make sure that you add the nx user to the 
-#       utmp or tty group or how its called on your system
-#       before this directive works.
-
-#ENABLE_USESSION="0"
-#COMMAND_SESSREG="sessreg"
+#########################################################################
+# Path directives
+#########################################################################
 
 # USER_FAKE_HOME is the base directory for the .nx directory. Use this
 # parameter instead of the users home directory if $HOME is on a NFS share.
-# Note that this directory must be unique for every user! To accomplish this 
+# Note that this directory must be unique for every user! To accomplish this
 # it is recommended to include $USER in the path.
 #USER_FAKE_HOME=$HOME
 
 # Add the nx libraries to LD_LIBRARY_PATH before starting nx agents.
-# WARNING: This will NOT (and should not) affect applications. ONLY Disable this
-#          if the nx libraries are in a standard system path (such as /usr/lib)!
+# WARNING: This will NOT (and should not) affect applications. ONLY Disable
+# this if the nx libraries are in a standard system path (such as /usr/lib)!
 #SET_LD_LIBRARY_PATH="1"
 
-# If enabled forces the user to use encryption. This will bail out 
-# if the user does not have encryption enabled.
-#ENABLE_FORCE_ENCRYPTION="0"
 
-#########################################################################
-# NoMachine node.conf compatible (almost) directives
-# All might not be implemented as of now, but will be in the near future.
-#########################################################################
-
-# The host name which is used by NX server. It's should be used if it's 
-# different than the default hostname (as returned by `hostname`)
-#SERVER_NAME="$(hostname)"
-
-# Refuse the NX client connection if SSHD does not export the
-# SSH_CONNECTION and SSH_CLIENT variables in the environment
-# passed to the NX server.
-#
-# 1: Will check the remote IP and will not accept the
-# connection if it can't be determined.
-#
-# 0: Will accept the connection even if the remote IP
-# is not provided.
-#SSHD_CHECK_IP="0"
-
-# The port number where local 'sshd' is listening. 
-#SSHD_PORT=22
-
-
-# The base display number from which sessions are started. 
-#DISPLAY_BASE=1000
-
-# The maximum number of contemporary sessions that can be run on FreeNX
-#SESSION_LIMIT=200
-
-# The maximum number of contemporary sessions that a single user can run
-# on FreeNX. Defaults to the value of SESSION_LIMIT.
-#SESSION_USER_LIMIT=200
-
-# The number of displays reserved for sessions, it has to be greater or equal
-# to the maximum number of contemporary sessions that a server can run. 
-#DISPLAY_LIMIT=200
-
-
-# The command binary for the default window manager. It is run when a 
-# unix 'custom' session is requested by the NX Client and an application 
-# to run is specified. By default it is set to "twm". If you don't have 
+# The command binary for the default window manager. It is run when a
+# 'unix-custom' session is requested by the NX Client and an application
+# to run is specified. By default it is set to "twm". If you don't have
 # twm in the default path or if you want to use another window manager,
-# you have to set it to the absolute file name of the command binary you 
+# you have to set it to the absolute file name of the command binary you
 # want to use.
-
 # FreeNX: To enable this feature set ENABLE_DEFAULT_X_WM="1"
-#         
 #         If ENABLE_DEFAULT_X_WM_KILL is set the WM is terminated
-#         after the started application finishes. Else FreeNX will 
-#         wait for the window manager to complete. 
-
+#         after the started application finishes. Else FreeNX will
+#         wait for the window manager to complete.
 #ENABLE_DEFAULT_X_WM="0"
 #ENABLE_DEFAULT_X_WM_KILL="0"
 #DEFAULT_X_WM=twm
 
 # When a 'unix-default' session is requested by the client the user's X startup
-# script will be run if pressent and executable, otherwise the default X 
+# script will be run if pressent and executable, otherwise the default X
 # session will be run.
 # Depending on distribution USER_X_STARTUP_SCRIPT might be .Xclients, .xinitrc
 # and .Xsession
@@ -263,51 +257,28 @@
 #USER_X_STARTUP_SCRIPT=.Xclients
 #DEFAULT_X_SESSION=/etc/X11/xdm/Xsession
 
-# The key that contains the name of the script that starts a KDE session. 
-# It's run when a unix 'kde' session is requested by the client.
+# The key that contains the name of the script that starts a KDE session.
+# It's run when a 'unix-kde' session is requested by the client.
 #COMMAND_START_KDE=startkde
 
-# The key that contains the name of the script that starts a gnome session. 
-# It's run when a unix 'gnome' session is requested by the client.
+# The key that contains the name of the script that starts a gnome session.
+# It's run when a 'unix-gnome' session is requested by the client.
 #COMMAND_START_GNOME=gnome-session
 
-# The key that contains the name of the script that starts a CDE session. 
-# It's run when a unix 'cde' session is requested by the client.
+# The key that contains the name of the script that starts a CDE session.
+# It's run when a 'unix-cde' session is requested by the client.
 #COMMAND_START_CDE=cdwm
 
-# The key that contains the name of the complete path of command name 
-# 'xterm'. It is run when a unix "xterm" session is requested by the 
+# The key that contains the name of the complete path of command name
+# 'xterm'. It is run when a unix "xterm" session is requested by the
 # client.
 #COMMAND_XTERM=xterm
 
-# The key that contains the name of the complete path of command name 
+# The key that contains the name of the complete path of command name
 # 'xauth'.
 #COMMAND_XAUTH=/usr/X11R6/bin/xauth
 
-# The key that contains the name of the complete path of command name 
-# 'xset'. 
-# FreeNX: This key is not used in the FreeNX project.
-
-#COMMAND_XSET=/usr/X11R6/bin/xset
-
-# The key that contains the name of the complete path of command name 
-# 'xmodmap'. 
-# FreeNX: This key is not used in the FreeNX project.
-
-#COMMAND_XMODMAP=/usr/X11R6/bin/xmodmap
-
-# The key that contains the name of the complete path of command name 
-# 'xkbcomp'. 
-# FreeNX: This key is not used in the FreeNX project.
-
-#COMMAND_XKBCOMP=/usr/X11R6/bin/xkbcomp
-
-# The keymap file for xkbcomp
-# FreeNX: This key is not used in the FreeNX project.
-
-#XKBCOMP_KEYMAP_FILE=/etc/X11/xkb/keymap/xfree86
-
-# The key that contains the name of the complete path of command name 
+# The key that contains the name of the complete path of command name
 # 'smbmount'.
 #COMMAND_SMBMOUNT=smbmount
 
@@ -315,14 +286,44 @@
 # 'smbumount'.
 #COMMAND_SMBUMOUNT=smbumount
 
+# The key that contains the name of the complete path of the 'netcat' command.
+#COMMAND_NETCAT=netcat
 
-# User for which sessions should be persistent. Either the keyword "all" or a
-# comma-separated list of usernames or groups in the @groupname syntax.
-#ENABLE_PERSISTENT_SESSION="all"
+# The key that contains the name of the complete path of the 'ssh' and
+# 'ssh-keygen' command.
+#COMMAND_SSH=ssh
+#COMMAND_SSH_KEYGEN=ssh-keygen
 
-# Users and groups for whom persistent sessions should be disabled. 
-# Especially useful if ENABLE_PERSISTENT_SESSION="all"
-#DISABLE_PERSISTENT_SESSION=""
+
+#########################################################################
+# Misc directives
+#########################################################################
+
+# When set to 1 this will automatically resume started sessions
+#ENABLE_AUTORECONNECT="0"
+
+# When set to 1 this will automatically resume started sessions
+# but only if an older client version is used
+#ENABLE_AUTORECONNECT_BEFORE_140="1"
+
+# When set to 1 exports NXUSERIP / NXSESSIONID in nxnode
+#EXPORT_USERIP="0"
+#EXPORT_SESSIONID="0"
+
+# This can be set to any executable, which is started after session startup
+# like: $NODE_AUTOSTART {start|restore}
+#NODE_AUTOSTART=""
+
+# When set to 1 will start nxagent in rootless mode.
+#ENABLE_ROOTLESS_MODE="0"
+
+# If enabled writes entries via the COMMAND_SESSREG program
+# into utmp/wtmp/lastlog database.
+# Note: You have to make sure that you add the nx user to the
+#       utmp or tty group or how its called on your system
+#       before this directive works.
+#ENABLE_USESSION="0"
+#COMMAND_SESSREG="sessreg"
 
 # Extra options sent to the different nx agents. See !M documentation
 # for examples of useful parameters.
@@ -335,14 +336,13 @@
 # in /etc/X11/XF86Config
 #AGENT_FONT_SERVER=""
 
-# disable or enable use of 'tcp nodelay' on proxy. Old versions of Linux 
-# kernels have problems using this option on sockets that will cause a loss 
-# of TCP connections. This option is not set by default to allow clients to 
-# specify whether to enable or disable TCP nodelay. Setting this option to 
-# the value of "0" NX proxy avoids using 'tcp nodelay' but it will cause a 
+# Disable or enable use of 'tcp nodelay' on proxy. Old versions of Linux
+# kernels have problems using this option on sockets that will cause a loss
+# of TCP connections. This option is not set by default to allow clients to
+# specify whether to enable or disable TCP nodelay. Setting this option to
+# the value of "0" NX proxy avoids using 'tcp nodelay' but it will cause a
 # loss of interaction in sessions.
 #PROXY_TCP_NODELAY="0"
 
 # Extra options to nxproxy. See !M documentation for useful parameters.
 #PROXY_EXTRA_OPTIONS=""
-
