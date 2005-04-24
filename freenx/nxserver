@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.48 2005/04/24 15:12:13 fabianx Exp $
+# CVS: $Id: nxserver,v 1.49 2005/04/24 15:51:54 fabianx Exp $
 #
 
 # Read the config file
@@ -771,6 +771,14 @@ server_startrestore_session()
 			log 2 "Warning: Please set SSHD_CHECK_IP=1 if you want to refuse the connection."
 		fi
 	fi
+	
+	export ENCRYPTION=$(getparam encryption)
+	
+	if [ "$ENABLE_FORCE_ENCRYPTION" = "1" -a "$ENCRYPTION" != "1" ]
+	then
+			echo_x "NX> 504 Unencrypted sessions are not allowed."
+			return 1
+	fi
 
 	# check if there is a suspended session, which we could resume
 	if [ "$ENABLE_AUTORECONNECT" = "1" -a "$ACTION" = "start" ]
@@ -826,11 +834,9 @@ server_startrestore_session()
 		# now update the session listing
 		CMDLINE="a=b&$FULL_PARAMS"
 		session_add $uniqueid "sessionName=$(getparam session)&display=$(getparam display)&status=Running&startTime=$(date +%s)&foreignAddress=$(getparam userip)&type=$(getparam type)&sessionId=$uniqueid&creationTime=$(date +%s)&userName=$USER&serverPid=$SERVER_PID&screeninfo=$(getparam screeninfo)&geometry=$(getparam geometry)"
-		export ENCRYPTION=$(getparam encryption)
 	else
 		uniqueid=$(getparam restore)
 		[ -z "$uniqueid" ] && uniqueid=$(getparam id) # 1.4.0-5 compatibility
-		export ENCRYPTION=$(getparam encryption)
 		session_change "$uniqueid" "foreignAddress" "$USERIP"
 
 		CMDLINE=$(session_get "$uniqueid")

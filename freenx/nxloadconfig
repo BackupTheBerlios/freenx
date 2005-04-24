@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.24 2005/04/23 12:56:54 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.25 2005/04/24 15:51:54 fabianx Exp $
 #
 # ========================================================================
 
@@ -113,6 +113,10 @@ ENABLE_USESSION="0"
 COMMAND_SESSREG="sessreg"
 
 SET_LD_LIBRARY_PATH="1"
+
+ENABLE_FORCE_ENCRYPTION="0"
+
+# FreeNX + NoMachine mixed section
 
 # see below for DEFAULT_X_WM directive
 ENABLE_DEFAULT_X_WM="0"

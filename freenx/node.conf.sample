@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.19 2005/04/23 12:56:54 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.20 2005/04/24 15:51:54 fabianx Exp $
 
 #########################################################################
 # FreeNX specific node.conf directives
@@ -192,6 +192,10 @@
 # WARNING: This will NOT (and should not) affect applications. ONLY Disable this
 #          if the nx libraries are in a standard system path (such as /usr/lib)!
 #SET_LD_LIBRARY_PATH="1"
+
+# If enabled forces the user to use encryption. This will bail out 
+# if the user does not have encryption enabled.
+#ENABLE_FORCE_ENCRYPTION="0"
 
 #########################################################################
 # NoMachine node.conf compatible (almost) directives
