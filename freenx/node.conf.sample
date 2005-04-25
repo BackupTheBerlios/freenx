@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.21 2005/04/24 18:01:14 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.22 2005/04/25 06:54:14 jonno Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -88,7 +88,7 @@
 
 
 #########################################################################
-# Limitations
+# Restriction directives
 #########################################################################
 
 # The base display number from which sessions are started.

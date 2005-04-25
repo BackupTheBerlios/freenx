@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.26 2005/04/24 18:01:14 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.27 2005/04/25 06:54:15 jonno Exp $
 #
 # ========================================================================
 
@@ -91,7 +91,7 @@ ENABLE_FORCE_ENCRYPTION="0"
 SSHD_CHECK_IP="0"
 
 
-# Limitations
+# Restriction directives
 
 DISPLAY_BASE=1000
 SESSION_LIMIT=200
@@ -260,7 +260,7 @@ then
 		ERROR="yes" && echo "Error: Invalid value \"SSHD_CHECK_IP=$SSHD_CHECK_IP\""
 	
 	
-	# Limitations
+	# Restriction directives
 	
 	[ -z $(echo "$DISPLAY_BASE" | egrep "^[1-9][0-9]{0,4}$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"DISPLAY_BASE=$DISPLAY_BASE\""
