@@ -29,6 +29,8 @@
 	  in nxsetup.
 	* Added ENABLE_FORCE_ENCRYPTION to enforce the usage of encryption on 
 	  the server.
+	* Added nxprint and added -printer to nxclient together with handling
+	  of drivers cache.
 
 XX.03.2005 FreeNX 0.3.1-CVS
 	* Fixed keyboard mapping problems.
