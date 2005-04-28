@@ -42,8 +42,8 @@ cp -a nxcompext/libXcompext.so* ${NXPREFIX}/lib
 cp -a nx-X11/programs/Xserver/nxagent ${NXPREFIX}/bin
 cp -a nxproxy/nxproxy ${NXPREFIX}/bin
 cp -a nxdesktop/nxdesktop ${NXPREFIX}/bin
-cp -a nxviewer/nxviewer ${NXPREFIX}/bin
-cp -a nxviewer/nxpasswd ${NXPREFIX}/bin
+cp -a nxviewer/nxviewer/nxviewer ${NXPREFIX}/bin
+cp -a nxviewer/nxpasswd/nxpasswd ${NXPREFIX}/bin
 
 # windows-keymaps for nxdesktop RDP-sessions and keyboard layout != us
 cd nxdesktop
