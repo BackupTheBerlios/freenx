@@ -31,6 +31,8 @@
 	  the server.
 	* Added nxprint and added -printer to nxclient together with handling
 	  of drivers cache.
+	* Fixed a possible race-condition. (reported by Edward Warnicke
+	  <eaw@cisco.com>)
 
 XX.03.2005 FreeNX 0.3.1-CVS
 	* Fixed keyboard mapping problems.

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.52 2005/04/28 22:39:10 fabianx Exp $
+# CVS: $Id: nxnode,v 1.53 2005/04/28 22:46:56 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -511,6 +511,7 @@ node_start_monitor()
 		
 		if stringinstring "Info: Waiting for connection from" "$line"
 		then
+			echo "NX> 710 Session status: running"
 			echo "NX> 1002 Commit"
 			echo "NX> 1006 Session status: running"
 			[ -n "$TIMEOUT_PID" ] && kill $TIMEOUT_PID 2>/dev/null
@@ -689,7 +690,6 @@ NX> 702 Proxy IP: $userip
 NX> 706 Agent cookie: $cookie
 NX> 704 Session cache: $type
 NX> 707 SSL tunneling: $ssl_tunnel
-NX> 710 Session status: running
 EOF
 
 # collection ...
