@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.49 2005/04/24 15:51:54 fabianx Exp $
+# CVS: $Id: nxserver,v 1.50 2005/04/28 22:39:10 fabianx Exp $
 #
 
 # Read the config file
@@ -978,10 +978,10 @@ do
 			server_nxnode_start --smbmount "$USER" "$PARAMS" >/dev/null 2>&1
 			echo_x "NX> 719 SMB filesystem: running"
 		;;
-		addprintercups*)
+		addprinter*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --addprintercups "$USER" "$PARAMS" >/dev/null 2>&1
+			server_nxnode_start --addprinter "$USER" "$PARAMS" >/dev/null 2>&1
 		;;
 		*)
 			# disabled for 1.4.0-5 snapshot client

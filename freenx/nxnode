@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.51 2005/04/23 12:56:54 jonno Exp $
+# CVS: $Id: nxnode,v 1.52 2005/04/28 22:39:10 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -294,6 +294,80 @@ node_kill_proxy()
 	[ -n "$PROXY_PID" ] && kill $PROXY_PID 2>/dev/null
 }
 
+node_cupsd_stop()
+{
+	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd" ] || return
+	NODE_CUPSD_PID=$(cat "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd")
+	# Check for a running userspace cupsd, look if its still active 
+	# and kill it if so
+	( [ -n "$NODE_CUPSD_PID" ] && kill -0 $NODE_CUPSD_PID && kill $NODE_CUPSD_PID && sleep 2 && kill -0 $NODE_CUPSD_PID && kill -9 $NODE_CUPSD_PID ) 2>/dev/null
+	# delete pid file
+	rm -f "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd"
+	# remove all printers
+	echo >"$USER_FAKE_HOME/.nx/C-$sess_id/cups/printers.conf"
+}
+
+node_cupsd_setup()
+{
+	let NODE_CUPSD_PORT=$display+9000 # offset 9000 for userspace cupsd's
+	export NODE_CUPSD_PORT
+	mkdir -p "$USER_FAKE_HOME/.nx/C-$sess_id/pids/"
+	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd" ] && return
+	touch "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd"
+	
+	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/tmp $USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/certs $USER_FAKE_HOME/.nx/C-$sess_id/cups/ppd
+	ln -sf spool/certs $USER_FAKE_HOME/.nx/C-$sess_id/cups/certs
+cat <<EOF > $USER_FAKE_HOME/.nx/C-$sess_id/cups/cupsd.conf
+AccessLog /dev/null
+ErrorLog error_log
+PageLog page_log
+LogLevel info
+TempDir $USER_FAKE_HOME/.nx/C-$sess_id/cups/spool/tmp
+RequestRoot $USER_FAKE_HOME/.nx/C-$sess_id/cups/spool
+ServerRoot $USER_FAKE_HOME/.nx/C-$sess_id/cups/
+Port $NODE_CUPSD_PORT
+Browsing Off
+ServerName localhost
+
+<Location />
+Order Deny,Allow
+Deny From All
+Allow from 127.0.0.1
+</Location>
+EOF
+	touch $USER_FAKE_HOME/.nx/C-$sess_id/cups/printers.conf $USER_FAKE_HOME/.nx/C-$sess_id/cups/classes.conf
+
+	# start cupsd
+	$COMMAND_CUPSD -f -c "$USER_FAKE_HOME/.nx/C-$sess_id/cups/cupsd.conf" &>/dev/null </dev/null &
+	CUPSD_PID=$!
+	sleep 3
+	echo $CUPSD_PID >"$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd"
+	# setup KDE
+	if [ "$ENABLE_KDE_CUPS" = "1" ]
+	then
+		if egrep -q "^Port=" "$HOME/$KDE_PRINTRC"
+		then
+			perl -pi -e "s/^Port=.*/Port=$NODE_CUPSD_PORT/g" "$HOME/$KDE_PRINTRC"
+		else
+			echo "[CUPS]" >> "$HOME/$KDE_PRINTRC"
+			echo "Port=$NODE_CUPSD_PORT" >> "$HOME/$KDE_PRINTRC"
+		fi
+	fi
+}
+
+node_cupsd_reload()
+{
+	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd" ] || return
+	NODE_CUPSD_PID=$(cat "$USER_FAKE_HOME/.nx/C-$sess_id/pids/cupsd")
+	[ -n "$NODE_CUPSD_PID" ] && kill -0 $NODE_CUPSD_PID && kill -HUP $NODE_CUPSD_PID
+}
+
+node_cupsd_get_port()
+{
+	node_cupsd_setup
+	echo $NODE_CUPSD_PORT
+}
+
 node_umount_smb()
 {
 	[ -e "$USER_FAKE_HOME/.nx/C-$sess_id/scripts/mpoint" ] || return
@@ -302,6 +376,13 @@ node_umount_smb()
 		$COMMAND_SMBUMOUNT "$mpoint" >/dev/null 2>/dev/null
 	done
 }
+
+node_stop_services()
+{
+	node_umount_smb
+	node_cupsd_stop
+}
+
 
 #
 # Monitoring the nxagent: Its also kind of a "state-machine" 
@@ -370,8 +451,8 @@ node_start_monitor()
 			kill $TAIL_PID 2>/dev/null
 			
 			echo "NX> 1005 Session status: suspended"
-			# umount shares 
-			node_umount_smb
+			# umount shares & stop printers
+			node_stop_services
 			break
 		fi
 
@@ -405,8 +486,8 @@ node_start_monitor()
 			sleep 2
 			kill -9 $PROXY_PID 2>/dev/null
 
-			# umount shares 
-			node_umount_smb
+			# umount shares & stop printers
+			node_stop_services
 
 			# kill the session
 			node_terminate_session "$sess_id"
@@ -478,10 +559,12 @@ node_start_monitor()
 			break
 		fi
 	done 
+	node_stop_services
 	# close all open file descriptors
 	exec 0<&-
 	exec 1>&-
 	exec 2>&-
+	exit 0
 }
 
 node_startsession()
@@ -656,6 +739,41 @@ cmd_node_smbmount()
 	fi
 }
 
+cmd_node_addprinter()
+{
+	sessionid=$(getparam_sessionid)
+	type=$(getparam type)
+	port=$(getparam port)
+	username=$(getparam username)
+	password=$(getparam password)
+	share=$(getparam share)
+	computername=$(getparam computername)
+	public=$(getparam public)
+	model=$(getparam model)
+	defaultPrinter=$(getparam defaultPrinter)
+	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
+	sess_id="$SERVER_NAME-$display-$sessionid"
+	# this will also setup the userspace cupsd
+	IPP_PORT=$(node_cupsd_get_port)
+	export IPP_PORT
+	if [ "$type" = "smb" ]
+	then
+		DEVICE_URI="smb://$username:$password@localhost:$port/$share"
+		NAME="$share"
+		MODEL="$model.ppd"
+	else
+		DEVICE_URI="ipp://localhost:$port/printers/$share"
+		NAME="$share"
+		MODEL="$model.ppd"
+	fi
+	
+	PUBLIC="-u allow:$USER"
+	[ "$public" == "1" ] && PUBLIC=""
+	lpadmin -p "$NAME" -E -v "$DEVICE_URI" -m "$MODEL" $PUBLIC
+	[ "$defaultPrinter" = "1" ] && lpadmin -d "$NAME"
+}
+
+
 case "$1" in 
 	--startsession)
 		node_startsession
@@ -671,6 +789,9 @@ case "$1" in
 	;;
 	--smbmount)
 		cmd_node_smbmount >/dev/null 2>/dev/null
+	;;
+	--addprinter)
+		cmd_node_addprinter &>/dev/null </dev/null &
 	;;
 	--check)
 		echo "NX> 716 finished"

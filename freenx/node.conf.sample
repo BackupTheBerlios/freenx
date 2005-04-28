@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.22 2005/04/25 06:54:14 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.23 2005/04/28 22:39:10 fabianx Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -216,6 +216,11 @@
 #ENABLE_ARTSD_PRELOAD="0"
 #ARTSD_BIN_PRELOAD="artsdsp"
 
+# FreeNX with ENABLE_KDE_CUPS="1" will automatically write 
+# $KDE_PRINTRC and put the current used port into it.
+
+#ENABLE_KDE_CUPS="0"
+#KDE_PRINTRC=".kde/share/config/kdeprintrc"
 
 #########################################################################
 # Path directives
@@ -294,6 +299,8 @@
 #COMMAND_SSH=ssh
 #COMMAND_SSH_KEYGEN=ssh-keygen
 
+# The key that contains the name of the complete path of the 'cupsd' command.
+#COMMAND_CUPSD=/usr/sbin/cupsd
 
 #########################################################################
 # Misc directives

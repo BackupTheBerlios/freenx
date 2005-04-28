@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.27 2005/04/25 06:54:15 jonno Exp $
+# CVS: $Id: nxloadconfig,v 1.28 2005/04/28 22:39:10 fabianx Exp $
 #
 # ========================================================================
 
@@ -132,6 +132,8 @@ ESD_BIN_PRELOAD="esddsp"
 ENABLE_ARTSD_PRELOAD="0"
 ARTSD_BIN_PRELOAD="artsdsp"
 
+ENABLE_KDE_CUPS="0"
+KDE_PRINTRC=".kde/share/config/kdeprintrc"
 
 # Path directives
 
@@ -153,6 +155,7 @@ COMMAND_SMBUMOUNT=smbumount
 COMMAND_NETCAT=netcat
 COMMAND_SSH=ssh
 COMMAND_SSH_KEYGEN=ssh-keygen
+COMMAND_CUPSD=/usr/sbin/cupsd
 
 
 # Misc directives
