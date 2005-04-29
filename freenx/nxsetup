@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.25 2005/04/09 19:15:43 fux Exp $ 
+# CVS: $Id: nxsetup,v 1.26 2005/04/29 00:31:23 fux Exp $ 
 #
 
 HELP="no"
@@ -67,9 +67,9 @@ then
 fi
 #Undocumented
 #
-#    --dont-build-known-hosts		For system without /etc/ssh/ssh_host_key.rsa.pub and 
-#					expect should handle nx-users known-hosts keys and 
-#					
+#    --dont-build-known-hosts		For system without /etc/ssh/ssh_host_key.rsa.pub and anyway
+#					expect should handle nx-users known-hosts keys so why borther
+#					in nxsetup?
 
 if [ $UID -ne 0 ]
 then
