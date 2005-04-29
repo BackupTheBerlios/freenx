@@ -34,6 +34,7 @@ XX.0X.2005 FreeNX 0.4.0-CVS
 	* Fixed a possible race-condition. (reported by Edward Warnicke
 	  <eaw@cisco.com>)
 	* Feature Request #847 (stderror of some applications to log-file)
+	* Feature Request #900 (Detect ssh/sshd in nxsetup)
 
 20.03.2005 FreeNX 0.3.1 "Bugfix Edition"
 	* Fixed keyboard mapping problems.

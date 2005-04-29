@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.26 2005/04/29 00:31:23 fux Exp $ 
+# CVS: $Id: nxsetup,v 1.27 2005/04/29 00:37:29 fux Exp $ 
 #
 
 HELP="no"
@@ -115,7 +115,8 @@ install_nx()
 		# Generate Host keys if they are not available, yet
 		[ -e /etc/ssh/ssh_host_rsa_key ] || $COMMAND_SSH_KEYGEN -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C '' -N ''
 		[ -e /etc/ssh/ssh_host_dsa_key ] || $COMMAND_SSH_KEYGEN -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C '' -N ''
-		/etc/init.d/ssh start
+		[ -x /etc/init.d/sshd ] && /etc/init.d/sshd start
+		[ -x /etc/init.d/ssh ] && /etc/init.d/ssh start
 		echo "done"
 	fi
 	
