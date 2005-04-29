@@ -1,4 +1,4 @@
-06.03.2005 FreeNX 0.4.0-CVS
+XX.0X.2005 FreeNX 0.4.0-CVS
 	* Opened the 0.4.0 branch.
 	* Added initial support for filesharing via samba.
 	* Improvements to be more node.conf compatible.
@@ -33,8 +33,9 @@
 	  of drivers cache.
 	* Fixed a possible race-condition. (reported by Edward Warnicke
 	  <eaw@cisco.com>)
+	* Feature Request #847 (stderror of some applications to log-file)
 
-XX.03.2005 FreeNX 0.3.1-CVS
+20.03.2005 FreeNX 0.3.1 "Bugfix Edition"
 	* Fixed keyboard mapping problems.
 	* Fixed unix-custom mode; now allowing parameters to be passed.
 	* Fixed password prompt detection support in nxnode-login.

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.28 2005/04/28 22:39:10 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.29 2005/04/29 00:17:33 fux Exp $
 #
 # ========================================================================
 
@@ -296,7 +296,7 @@ then
 	
 	# Logging directives
 	
-	[ -z $(echo "$NX_LOG_LEVEL" | egrep "^[0-6]$") ] && \
+	[ -z $(echo "$NX_LOG_LEVEL" | egrep "^[0-7]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"NX_LOG_LEVEL=$NX_LOG_LEVEL\""
 	[ "$NX_LOG_LEVEL" != "0" -a ! -e "$NX_LOGFILE" ] && \
 		WARNING="yes" && echo "Warning: Invalid value \"NX_LOGFILE=$NX_LOGFILE\"" \

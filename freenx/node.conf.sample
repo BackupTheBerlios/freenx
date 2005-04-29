@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.23 2005/04/28 22:39:10 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.24 2005/04/29 00:17:33 fux Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -127,6 +127,7 @@
 # 4: Server - Client communication
 # 5: Information
 # 6: Debugging information
+# 7: stderror of some applications
 #NX_LOG_LEVEL=0
 
 # Before turning logging on, please make sure that NX_LOGFILE is

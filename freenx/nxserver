@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.50 2005/04/28 22:39:10 fabianx Exp $
+# CVS: $Id: nxserver,v 1.51 2005/04/29 00:17:33 fux Exp $
 #
 
 # Read the config file
@@ -395,6 +395,7 @@ then
 # 4: Server - Client communication
 # 5: Information
 # 6: Debugging information
+# 7: stderror-channel of some applications
 
 log()
 {
@@ -405,6 +406,12 @@ log_tee()
 {
 	[ "$NX_LOG_LEVEL" -ge "4" -a -w "$NX_LOGFILE" ] && exec tee -a "$NX_LOGFILE"
 	[ "$NX_LOG_LEVEL" -ge "4" -a -w "$NX_LOGFILE" ] || exec cat -
+}
+
+log_error()
+{
+	[ "$NX_LOG_LEVEL" -ge "7" -a -w "$NX_LOGFILE" ] && exec tee -a "$NX_LOGFILE"
+	[ "$NX_LOG_LEVEL" -ge "7" -a -w "$NX_LOGFILE" ] || exec cat - 
 }
 
 echo_x()
@@ -568,7 +575,7 @@ do
 			then
 				log 6 -n "ssh "
 				export COMMAND_SSH			
-				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
+				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null | log_error
 				if [ $? -eq 0 ]
 				then
 					LOGIN_SUCCESS="1"
@@ -580,7 +587,7 @@ do
 			if [ "$ENABLE_SU_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
 				log 6 -n "su "
-				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check > /dev/null 2>/dev/null
+				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null| log_error
 				if [ $? -eq 0 ]
 				then
 					LOGIN_SUCCESS="1"
@@ -651,10 +658,10 @@ server_nxnode_start()
 	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
 	    export COMMAND_SSH
-	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
+	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 >/dev/null | log_error
 	elif [ "$LOGIN_METHOD" = "SU" ]
 	then
-	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
+	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 >/dev/null | log_error
 	else 
 	    echo "$@" | $COMMAND_SSH -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
@@ -664,13 +671,13 @@ server_add_usession()
 {
 	[ "$ENABLE_USESSION" = "1" ] || return
 	
-	$COMMAND_SESSREG -l ":$SESS_DISPLAY" -h "$USERIP" -a $USER 2>/dev/null
+	$COMMAND_SESSREG -l ":$SESS_DISPLAY" -h "$USERIP" -a $USER 2>&1 | log_error
 }
 
 server_remove_usession()
 {
 	[ "$ENABLE_USESSION" = "1" ] || return
-	$COMMAND_SESSREG -l ":$SESS_DISPLAY" -h "$USERIP" -d $USER 2>/dev/null
+	$COMMAND_SESSREG -l ":$SESS_DISPLAY" -h "$USERIP" -d $USER 2>&1 | log_error
 }
 
 server_nxnode_start_wait()
@@ -975,13 +982,13 @@ do
 		addmount*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --smbmount "$USER" "$PARAMS" >/dev/null 2>&1
+			server_nxnode_start --smbmount "$USER" "$PARAMS" 2>&1 | log_error
 			echo_x "NX> 719 SMB filesystem: running"
 		;;
 		addprinter*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --addprinter "$USER" "$PARAMS" >/dev/null 2>&1
+			server_nxnode_start --addprinter "$USER" "$PARAMS" 2>&1 | log_error
 		;;
 		*)
 			# disabled for 1.4.0-5 snapshot client
