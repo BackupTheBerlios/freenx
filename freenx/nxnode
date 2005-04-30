@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.53 2005/04/28 22:46:56 fabianx Exp $
+# CVS: $Id: nxnode,v 1.54 2005/04/30 14:44:30 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -345,12 +345,12 @@ EOF
 	# setup KDE
 	if [ "$ENABLE_KDE_CUPS" = "1" ]
 	then
-		if egrep -q "^Port=" "$HOME/$KDE_PRINTRC"
+		if egrep -q "^Port=" "$KDE_PRINTRC"
 		then
-			perl -pi -e "s/^Port=.*/Port=$NODE_CUPSD_PORT/g" "$HOME/$KDE_PRINTRC"
+			perl -pi -e "s/^Port=.*/Port=$NODE_CUPSD_PORT/g" "$KDE_PRINTRC"
 		else
-			echo "[CUPS]" >> "$HOME/$KDE_PRINTRC"
-			echo "Port=$NODE_CUPSD_PORT" >> "$HOME/$KDE_PRINTRC"
+			echo "[CUPS]" >> "$KDE_PRINTRC"
+			echo "Port=$NODE_CUPSD_PORT" >> "$KDE_PRINTRC"
 		fi
 	fi
 }
