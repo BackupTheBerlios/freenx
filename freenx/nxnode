@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.54 2005/04/30 14:44:30 fabianx Exp $
+# CVS: $Id: nxnode,v 1.55 2005/04/30 16:24:51 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -337,6 +337,9 @@ Allow from 127.0.0.1
 EOF
 	touch $USER_FAKE_HOME/.nx/C-$sess_id/cups/printers.conf $USER_FAKE_HOME/.nx/C-$sess_id/cups/classes.conf
 
+	# copy mime.* files
+	cp "$CUPS_ETC"/mime.* "$USER_FAKE_HOME/.nx/C-$sess_id/cups/"
+
 	# start cupsd
 	$COMMAND_CUPSD -f -c "$USER_FAKE_HOME/.nx/C-$sess_id/cups/cupsd.conf" &>/dev/null </dev/null &
 	CUPSD_PID=$!
@@ -347,7 +350,7 @@ EOF
 	then
 		if egrep -q "^Port=" "$KDE_PRINTRC"
 		then
-			perl -pi -e "s/^Port=.*/Port=$NODE_CUPSD_PORT/g" "$KDE_PRINTRC"
+			perl -pi -e 's/^Port=.*/Port='"$NODE_CUPSD_PORT"'/g' "$KDE_PRINTRC"
 		else
 			echo "[CUPS]" >> "$KDE_PRINTRC"
 			echo "Port=$NODE_CUPSD_PORT" >> "$KDE_PRINTRC"
@@ -747,6 +750,7 @@ cmd_node_addprinter()
 	username=$(getparam username)
 	password=$(getparam password)
 	share=$(getparam share)
+	printer=$(getparam printer)
 	computername=$(getparam computername)
 	public=$(getparam public)
 	model=$(getparam model)
@@ -760,12 +764,12 @@ cmd_node_addprinter()
 	then
 		DEVICE_URI="smb://$username:$password@localhost:$port/$share"
 		NAME="$share"
-		MODEL="$model.ppd"
 	else
-		DEVICE_URI="ipp://localhost:$port/printers/$share"
-		NAME="$share"
-		MODEL="$model.ppd"
+		DEVICE_URI="ipp://localhost:$port/printers/$printer"
+		NAME="$printer"
 	fi
+	MODEL=$($PATH_BIN/nxclient -printer "$NAME" -noautokill -display :$display)
+	[ -z "$MODEL" -o "$MODEL" = "cancel: aborted" ] && return
 	
 	PUBLIC="-u allow:$USER"
 	[ "$public" == "1" ] && PUBLIC=""

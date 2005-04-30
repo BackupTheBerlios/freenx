@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.25 2005/04/30 14:44:30 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.26 2005/04/30 16:24:51 fabianx Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -223,6 +223,7 @@
 
 #ENABLE_KDE_CUPS="0"
 #KDE_PRINTRC="$HOME/.kde/share/config/kdeprintrc"
+#CUPS_ETC="/etc/cups"
 
 #########################################################################
 # Path directives

@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.30 2005/04/30 14:44:30 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.31 2005/04/30 16:24:51 fabianx Exp $
 #
 # ========================================================================
 
@@ -134,6 +134,7 @@ ARTSD_BIN_PRELOAD="artsdsp"
 
 ENABLE_KDE_CUPS="0"
 KDE_PRINTRC="" # Calculated
+CUPS_ETC="/etc/cups/"
 
 # Path directives
 
