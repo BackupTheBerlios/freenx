@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.51 2005/04/29 00:17:33 fux Exp $
+# CVS: $Id: nxserver,v 1.52 2005/04/30 15:54:27 fabianx Exp $
 #
 
 # Read the config file
@@ -658,10 +658,10 @@ server_nxnode_start()
 	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
 	    export COMMAND_SSH
-	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 >/dev/null | log_error
+	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
 	elif [ "$LOGIN_METHOD" = "SU" ]
 	then
-	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 >/dev/null | log_error
+	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
 	else 
 	    echo "$@" | $COMMAND_SSH -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
@@ -982,13 +982,13 @@ do
 		addmount*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --smbmount "$USER" "$PARAMS" 2>&1 | log_error
+			server_nxnode_start --smbmount "$USER" "$PARAMS" 2>&1 | log_error >/dev/null
 			echo_x "NX> 719 SMB filesystem: running"
 		;;
 		addprinter*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --addprinter "$USER" "$PARAMS" 2>&1 | log_error
+			server_nxnode_start --addprinter "$USER" "$PARAMS" 2>&1 | log_error >/dev/null
 		;;
 		*)
 			# disabled for 1.4.0-5 snapshot client
