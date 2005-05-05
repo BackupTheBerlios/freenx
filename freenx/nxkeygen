@@ -11,7 +11,7 @@
 # Copyright	(c) 2004 Gentoo Foundation
 #		Released under v2 of the GNU GPL
 #
-# CVS: $Id: nxkeygen,v 1.11 2005/03/17 23:21:14 fux Exp $
+# CVS: $Id: nxkeygen,v 1.12 2005/05/05 08:04:24 jonno Exp $
 #
 # ========================================================================
 
@@ -26,7 +26,7 @@ NX_SERVER_KEY="${NX_KEY_DIR}/server.id_dsa.pub.key"
 main ()
 {
 	# create a new key
-	umask 002
+	umask 177
 	$COMMAND_SSH_KEYGEN -q -t dsa -N '' -f ${NX_KEY_DIR}/local.id_dsa
 
 	# backup the existing keys
