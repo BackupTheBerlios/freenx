@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.56 2005/04/30 16:52:22 fabianx Exp $
+# CVS: $Id: nxnode,v 1.57 2005/05/05 08:17:54 jonno Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -192,7 +192,7 @@ node_start_applications()
 	fi
 
 	[ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ] && export LD_PRELOAD="$APPLICATION_LIBRARY_PRELOAD:$LD_PRELOAD"
-	if [ "$ENABLE_DEFAULT_X_WM" = "1" -a "$virtualdesktop" = "1" -a "$type" = "unix-application" -a -x "$(find_app $DEFAULT_X_WM)" ]
+	if [ "$virtualdesktop" = "1" -a "$type" = "unix-application" -a "$DEFAULT_X_WM" != "" -a -x "$(find_app $DEFAULT_X_WM)" ]
 	then
 		DISPLAY=unix:$display $DEFAULT_X_WM 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 		WM_PID=$!
@@ -205,9 +205,9 @@ node_start_applications()
 	if [ -n "$WM_PID" ]
 	then
 		# kill the WM after application is finished?
-		[ "$ENABLE_DEFAULT_X_WM_KILL" = "1" ] && kill $WM_PID 2>/dev/null
+		[ "$KILL_DEFAULT_X_WM" = "1" ] && kill $WM_PID 2>/dev/null
 		# or just wait until it finishes?
-		[ "$ENABLE_DEFAULT_X_WM_KILL" = "1" ] || wait $WM_PID
+		[ "$KILL_DEFAULT_X_WM" = "1" ] || wait $WM_PID
 	fi
 	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
 	node_terminate_agent $sess_id

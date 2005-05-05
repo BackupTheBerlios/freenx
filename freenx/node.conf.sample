@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.27 2005/04/30 16:52:22 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.28 2005/05/05 08:17:54 jonno Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -241,19 +241,13 @@
 #SET_LD_LIBRARY_PATH="1"
 
 
-# The command binary for the default window manager. It is run when a
+# The command binary for the default window manager. If set it is run when a
 # 'unix-custom' session is requested by the NX Client and an application
-# to run is specified. By default it is set to "twm". If you don't have
-# twm in the default path or if you want to use another window manager,
-# you have to set it to the absolute file name of the command binary you
-# want to use.
-# FreeNX: To enable this feature set ENABLE_DEFAULT_X_WM="1"
-#         If ENABLE_DEFAULT_X_WM_KILL is set the WM is terminated
-#         after the started application finishes. Else FreeNX will
-#         wait for the window manager to complete.
-#ENABLE_DEFAULT_X_WM="0"
-#ENABLE_DEFAULT_X_WM_KILL="0"
-#DEFAULT_X_WM=twm
+# to run is specified. It defaults to empty (ie no WM is run).
+# If KILL_DEFAULT_X_WM is set the WM is terminated after the started 
+# application finishes. Else FreeNX will wait for the WM to complete.
+#DEFAULT_X_WM=""
+#KILL_DEFAULT_X_WM="1"
 
 # When a 'unix-default' session is requested by the client the user's X startup
 # script will be run if pressent and executable, otherwise the default X

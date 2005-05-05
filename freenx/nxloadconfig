@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.31 2005/04/30 16:24:51 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.32 2005/05/05 08:17:54 jonno Exp $
 #
 # ========================================================================
 
@@ -141,9 +141,8 @@ CUPS_ETC="/etc/cups/"
 USER_FAKE_HOME="" #Calculated
 SET_LD_LIBRARY_PATH="1"
 
-ENABLE_DEFAULT_X_WM="0"
-ENABLE_DEFAULT_X_WM_KILL="0"
-DEFAULT_X_WM=twm
+DEFAULT_X_WM=""
+KILL_DEFAULT_X_WM="1"
 USER_X_STARTUP_SCRIPT=.Xclients
 DEFAULT_X_SESSION=/etc/X11/xdm/Xsession
 COMMAND_START_KDE=startkde
@@ -359,12 +358,10 @@ then
 	[ -z $(echo "$SET_LD_LIBRARY_PATH" | egrep "^[0|1]$") ] && \
 		ERROR="yes" && echo "Error: Invalid value \"SET_LD_LIBRARY_PATH=$SET_LD_LIBRARY_PATH\""
 	
-	[ -z $(echo "$ENABLE_DEFAULT_X_WM" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_DEFAULT_X_WM=$ENABLE_DEFAULT_X_WM\""
-	[ "$ENABLE_DEFAULT_X_WM" = "1" -a  -z $(echo "$ENABLE_DEFAULT_X_WM_KILL" | egrep "^[0|1]$") ] && \
-		ERROR="yes" && echo "Error: Invalid value \"ENABLE_DEFAULT_X_WM_KILL=$ENABLE_DEFAULT_X_WM_KILL\""
-	[ "$ENABLE_DEFAULT_X_WM" = "1" ] && ! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
+	[ "$DEFAULT_X_WM" != "" ] && ! which "$DEFAULT_X_WM" >/dev/null 2>&1 && \
 		ERROR="yes" && echo "Error: Invalid value \"DEFAULT_X_WM=$DEFAULT_X_WM\""
+	[ "$DEFAULT_X_WM" != "" -a  -z $(echo "$KILL_DEFAULT_X_WM" | egrep "^[0|1]$") ] && \
+		ERROR="yes" && echo "Error: Invalid value \"KILL_DEFAULT_X_WM=$KILL_DEFAULT_X_WM\""
 	[ -z "$USER_X_STARTUP_SCRIPT" ] && \
 		ERROR="yes" && echo "Error: Invalid value \"USER_X_STARTUP_SCRIPT=$USER_X_STARTUP_SCRIPT\""
 	! which "$DEFAULT_X_SESSION" >/dev/null 2>&1 && \
