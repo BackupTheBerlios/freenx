@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.52 2005/04/30 15:54:27 fabianx Exp $
+# CVS: $Id: nxserver,v 1.53 2005/06/19 23:53:17 fabianx Exp $
 #
 
 # Read the config file
@@ -575,7 +575,7 @@ do
 			then
 				log 6 -n "ssh "
 				export COMMAND_SSH			
-				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null | log_error
+				echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null
 				if [ $? -eq 0 ]
 				then
 					LOGIN_SUCCESS="1"
@@ -587,7 +587,7 @@ do
 			if [ "$ENABLE_SU_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
 				log 6 -n "su "
-				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null| log_error
+				echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" --check 2>&1 >/dev/null
 				if [ $? -eq 0 ]
 				then
 					LOGIN_SUCCESS="1"
