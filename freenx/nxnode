@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.58 2005/06/19 23:55:43 fabianx Exp $
+# CVS: $Id: nxnode,v 1.59 2005/06/20 00:05:48 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -732,7 +732,7 @@ cmd_node_smbmount()
 	rdir=$(getparam dir | sed 's|$(SHARES)/||g')
 	display=$(cd $USER_FAKE_HOME/.nx/; echo C-$SERVER_NAME-*-$sessionid | cut -d"-" -f3)
 	mkdir -p "$HOME/$dir"
-	ERROR=$(PASSWD="$password" "$COMMAND_SMBMOUNT" "//$computername/$rdir" "$HOME/$dir" -o username="$username" ip="127.0.0.1" port="$port" 2>&1)
+	ERROR=$(PASSWD="$password" "$COMMAND_SMBMOUNT" "//$computername/$rdir" "$HOME/$dir" -o username="$username,ip=127.0.0.1,port=$port" 2>&1)
 	if [ $? -eq 0 ]
 	then
 		$PATH_BIN/nxclient -dialog ok -caption "NXServer Message" -message "Info: Share: '//$computername/$rdir' mounted on: '$HOME/$dir'" -noautokill -display :$display &
@@ -792,7 +792,7 @@ case "$1" in
 		cmd_node_suspend
 	;;
 	--smbmount)
-		cmd_node_smbmount >/dev/null 2>/dev/null
+		cmd_node_smbmount &>/dev/null </dev/null &
 	;;
 	--addprinter)
 		cmd_node_addprinter &>/dev/null </dev/null &
