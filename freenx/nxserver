@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.53 2005/06/19 23:53:17 fabianx Exp $
+# CVS: $Id: nxserver,v 1.54 2005/06/21 15:47:24 fabianx Exp $
 #
 
 # Read the config file
@@ -238,7 +238,8 @@ session_list_user_suspended()
 			available="N/A"
 			udepth=$(echo $3 | cut -d "x" -f3 | cut -d "+" -f1 )
 			urender=$(echo $3 | cut -d "+" -f2 )
-			[ "$(getparam geometry)" = "fullscreen" ] && options="F"
+			options="-"
+			stringinstring "fullscreen" "$3" && options="F"
 			[ "$(getparam geometry)" = "fullscreen" ] || options="-"
 			[ "$urender" = "render" ] && options="${options}R---PSA"
 			[ "$urender" = "render" ] || options="${options}----PSA"
