@@ -3,6 +3,7 @@
 	* Added support for 1.5.0 OSS components. (especially rootless mode)
 	* Fixed Filesharing over the Internet. (Thanks to rogierm@users.berlios.de)
 	* Fixed Resume on Windows with non-fullscreen sessions.
+	* Added suspend/resume support for 1.5.0 OSS components.
 
 04.05.2005 FreeNX 0.4.0 "SambaXP Edition"
 	* Opened the 0.4.0 branch.
