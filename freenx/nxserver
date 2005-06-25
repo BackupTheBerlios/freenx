@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.54 2005/06/21 15:47:24 fabianx Exp $
+# CVS: $Id: nxserver,v 1.55 2005/06/25 12:26:22 fabianx Exp $
 #
 
 # Read the config file
@@ -375,6 +375,7 @@ session_fail()
 session_suspend()
 {
 	session_status $1 "Suspended"
+	session_change $1 foreignAddress "-"
 }
 
 #
