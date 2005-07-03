@@ -1,5 +1,8 @@
 XX.07.2005 FreeNX 0.4.2 "Bugfix Edition"
 	* Removed buggy forwarding support via USER.
+	* Cleaned up lots of code.
+		* Fixed one case of a left over file.
+		* Removed one unnecessary usage of a temporary file.
 
 24.06.2005 FreeNX 0.4.1 "LinuxTag Edition"
 	* Fixed a small security problem giving access to session database.

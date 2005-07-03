@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.56 2005/07/03 18:28:59 fabianx Exp $
+# CVS: $Id: nxserver,v 1.57 2005/07/03 19:51:39 fabianx Exp $
 #
 
 # Read the config file
@@ -616,19 +616,26 @@ server_remove_usession()
 	$COMMAND_SESSREG -l ":$SESS_DISPLAY" -h "$USERIP" -d $USER 2>&1 | log_error
 }
 
+server_nxnode_echo()
+{
+	[ "$SERVER_CHANNEL" = "1" ] && echo "$@"
+	[ "$SERVER_CHANNEL" = "2" ] && echo "$@" >&2
+}
+
 server_nxnode_start_wait()
 {
 	server_add_usession
 	
-	STOP_SEND=""
+	SERVER_CHANNEL=1
 	server_nxnode_start "$@" | while read CMD
 	do
 		case "$CMD" in 
 			"NX> 1006"*|"NX> 1005"*|"NX> 1009"*)
 				case "$CMD" in 
 					*running*)
-						rm -f $WAIT
+						kill $SERVER_WAIT_PID
 						session_status $uniqueid "Running"
+						SERVER_CHANNEL=2
 					;;
 					*closed*)
 						session_close $uniqueid
@@ -641,25 +648,20 @@ server_nxnode_start_wait()
 						# we need to stop sending to client as it will have already
 						# closed his side of the channel and this will lead to not 
 						# closed sessions.
-						STOP_SEND="1"
+						SERVER_CHANNEL=0
 				esac
 			;;
 			"NX> 1004"*)
 				session_fail $uniqueid
 				# FIXME: Need correct error code.
-				echo_x "NX> 504 Session startup failed."
+				server_nxnode_echo "NX> 504 Session startup failed."
+				log "NX> 504 Session startup failed."
 			;;
 		esac
 
 		case $CMD in
-			"NX> 718"*)
-				[ -z "$STOP_SEND" ] && echo $CMD >&2
-				#echo "NX> 1006 Session status: running" 1>&2
-				#echo "NX> 1001 Bye." 1>&2
-
-			;;
 			"NX> "*)
-				[ -z "$STOP_SEND" ] && echo $CMD
+				server_nxnode_echo $CMD
 			;;
 		esac
 	done
@@ -760,15 +762,16 @@ server_startrestore_session()
 			# ln is an atomic operation
 			ln "$SESS_LOCKFILE" "/tmp/.nX$SESS_DISPLAY-lock" 2>/dev/null && break
 		done
+
+		rm -f "$SESS_LOCKFILE"
 		
 		if [ "$SESS_DISPLAY" -gt "$SESS_DISPLAY_LIMIT" ]
 		then
 			# fixme we need the correct error code
 			echo_x "NX> 504 Error: Display limit exceeded. Please remove some files from /tmp/.X*-lock."
+			rm -f "/tmp/.nX$SESS_DISPLAY-lock"
 			return
 		fi
-
-		rm -f "$SESS_LOCKFILE"
 	
 		uniqueid=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
 		FULL_PARAMS="user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY&$PARAMS"
@@ -788,16 +791,24 @@ server_startrestore_session()
 	fi
 
 	# now start the node
-	export WAIT=$(mktemp /tmp/nxserver_wait.XXXXXXXXX)
-	touch $WAIT
-	(sleep 10; rm -f $WAIT) &
+	(sleep 10; exit 1) &
+	SERVER_WAIT_PID=$!
 	server_nxnode_start_wait --"$ACTION"session $USER "$FULL_PARAMS" &
 	SERVER_PID=$!
 	disown $SERVER_PID
-	while [ -f "$WAIT" ]
-	do
-		sleep 1
-	done
+	wait $SERVER_WAIT_PID
+	
+	if [ $? -eq 1 ]
+	then
+		# Something went wrong ...
+		session_fail $uniqueid
+		# FIXME: Need correct error code.
+		echo_x "NX> 1004 Error: Session did not start."
+		echo_x "NX> 504 Session startup failed."
+		echo_x "NX> 999 Bye"
+		# FIXME: Send node signal to terminate
+		exit 1
+	fi
 }
 
 # Session stage
@@ -840,8 +851,6 @@ do
 			PARAMS=$SERVER_PARAMS
 			CMDLINE=$PARAMS
 			
-			# FIXME: To NX-Node!
-
 			status=$(getparam status)
 
 			if [ "$status" = "Suspended" -a -n "$(getparam screeninfo)" ]
