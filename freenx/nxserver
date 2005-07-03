@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.57 2005/07/03 19:51:39 fabianx Exp $
+# CVS: $Id: nxserver,v 1.58 2005/07/03 20:35:50 fabianx Exp $
 #
 
 # Read the config file
@@ -622,9 +622,23 @@ server_nxnode_echo()
 	[ "$SERVER_CHANNEL" = "2" ] && echo "$@" >&2
 }
 
+server_nxnode_exit_func()
+{
+	log 1 "Info: Emergency-Shutting down due to kill signal ..."
+	
+	session_fail $uniqueid
+	
+	server_remove_usession
+
+	# remove lock file
+	[ -e "/tmp/.nX$SESS_DISPLAY-lock" ] && rm -f /tmp/.nX$SESS_DISPLAY-lock
+}
+
 server_nxnode_start_wait()
 {
 	server_add_usession
+
+	trap server_nxnode_exit_func EXIT
 	
 	SERVER_CHANNEL=1
 	server_nxnode_start "$@" | while read CMD
@@ -655,7 +669,7 @@ server_nxnode_start_wait()
 				session_fail $uniqueid
 				# FIXME: Need correct error code.
 				server_nxnode_echo "NX> 504 Session startup failed."
-				log "NX> 504 Session startup failed."
+				log 4 "NX> 504 Session startup failed."
 			;;
 		esac
 
@@ -665,6 +679,8 @@ server_nxnode_start_wait()
 			;;
 		esac
 	done
+
+	trap "" EXIT
 	
 	server_remove_usession
 

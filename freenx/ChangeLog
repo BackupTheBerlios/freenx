@@ -3,6 +3,7 @@ XX.07.2005 FreeNX 0.4.2 "Bugfix Edition"
 	* Cleaned up lots of code.
 		* Fixed one case of a left over file.
 		* Removed one unnecessary usage of a temporary file.
+	* Added exit handlers for more stability on reboot of system.
 
 24.06.2005 FreeNX 0.4.1 "LinuxTag Edition"
 	* Fixed a small security problem giving access to session database.
