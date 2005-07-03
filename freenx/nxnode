@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.60 2005/06/23 15:42:52 fabianx Exp $
+# CVS: $Id: nxnode,v 1.61 2005/07/03 23:19:53 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -90,7 +90,7 @@ node_terminate_session()
 		if ! [ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ]
 		then
 			sleep 1
-			kill -9 $AGENT_PID 2>/dev/null
+			kill -0 $AGENT_PID 2>/dev/null && kill -9 $AGENT_PID 2>/dev/null
 		fi
 	fi
 	# remove possible leftover display ...
@@ -284,6 +284,9 @@ node_start_agent()
 	wait $PID
 	rm -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/agent
 	[ "$type" = "windows" -o "$type" = "vnc" ] && node_terminate_session "$sess_id"
+	# remove possible leftovers of nxagent
+	rm -f /tmp/.X$display-lock
+	rm -f /tmp/.X11-unix/X$display
 }
 
 node_kill_proxy()
@@ -386,6 +389,16 @@ node_stop_services()
 	node_cupsd_stop
 }
 
+node_emergency_exit()
+{
+	# umount shares & stop printers
+	node_stop_services
+
+	# kill the session
+	node_terminate_session "$sess_id" "failed"
+
+	echo "NX> 1004 Error: Emergency exit due to kill signal."
+}
 
 #
 # Monitoring the nxagent: Its also kind of a "state-machine" 
@@ -399,6 +412,8 @@ node_start_monitor()
 	RECONNECT=0
 	TAIL_PID=""
 	TIMEOUT_PID=""
+
+	trap node_emergency_exit EXIT
 	
 	sh -c 'echo "Info: tail -f running with pid '\'\$$\''."; exec tail -n1 -f '$USER_FAKE_HOME'/.nx/C-'$sess_id'/session' | while read line 
 	do
@@ -479,7 +494,10 @@ node_start_monitor()
 			kill $PROXY_PID 2>/dev/null
 		fi
 		
-		if stringinstring "Info: Waiting for a further signal to complete." "$line" && [ "$RECONNECT" = "0" ]
+		TERM=""
+		stringinstring "Info: Waiting for a further signal to complete." "$line" && TERM="yes"
+		stringinstring "Info: Aborting procedure due to signal" "$line" && TERM="yes"
+		if [ -n "$TERM" -a "$RECONNECT" = "0" ]
 		then
 			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1006 Session status: closed"
@@ -487,7 +505,7 @@ node_start_monitor()
 			# especially for windows/vnc mode
 			kill $PROXY_PID 2>/dev/null
 			sleep 2
-			kill -9 $PROXY_PID 2>/dev/null
+			kill -0 $PROXY_PID 2>/dev/null && kill -9 $PROXY_PID 2>/dev/null
 
 			# umount shares & stop printers
 			node_stop_services
@@ -563,6 +581,9 @@ node_start_monitor()
 			break
 		fi
 	done 
+	
+	trap "" EXIT
+	
 	node_stop_services
 	# close all open file descriptors
 	exec 0<&-
