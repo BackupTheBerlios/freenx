@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.61 2005/07/03 23:19:53 fabianx Exp $
+# CVS: $Id: nxnode,v 1.62 2005/07/03 23:54:44 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -453,8 +453,15 @@ node_start_monitor()
 		#
 		# Suspending possibilities
 		#
+
+		SUSP=""
+		stringinstring "Info: Reconnection failed" "$line" && echo "NX> 504 $line"
+		stringinstring "Info: Reconnection failed" "$line" && SUSP="yes"
+
+		stringinstring "Info: Suspending session on user request." "$line" && SUSP="yes"
+		stringinstring "Error: Connection with remote peer broken." "$line" && SUSP="yes"
 		
-		if stringinstring "Info: Suspending session on user request." "$line"
+		if [ -n "$SUSP" ]
 		then
 			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1005 Session status: suspended"
@@ -471,16 +478,6 @@ node_start_monitor()
 			echo "NX> 1005 Session status: suspended"
 			# umount shares & stop printers
 			node_stop_services
-			break
-		fi
-
-		if stringinstring "Error: Connection with remote peer broken." "$line"
-		then
-			kill $TAIL_PID 2>/dev/null
-			echo "NX> 1005 Session status: suspended"
-			kill -HUP $PROXY_PID 2>/dev/null
-			sleep 2
-			# time out faster for suspend
 			break
 		fi
 
