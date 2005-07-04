@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.59 2005/07/04 00:54:41 fabianx Exp $
+# CVS: $Id: nxserver,v 1.60 2005/07/04 01:26:44 fabianx Exp $
 #
 
 # Read the config file
@@ -779,6 +779,16 @@ server_startrestore_session()
 			do
 				let SESS_DISPLAY=$SESS_DISPLAY+1
 			done
+
+			# Check if there is already an agent running on that display
+			let AGENT_DISPLAY=$SESS_DISPLAY+6000
+			if $COMMAND_NETCAT -z 127.0.0.1 $AGENT_DISPLAY 2>/dev/null
+			then
+				log 2 "Warning: Stray nxagent without .X$SESS_DISPLAY-lock found on port $AGENT_DISPLAY."
+				let SESS_DISPLAY=$SESS_DISPLAY+1
+				continue
+			fi
+			
 
 			SESS_LOCKFILE=$(mktemp "/tmp/.nX$SESS_DISPLAY-lock.XXXXXXXXX")
 			# ln is an atomic operation
