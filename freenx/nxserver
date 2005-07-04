@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.60 2005/07/04 01:26:44 fabianx Exp $
+# CVS: $Id: nxserver,v 1.61 2005/07/04 01:52:17 fabianx Exp $
 #
 
 # Read the config file
@@ -1013,8 +1013,11 @@ cmd_usage()
 		echo "--history [ user | sessionid | clear ]: Show history [ of user | sessionid ] or clear the history" 1>&2
 		echo "--terminate <user | :display | sessionid>: Terminate the session pointed to by" 1>&2
 		echo "       sessionid or display, or all sessions of the specified user." 1>&2
+		echo "       Use * for all sessions." 1>&2
 		echo "--suspend <user | :display | sessionid>: Suspend the session pointed to by" 1>&2
 		echo "       sessionid or display, or all sessions of the specified user." 1>&2
+		echo "       Use * for all sessions." 1>&2
+		echo "--cleanup: Terminates all running sessions. Useful after power-outage."
 		echo "" 1>&2
 		echo "--broadcast <message>: Send a message to all users" 1>&2
 		echo "--send <user | :display | sessionid> <message>: Send a message to the specified user or sessionid" 1>&2
@@ -1138,21 +1141,21 @@ cmd_parse_3_params()
 	then
 		CMD_APARAMS=$(session_find_id $1)
 		[ -n "$CMD_APARAMS" ] || cmd_abort "Error: Session $1 could not be found."
-	else
-	if [ "${1:0:1}" = ":" ]
+	elif [ "${1:0:1}" = ":" ]
 	then
 		CMD_APARAMS=$(session_find_display "${1:1}")
 		[ -n "$CMD_APARAMS" ] || cmd_abort "Error: No running sessions found for display $1."
-	else
-	if [ "$1" != "" ]
+	elif [ "$1" = "*" ]
+	then
+		CMD_APARAMS=$(session_find_all)
+		[ -n "$CMD_APARAMS" ] || cmd_abort "Error: No running sessions found."
+	elif [ "$1" != "" ]
 	then
 		#egrep -q "^$1:" $NX_ETC_DIR/passwords || cmd_abort "Error: User $1 not found in database."
 		CMD_APARAMS=$(session_find_user "$1")
 		[ -n "$CMD_APARAMS" ] || cmd_abort "Error: No running sessions found for user $1."
 	else
 		cmd_abort "Error: Not enough parameters."
-	fi
-	fi
 	fi
 	echo $CMD_APARAMS
 }
@@ -1344,6 +1347,9 @@ case $CMD in
 	;;
 	--terminate|--suspend)
 		cmd_terminate "$@"
+	;;
+	--cleanup)
+		cmd_terminate "--terminate" "*"
 	;;
 	--send|--broadcast)
 		cmd_send "$@"
