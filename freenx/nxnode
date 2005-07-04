@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.63 2005/07/04 00:54:41 fabianx Exp $
+# CVS: $Id: nxnode,v 1.64 2005/07/04 01:03:19 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -645,11 +645,12 @@ node_startsession()
 	
 	# cache=8M,images=32M,pack=nopack,link=lan,type=unix-kde,cleanup=0,accept=192.168.1.66,cookie=E38A94A77F975443AF04EC911881B120,id=Knoppix-1000-6A8269CC467264EAEF6349D062689755,samba=1,render=1:1000
 	
-	[ "$imagecompressionmethod" = "0" ] && PACK="pack=nopack,"
+	PACK=""
+	[ -z "$imagecompressionlevel" ] && imagecompressionlevel="9"
 	
-	#[ -z "$imagecompressionlevel" ] && imagecompressionlevel="9"
-	#[ "$imagecompressionmethod" = "1" ] && PACK="pack=16m-jpeg-$imagecompressionlevel"
-	#[ "$imagecompressionmethod" = "2" ] && PACK="pack=16m-png-9"
+	[ "$imagecompressionmethod" = "0" ] && PACK="pack=nopack,"
+	[ "$imagecompressionmethod" = "1" ] && PACK="pack=16m-jpeg-$imagecompressionlevel,"
+	[ "$imagecompressionmethod" = "2" ] && PACK="pack=16m-png-9,"
 	
 	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1)
 
