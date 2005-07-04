@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.58 2005/07/03 20:35:50 fabianx Exp $
+# CVS: $Id: nxserver,v 1.59 2005/07/04 00:54:41 fabianx Exp $
 #
 
 # Read the config file
@@ -641,13 +641,15 @@ server_nxnode_start_wait()
 	trap server_nxnode_exit_func EXIT
 	
 	SERVER_CHANNEL=1
+	KILL_WAIT_PID=1
 	server_nxnode_start "$@" | while read CMD
 	do
 		case "$CMD" in 
 			"NX> 1006"*|"NX> 1005"*|"NX> 1009"*)
 				case "$CMD" in 
 					*running*)
-						kill $SERVER_WAIT_PID
+						[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
+						KILL_WAIT_PID=0
 						session_status $uniqueid "Running"
 						SERVER_CHANNEL=2
 					;;
@@ -655,6 +657,8 @@ server_nxnode_start_wait()
 						session_close $uniqueid
 					;;
 					*suspended*)
+						[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
+						KILL_WAIT_PID=0
 						session_suspend $uniqueid
 					;;
 					*terminating*)
@@ -666,6 +670,8 @@ server_nxnode_start_wait()
 				esac
 			;;
 			"NX> 1004"*)
+				[ "$KILL_WAIT_PID" = "1" ] && kill $SERVER_WAIT_PID
+				KILL_WAIT_PID=0
 				session_fail $uniqueid
 				# FIXME: Need correct error code.
 				server_nxnode_echo "NX> 504 Session startup failed."

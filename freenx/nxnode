@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.62 2005/07/03 23:54:44 fabianx Exp $
+# CVS: $Id: nxnode,v 1.63 2005/07/04 00:54:41 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -287,6 +287,7 @@ node_start_agent()
 	# remove possible leftovers of nxagent
 	rm -f /tmp/.X$display-lock
 	rm -f /tmp/.X11-unix/X$display
+	[ -f $USER_FAKE_HOME/.nx/C-$sess_id/pids/monitor ] || node_terminate_session "$sess_id"
 }
 
 node_kill_proxy()
@@ -443,10 +444,17 @@ node_start_monitor()
 		# Detect nxagent syntax errors
 		#
 		
-		if stringinstring "Unrecognized option:" "$line"
+		SYNTAX=""
+
+		stringinstring "Unrecognized option:" "$line" && SYNTAX="yes"
+		stringinstring "NXAGENT: Fatal IO error on display" "$line" && SYNTAX="yes"
+		stringinstring "NXAGENT: Unable to open display" "$line" && SYNTAX="yes"
+		if [ -n "$SYNTAX" ]
 		then
 			kill $TAIL_PID 2>/dev/null
 			echo "NX> 1004 Error: nxagent failed to start with: $line"
+			[ "$SESSION_LOG_CLEAN" = "1" ] && rm -rf $USER_FAKE_HOME/.nx/C-$sess_id/
+			[ "$SESSION_LOG_CLEAN" = "1" ] || mv $USER_FAKE_HOME/.nx/C-$sess_id/ $USER_FAKE_HOME/.nx/F-C-$sess_id/
 			break
 		fi
 
@@ -609,6 +617,7 @@ node_startsession()
 	render=$(getparam render)
 	backingstore=$(getparam backingstore)
 	imagecompressionmethod=$(getparam imagecompressionmethod)
+	imagecompressionlevel=$(getparam imagecompressionlevel)
 	geometry=$(getparam geometry)
 	keyboard=$(getparam keyboard)
 	kbtype=$(getparam kbtype)
@@ -636,8 +645,11 @@ node_startsession()
 	
 	# cache=8M,images=32M,pack=nopack,link=lan,type=unix-kde,cleanup=0,accept=192.168.1.66,cookie=E38A94A77F975443AF04EC911881B120,id=Knoppix-1000-6A8269CC467264EAEF6349D062689755,samba=1,render=1:1000
 	
-	# TODO: imagecompressionmethod ...
 	[ "$imagecompressionmethod" = "0" ] && PACK="pack=nopack,"
+	
+	#[ -z "$imagecompressionlevel" ] && imagecompressionlevel="9"
+	#[ "$imagecompressionmethod" = "1" ] && PACK="pack=16m-jpeg-$imagecompressionlevel"
+	#[ "$imagecompressionmethod" = "2" ] && PACK="pack=16m-png-9"
 	
 	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1)
 
