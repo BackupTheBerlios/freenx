@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.28 2005/05/05 08:17:54 jonno Exp $
+# CVS: $Id: node.conf.sample,v 1.29 2005/07/05 21:42:57 fabianx Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -139,7 +139,8 @@
 # session has ended. A successfully terminated session will be saved as
 # T-C-<hostname>-<display>-<session_id> while a failed session will be saved
 # as F-C-<hostname>-<display>-<session_id>.
-#SESSION_LOG_CLEAN=0
+# The default is to cleanup the directories.
+#SESSION_LOG_CLEAN=1
 
 # Amount of seconds nxserver is to keep session history. The default of 2592000
 # is equivalent to 30 days. If this is 0 no session history will be kept
