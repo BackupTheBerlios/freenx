@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.61 2005/07/04 01:52:17 fabianx Exp $
+# CVS: $Id: nxserver,v 1.62 2005/07/06 15:59:05 fux Exp $
 #
 
 # Read the config file
@@ -433,7 +433,7 @@ then
 fi
 
 # forward the connection to commercial NoMachine server?
-if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a "$NOMACHINE_FORWARD_PORT" = "$(echo $SSH_CLIENT | cut -d' ' -f3)" -a -n "$NOMACHINE_SERVER" ]
+if [ "$ENABLE_NOMACHINE_FORWARD_PORT" = "1" -a "$NOMACHINE_FORWARD_PORT" = "$(echo $SSH_CLIENT $SSH2_CLIENT| cut -d' ' -f3)" -a -n "$NOMACHINE_SERVER" ]
 then
 	log 3 "Info: Detected SSH destination port $NOMACHINE_FORWARD_PORT. Forwarding connection to commercial NoMachine server."
 	exec $NOMACHINE_SERVER
@@ -726,7 +726,7 @@ server_startrestore_session()
 	
 	# If we can't get the userip and SSHD_CHECK_IP is set to 1
 	# we bail out.
-	if [ -z "$SSH_CLIENT" ]
+	if [ -z "$SSH_CLIENT" -a -z "$SSH2_CLIENT" ]
 	then 
 		if [ "$SSHD_CHECK_IP" = "1" ]
 		then
@@ -734,7 +734,7 @@ server_startrestore_session()
 			return 1
 		else
 			log 2 "Warning: Failed to determine the client IP."
-			log 2 "Warning: The SSH_CLIENT variable was not provided by SSHD."
+			log 2 "Warning: The SSH_CLIENT or SSH2_CLIENT variable was not provided by SSHD."
 			log 2 "Warning: Please set SSHD_CHECK_IP=1 if you want to refuse the connection."
 		fi
 	fi
@@ -759,7 +759,8 @@ server_startrestore_session()
 		fi
 	fi
 
-	USERIP=$(echo $SSH_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
+	# as only $SSH_CLIENT or $SSH2_CLIENT will be set, this should work
+	USERIP=$(echo $SSH_CLIENT $SSH2_CLIENT | cut -d" " -f1 | sed 's/::ffff://g')
 	[ -z "$USERIP" ] && USERIP="*"
 	if [ "$ACTION" = "start" ]
 	then

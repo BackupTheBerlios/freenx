@@ -17,6 +17,7 @@ XX.07.2005 FreeNX 0.4.2 "Bugfix Edition"
 	* Added nxserver --cleanup, which terminates all running sessions.
 	  Useful after a power outage.
 	* Fixed nxclient invocation with non-standard installation path
+	* Added detection of SSH2_CLIENT variable (commercial ssh)
 
 24.06.2005 FreeNX 0.4.1 "LinuxTag Edition"
 	* Fixed a small security problem giving access to session database.
