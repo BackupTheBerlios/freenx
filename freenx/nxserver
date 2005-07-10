@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.62 2005/07/06 15:59:05 fux Exp $
+# CVS: $Id: nxserver,v 1.63 2005/07/10 15:13:19 jonno Exp $
 #
 
 # Read the config file
@@ -423,6 +423,7 @@ echo_x()
 }
 
 # Start!
+[ "$NX_LOG_LEVEL" -ge "1" ] && touch "$NX_LOGFILE" >/dev/null 2>&1
 log 3 "-- NX SERVER START: $@"
 
 if [ "$ENABLE_SERVER_FORWARD" = "1" -a -n "$SERVER_FORWARD_HOST" ]
