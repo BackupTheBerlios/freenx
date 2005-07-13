@@ -18,6 +18,7 @@ XX.07.2005 FreeNX 0.4.2 "Bugfix Edition"
 	  Useful after a power outage.
 	* Fixed nxclient invocation with non-standard installation path
 	* Added detection of SSH2_CLIENT variable (commercial ssh)
+	* Finally fixed problems with GNOME.
 
 24.06.2005 FreeNX 0.4.1 "LinuxTag Edition"
 	* Fixed a small security problem giving access to session database.

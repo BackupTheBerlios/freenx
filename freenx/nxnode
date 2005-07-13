@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.65 2005/07/08 00:05:29 fabianx Exp $
+# CVS: $Id: nxnode,v 1.66 2005/07/13 00:20:48 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -194,10 +194,10 @@ node_start_applications()
 	[ "$virtualdesktop" = "0" -a "$ENABLE_ROOTLESS_MODE" != "1" ] && export LD_PRELOAD="$APPLICATION_LIBRARY_PRELOAD:$LD_PRELOAD"
 	if [ "$virtualdesktop" = "1" -a "$type" = "unix-application" -a "$DEFAULT_X_WM" != "" -a -x "$(find_app $DEFAULT_X_WM)" ]
 	then
-		DISPLAY=unix:$display $DEFAULT_X_WM 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		DISPLAY=unix:$display $DEFAULT_X_WM >>$USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
 		WM_PID=$!
 	fi
-	DISPLAY=unix:$display $STARTX 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+	DISPLAY=unix:$display $STARTX >>$USER_FAKE_HOME/.nx/C-$sess_id/session 2>&1 &
 	APP_PID=$!
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id/pids/
 	echo "$APP_PID" > $USER_FAKE_HOME/.nx/C-$sess_id/pids/applications
