@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.63 2005/07/10 15:13:19 jonno Exp $
+# CVS: $Id: nxserver,v 1.64 2005/07/16 15:45:37 fabianx Exp $
 #
 
 # Read the config file
@@ -27,7 +27,7 @@ return 1
 # Reread boot command line; echo last parameter's argument or return false.
 getparam(){
 stringinstring "&$1=" "$CMDLINE" || return 1
-echo "$CMDLINE" | awk "/^$1=/"' { VAL=$2 } END { print VAL }' FS="=" RS="(&|\n)"
+echo "$CMDLINE" |  tr "&" "\n" | egrep "^"$1"=" | awk -F= '{ VAL=$2 } END { print VAL }'
 return 0
 }
 

@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.28 2005/05/05 08:04:24 jonno Exp $ 
+# CVS: $Id: nxsetup,v 1.29 2005/07/16 15:45:37 fabianx Exp $ 
 #
 
 HELP="no"
@@ -109,7 +109,7 @@ install_nx()
 {
 	set -e
 	
-	if [ "$(pidof sshd)" = "" ]
+	if [ "$(pidof sshd 2>/dev/null)" = "" ]
 	then 
 		echo -n "Starting ssh service ..."
 		# Generate Host keys if they are not available, yet

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.66 2005/07/13 00:20:48 fabianx Exp $
+# CVS: $Id: nxnode,v 1.67 2005/07/16 15:45:37 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -42,7 +42,7 @@ return 1
 # Reread boot command line; echo last parameter's argument or return false.
 getparam(){
 stringinstring "&$1=" "$CMDLINE" || return 1
-echo "$CMDLINE" | awk "/^$1=/"' { VAL=$2 } END { print VAL }' FS="=" RS="(&|\n)"
+echo "$CMDLINE" |  tr "&" "\n" | egrep "^"$1"=" | awk -F= '{ VAL=$2 } END { print VAL }'
 return 0
 }
 

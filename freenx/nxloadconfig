@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.35 2005/07/08 00:05:29 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.36 2005/07/16 15:45:36 fabianx Exp $
 #
 # ========================================================================
 
@@ -174,6 +174,39 @@ AGENT_FONT_SERVER=""
 PROXY_TCP_NODELAY="0"
 PROXY_EXTRA_OPTIONS=""
 
+############################################################################
+# OS specific directives
+############################################################################
+
+OS="$( uname -sr )"
+
+case "$OS" in
+	"SunOS 5.10")
+		DEFAULT_X_WM=cdwm
+		DEFAULT_X_SESSION=/etc/X11/gdm/Xsession
+		COMMAND_XTERM=/usr/openwin/bin/xterm
+		COMMAND_XAUTH=/usr/openwin/bin/xauth
+		COMMAND_CUPSD=/opt/sfw/cups/sbin/cupsd
+		PATH=/usr/xpg4/bin:/usr/openwin/bin:$PATH
+		export PATH
+		;;
+esac
+
+# replace incompatible commands
+
+case "$OS" in
+       "SunOS 5.10")
+               function which()
+               {
+                       [ -e "$1" ] && echo $1 && return 0
+                       [ -z "$1" ] && return 1
+                       for i in  $(echo $PATH | tr ":" "\n"); do
+                               [ -e $i/$1 ] && echo $i/$1 && return 0
+                       done
+                       return 1
+               }
+       ;;
+esac
 
 #########################################################################
 # node.conf file evaluation
