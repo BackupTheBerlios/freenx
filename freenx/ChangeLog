@@ -1,16 +1,19 @@
-XX.07.2005 FreeNX 0.4.2 "Bugfix Edition"
-	* Removed buggy forwarding support via USER.
+16.07.2005 FreeNX 0.4.2 "Solaris / Bugfix / Linux Infotag Pforzheim Edition"
+	* Removed forwarding support via "freenx.<user>", because it was
+	  buggy.
 	* Cleaned up lots of code.
 		* Fixed one case of a left over file.
 		* Removed one unnecessary usage of a temporary file.
-	* Added exit handlers for more stability on reboot of system.
+	* Added exit handlers in nxserver and nxnode for more stability on 
+	  reboot of system.
 	* Changed nxnode to be much more stable.
-		* Added one missing nxagent case, which lead to 
-		  "zombie" sessions.
+		* Catched one additional "unclean termination of nxagent" 
+		  case, which lead to "zombie" sessions.
 	* Reworked reconnection support for more stability.
 		* Added displaying of reconnection failure in
 		  system log / client ssh log.
-	* Added even more possibilities for session startup failures.
+	* Added even more possibilities to catch and report session startup 
+	  failures.
 	* Fixed PNG and JPEG-levels pack method.
 	* Added usage of netcat -z to check that the port is really not used by
 	  another agent.
