@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.64 2005/07/16 15:45:37 fabianx Exp $
+# CVS: $Id: nxserver,v 1.65 2005/07/26 16:18:34 fabianx Exp $
 #
 
 # Read the config file
@@ -223,7 +223,7 @@ session_list_user_suspended()
 		echo "------- ---------------- -------------------------------- -------- ----- -------------- --------- ----------------------" >> $TMPFILE
 	else
 		echo "Display Type             Session ID                       Options  Depth Screen         Status      Session Name" >> $TMPFILE
-		echo " ------- ---------------- -------------------------------- -------- ----- -------------- ----------- ------------------------------" >> $TMPFILE
+		echo "------- ---------------- -------------------------------- -------- ----- -------------- ----------- ------------------------------" >> $TMPFILE
 	fi
 	for i in $NX_SESS_DIR/running/*
 	do
@@ -249,7 +249,7 @@ session_list_user_suspended()
 			then
 				available="Yes"
 			fi
-			echo -e "$(getparam display)\t$(getparam type)\t$(getparam sessionId)\t$options\t$depth\t$geom\t$available\t$(getparam sessionName)" >> $TMPFILE
+			printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s" "$(getparam display)" "$(getparam type)" "$(getparam sessionId)" "$options" "$depth" "$geom" "$available" "$(getparam sessionName)" >> $TMPFILE
 		fi
 		egrep -q "^userName=$1$" $i && let SESSION_COUNT_USER=$SESSION_COUNT_USER+1
 	done
@@ -894,6 +894,9 @@ do
 			then
 				# disabled due to problems with 1.4.0-5 client
 				#session_list_user_suspended "$USER" 'Suspended$|^status=Running$' "$(getparam geometry)" "$(getparam type)" | log_tee
+				session_list_user_suspended "$USER" 'Suspended' "$(getparam geometry)" "$(getparam type)" | log_tee
+			elif [ "$status" = "suspended,running" -o "$status" = "suspended" ] # since 1.5.0
+			then
 				session_list_user_suspended "$USER" 'Suspended' "$(getparam geometry)" "$(getparam type)" | log_tee
 			else
 				session_list_user "$USER" | log_tee
