@@ -15,5 +15,5 @@
 +NX_SESS_DIR=$NX_DIR/var/db
 +NX_HOME_DIR=$NX_DIR/home/nx
  
- # the name of the authorized keys file for ssh
- SSH_AUTHORIZED_KEYS="authorized_keys2"
+ # Advanced users ONLY
+ AGENT_LIBRARY_PATH="" #Calculated
