@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.65 2005/07/26 16:18:34 fabianx Exp $
+# CVS: $Id: nxserver,v 1.66 2005/07/27 11:10:22 fabianx Exp $
 #
 
 # Read the config file
@@ -808,7 +808,7 @@ server_startrestore_session()
 		fi
 	
 		uniqueid=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
-		FULL_PARAMS="user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY&$PARAMS"
+		FULL_PARAMS="$PARAMS&user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY"
 		log 6 "$FULL_PARAMS"
 
 		# now update the session listing
@@ -820,7 +820,7 @@ server_startrestore_session()
 		session_change "$uniqueid" "foreignAddress" "$USERIP"
 
 		CMDLINE=$(session_get "$uniqueid")
-		FULL_PARAMS="user=$USER&userip=$(getparam foreignAddress)&uniqueid=$uniqueid&display=$(getparam display)$PARAMS"
+		FULL_PARAMS="$PARAMS&user=$USER&userip=$(getparam foreignAddress)&uniqueid=$uniqueid&display=$(getparam display)"
 		SESS_DISPLAY=$(getparam display)
 	fi
 
