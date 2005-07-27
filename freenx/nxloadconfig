@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.36 2005/07/16 15:45:36 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.37 2005/07/27 00:52:36 fabianx Exp $
 #
 # ========================================================================
 
@@ -211,6 +211,14 @@ esac
 #########################################################################
 # node.conf file evaluation
 #########################################################################
+
+if [ -d $NX_ETC_DIR/node.conf.d ]
+then
+	for i in $NX_ETC_DIR/node.conf.d/*
+	do
+		[ -e $i ] && . $i
+	done
+fi
 
 [ -e $NX_ETC_DIR/node.conf ] && . $NX_ETC_DIR/node.conf
 [ "$USERCONF" = "yes" -a -e $NX_ETC_DIR/$USER.node.conf ] && . $NX_ETC_DIR/$USER.node.conf

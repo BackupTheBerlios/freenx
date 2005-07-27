@@ -1,6 +1,7 @@
 26.07.2005 FreeNX 0.4.3 "NoMachine 1.5.0 Edition"
 	* Fixed reconnection problems with !M 1.5.0 client.
 	* Fixed reconnection problems with !M 1.5.0 backend.
+	* Added evaluation of $NX_ETC_DIR/node.conf.d/* config files.
 
 16.07.2005 FreeNX 0.4.2 "Solaris / Bugfix / Linux Infotag Pforzheim Edition"
 	* Removed forwarding support via "freenx.<user>", because it was
