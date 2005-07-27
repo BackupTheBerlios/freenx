@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.29 2005/07/05 21:42:57 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.30 2005/07/27 12:06:37 fabianx Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -321,6 +321,10 @@
 
 # When set to 1 will start nxagent in rootless mode.
 #ENABLE_ROOTLESS_MODE="0"
+
+# When set to 1 enables fake cookie authentication, when a 1.5.0 client 
+# connects.
+#ENABLE_1_5_0_BACKEND="0"
 
 # If enabled writes entries via the COMMAND_SESSREG program
 # into utmp/wtmp/lastlog database.

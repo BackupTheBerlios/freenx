@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.37 2005/07/27 00:52:36 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.38 2005/07/27 12:06:37 fabianx Exp $
 #
 # ========================================================================
 
@@ -165,6 +165,7 @@ EXPORT_USERIP="0"
 EXPORT_SESSIONID="0"
 NODE_AUTOSTART=""
 ENABLE_ROOTLESS_MODE="0"
+ENABLE_1_5_0_BACKEND="0"
 ENABLE_USESSION="0"
 COMMAND_SESSREG="sessreg"
 AGENT_EXTRA_OPTIONS_RFB=""

@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.66 2005/07/27 11:10:22 fabianx Exp $
+# CVS: $Id: nxserver,v 1.67 2005/07/27 12:06:37 fabianx Exp $
 #
 
 # Read the config file
@@ -722,6 +722,7 @@ server_startrestore_session()
 	
 	server_get_params $CMD
 	PARAMS=$SERVER_PARAMS
+	PARAMS="$PARAMS&clientproto=$PROTO"
 	CMDLINE=$PARAMS
 	echo_x
 	

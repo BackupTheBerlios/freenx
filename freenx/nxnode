@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.69 2005/07/27 00:21:44 fabianx Exp $
+# CVS: $Id: nxnode,v 1.70 2005/07/27 12:06:37 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -628,6 +628,8 @@ node_startsession()
 	agent_server=$(getparam agent_server)
 	agent_user=$(getparam agent_user)
 	agent_password=$(getparam agent_password)
+	
+	clientproto=$(getparam clientproto)
 
 	[ "$EXPORT_USERIP" = "1" ] && export NXUSERIP="$userip"
 
@@ -653,6 +655,12 @@ node_startsession()
 	[ "$imagecompressionmethod" = "2" ] && PACK="pack=16m-png-9,"
 	
 	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1)
+
+	if [ "$ENABLE_1_5_0_BACKEND" = "1" -a "$clientproto" = "1.5.0" ]
+	then
+		# enable fake cookie authentication
+		cookie=$proxy_cookie
+	fi
 
 	# write options file
 	[ -z "$samba" ] && samba=0
