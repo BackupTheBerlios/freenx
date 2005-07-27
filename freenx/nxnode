@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.70 2005/07/27 12:06:37 fabianx Exp $
+# CVS: $Id: nxnode,v 1.71 2005/07/27 12:13:08 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -496,7 +496,8 @@ node_start_monitor()
 		if stringinstring "Info: End of session requested by " "$line" && [ "$RECONNECT" = "0" ] && ! stringinstring "'SIGHUP'" "$line"
 		then
 			echo "NX> 1009 Session status: terminating"
-			kill $PROXY_PID 2>/dev/null
+			[ "$ENABLE_1_5_0_BACKEND" = "1" ] || kill $PROXY_PID 2>/dev/null
+			[ "$ENABLE_1_5_0_BACKEND" = "1" ] && kill -HUP $PROXY_PID 2>/dev/null
 		fi
 		
 		TERM=""

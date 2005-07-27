@@ -2,10 +2,13 @@
 	* Fixed reconnection problems with !M 1.5.0 client.
 	* Fixed reconnection problems with !M 1.5.0 backend.
 	* Added evaluation of $NX_ETC_DIR/node.conf.d/* config files.
-	* Fixed a possible security problem. (The client was able 
+	* Fixed a possible security problem. (The client was able
 	  to overwrite parameters set by the server)
-	* Added support for fake cookie authentication with !M 1.5.0 client
-	  and 1.5.0 backend. (ENABLE_1_5_0_BACKEND configuration directive)
+	* Added ENABLE_1_5_0_BACKEND configuration directive:
+		* Added support for fake cookie authentication with
+		  !M 1.5.0 client and 1.5.0 backend.
+		* Fixed nxagent termination problems with !M 1.5.0
+		  backend.
 
 16.07.2005 FreeNX 0.4.2 "Solaris / Bugfix / Linux Infotag Pforzheim Edition"
 	* Removed forwarding support via "freenx.<user>", because it was
