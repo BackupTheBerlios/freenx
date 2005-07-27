@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.38 2005/07/27 12:06:37 fabianx Exp $
+# CVS: $Id: nxloadconfig,v 1.39 2005/07/27 14:34:59 fabianx Exp $
 #
 # ========================================================================
 
@@ -104,6 +104,7 @@ DISABLE_PERSISTENT_SESSION=""
 # Logging directives
 
 NX_LOG_LEVEL=0
+NX_LOG_SECURE=1
 NX_LOGFILE=/var/log/nxserver.log
 SESSION_LOG_CLEAN=1
 SESSION_HISTORY=2592000

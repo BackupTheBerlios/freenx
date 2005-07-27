@@ -3,7 +3,7 @@
 # Copyright (c) 2004 by Fabian Franz.
 # License: GPL, version 2
 #
-# CVS: $Id: nxnode-login,v 1.12 2005/03/21 13:00:21 jonno Exp $
+# CVS: $Id: nxnode-login,v 1.13 2005/07/27 14:34:59 fabianx Exp $
 #
 
 # Syntax: nxnode-login {ssh|su} user ssh-port executable command tosend
@@ -14,13 +14,14 @@ set port [lindex $argv 2]
 set executable [lindex $argv 3]
 set command [lindex $argv 4]
 set tosend [lindex $argv 5]
+catch {set tosend $env(NXNODE_TOSEND)}
 set command_ssh "ssh"
 catch {set command_ssh $env(COMMAND_SSH)}
 
 expect_user -re "(.*)\n" 
 set password $expect_out(1,string)
 
-set stty_init "raw icrnl"
+set stty_init "raw icrnl -echo"
 
 if { "$auth_method"=="ssh" } { 
 	set pid [spawn -noecho $command_ssh -2 -x -l "$user" "127.0.0.1" -o "NumberOfPasswordPrompts 1" -p "$port" "$executable $command" ]

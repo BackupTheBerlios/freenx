@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.67 2005/07/27 12:06:37 fabianx Exp $
+# CVS: $Id: nxserver,v 1.68 2005/07/27 14:34:59 fabianx Exp $
 #
 
 # Read the config file
@@ -404,6 +404,18 @@ log()
 	[ "$NX_LOG_LEVEL" -ge "$1" -a -w "$NX_LOGFILE" ] && shift && echo "$@" >> "$NX_LOGFILE"
 }
 
+# Log in a way that is secure for passwords / cookies / ...
+
+log_secure()
+{
+	if [ "$NX_LOG_SECURE" = "0" ]
+	then
+		log "$@"
+	else
+		[ "$NX_LOG_LEVEL" -ge "$1" -a -w "$NX_LOGFILE" ] && shift && echo "$@ " | perl -pi -e 's/--cookie=".+?"/--cookie="******"/g; s/--agent_password=".+?"/agent_password="******"/g; s/--password=".+?"/password="******"/g; s/cookie=.+?&/cookie=******&/g; s/agent_password=.+?&/agent_password=******&/g; s/password=.+?&/password=******&/g;' >> "$NX_LOGFILE"
+	fi
+}
+
 log_tee()
 {
 	[ "$NX_LOG_LEVEL" -ge "4" -a -w "$NX_LOGFILE" ] && exec tee -a "$NX_LOGFILE"
@@ -595,10 +607,10 @@ server_nxnode_start()
 	if [ "$LOGIN_METHOD" = "SSH" ]
 	then
 	    export COMMAND_SSH
-	    echo "$PASS" | $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
+	    echo "$PASS" | NXNODE_TOSEND="$@" $PATH_BIN/nxnode-login -- ssh "$USER" "$SSHD_PORT" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
 	elif [ "$LOGIN_METHOD" = "SU" ]
 	then
-	    echo "$PASS" | $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" "$@" 2>&1 | log_tee
+	    echo "$PASS" | NXNODE_TOSEND="$@" $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
 	else 
 	    echo "$@" | $COMMAND_SSH -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
@@ -810,7 +822,7 @@ server_startrestore_session()
 	
 		uniqueid=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
 		FULL_PARAMS="$PARAMS&user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY"
-		log 6 "$FULL_PARAMS"
+		log_secure "6" "$FULL_PARAMS"
 
 		# now update the session listing
 		CMDLINE="a=b&$FULL_PARAMS"
@@ -854,7 +866,19 @@ do
 	read CMD 2>/dev/null
 	# FIXME?
 	[ "$CMD" = "" ] && CMD="quit"
-	echo_x "$CMD"
+	
+	echo "$CMD"
+	
+	# Logging 
+	case "$CMD" in
+		startsession*|restoresession*|addmount*|addprinter*)
+			log_secure "4" "$CMD"
+		;;
+		*)
+			log "4" "$CMD"
+		;;
+	esac
+	
 	case "$CMD" in 
 		quit|QUIT)
 			echo_x "Quit"
@@ -965,13 +989,13 @@ do
 		addmount*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --smbmount "$USER" "$PARAMS" 2>&1 | log_error >/dev/null
+			server_nxnode_start --smbmount "$USER" "$PARAMS" >/dev/null 2>&1 | log_error >/dev/null
 			echo_x "NX> 719 SMB filesystem: running"
 		;;
 		addprinter*)
 			server_get_params $CMD
 			PARAMS=$SERVER_PARAMS
-			server_nxnode_start --addprinter "$USER" "$PARAMS" 2>&1 | log_error >/dev/null
+			server_nxnode_start --addprinter "$USER" "$PARAMS" >/dev/null 2>&1 | log_error >/dev/null
 		;;
 		*)
 			# disabled for 1.4.0-5 snapshot client

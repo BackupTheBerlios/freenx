@@ -11,6 +11,9 @@
 		  backend.
 		* Added RDP highcolor support for !M 1.5.0 client
 		  with !M 1.5.0 backend.
+	* Added secure logging - Passwords are no longer shown in log files.
+	* Security: Certain passwords for VNC/RDP could have been visible via 
+	  `ps aux`.
 
 16.07.2005 FreeNX 0.4.2 "Solaris / Bugfix / Linux Infotag Pforzheim Edition"
 	* Removed forwarding support via "freenx.<user>", because it was
