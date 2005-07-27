@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.68 2005/07/27 14:34:59 fabianx Exp $
+# CVS: $Id: nxserver,v 1.69 2005/07/27 16:10:41 fabianx Exp $
 #
 
 # Read the config file
@@ -387,8 +387,23 @@ session_suspend()
 # Main nxserver <-> nxclient communication module
 #
 
-if [ $USER = "nxfree" -o "$USER" = "nx" ]
+if [ $USER = "nxfree" -o "$USER" = "nx" -o "$ENABLE_USERMODE_AUTHENTICATION" = "1" ]
 then
+
+setup_usermode_auth()
+{
+
+	[ $USER = "nxfree" -o "$USER" = "nx" ] && ENABLE_USERMODE_AUTHENTICATION="0"
+
+	if [ "$ENABLE_USERMODE_AUTHENTICATION" = "1" ]
+	then
+		export NX_SESS_DIR="$USER_FAKE_HOME/.nx/db/"
+		export NX_LOGFILE="$USER_FAKE_HOME/.nx/temp/nxserver.log"
+		mkdir -p $NX_SESS_DIR/{closed,running,failed}
+	fi
+}
+
+setup_usermode_auth
 
 # Loglevels:
 # 1: Errors
@@ -508,6 +523,14 @@ do
 			echo_x ""
 			log 6 -n "Info: Auth method: "
 			
+			# USER already logged in?
+			if [ "$ENABLE_USERMODE_AUTHENTICATION" = "1" ]
+			then
+				LOGIN_SUCCESS="1"
+				LOGIN_METHOD="USERMODE"
+				USER=$(whoami)
+			fi
+
 			# PASSDB based auth
 			if [ "$ENABLE_PASSDB_AUTHENTICATION" = "1" -a "$LOGIN_SUCCESS" = "0" ]
 			then
@@ -556,6 +579,8 @@ do
 			then
 				# Reread the config files (so that $USER.node.conf get sourced)
 				. $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --userconf
+				setup_usermode_auth
+
 				echo_x "NX> 103 Welcome to: $SERVER_NAME user: $USER"
 				break
 			else
@@ -611,7 +636,10 @@ server_nxnode_start()
 	elif [ "$LOGIN_METHOD" = "SU" ]
 	then
 	    echo "$PASS" | NXNODE_TOSEND="$@" $PATH_BIN/nxnode-login -- su "$USER" "" "$PATH_BIN/nxnode" "$CMD" 2>&1 | log_tee
-	else 
+	elif [ "$LOGIN_METHOD" = "USERMODE" ]
+	then
+	    echo "$@" | $PATH_BIN/nxnode "$CMD" 2>&1 | log_tee
+	else
 	    echo "$@" | $COMMAND_SSH -l "$USER" 127.0.0.1 -p $SSHD_PORT -x -2 -i $NX_ETC_DIR/users.id_dsa -o 'PubkeyAuthentication yes' -o 'RSAAuthentication yes' -o 'RhostsAuthentication no' -o 'PasswordAuthentication no' -o 'RhostsRSAAuthentication no' -o 'StrictHostKeyChecking no' $PATH_BIN/nxnode "$CMD" | log_tee
 	fi
 }

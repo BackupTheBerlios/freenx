@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.31 2005/07/27 14:34:59 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.32 2005/07/27 16:10:41 fabianx Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -56,6 +56,13 @@
 #########################################################################
 
 # Authentication directives
+
+# This adds the usermode to the possible authentication methods
+# Usermode means that a user can start the nxserver as his shell
+# and connect directly to the right server via a custom client.
+
+#ENABLE_USERMODE_AUTHENTICATION="0"
+
 # This adds the passdb to the possible authentication methods
 #ENABLE_PASSDB_AUTHENTICATION="1"
 
