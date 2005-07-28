@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.69 2005/07/27 16:10:41 fabianx Exp $
+# CVS: $Id: nxserver,v 1.70 2005/07/28 22:09:43 fux Exp $
 #
 
 # Read the config file
@@ -46,7 +46,7 @@ return 0
 
 passdb_get_crypt_pass()
 {
-	echo "$@" | md5sum | cut -d" " -f1
+	echo "$@" | $COMMAND_MD5SUM | cut -d" " -f1
 }
 
 passdb_get_pass()
@@ -848,7 +848,7 @@ server_startrestore_session()
 			return
 		fi
 	
-		uniqueid=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
+		uniqueid=$(echo $[$RANDOM*$RANDOM] | $COMMAND_MD5SUM | cut -d" " -f1 | tr "[a-z]" "[A-Z]")
 		FULL_PARAMS="$PARAMS&user=$USER&userip=$USERIP&uniqueid=$uniqueid&display=$SESS_DISPLAY"
 		log_secure "6" "$FULL_PARAMS"
 

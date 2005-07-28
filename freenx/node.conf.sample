@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.32 2005/07/27 16:10:41 fabianx Exp $
+# CVS: $Id: node.conf.sample,v 1.33 2005/07/28 22:09:43 fux Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -309,6 +309,9 @@
 
 # The key that contains the name of the complete path of the 'cupsd' command.
 #COMMAND_CUPSD=/usr/sbin/cupsd
+
+# The tool to generate md5sums with
+#COMMAND_MD5SUM=md5sum
 
 #########################################################################
 # Misc directives

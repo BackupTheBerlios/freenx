@@ -19,6 +19,7 @@
 	  `ps aux`.
 	* Added experimental usermode authentication scheme.
 	  (Disabled by default)
+	* Added COMMAND_MD5SUM directive
 
 16.07.2005 FreeNX 0.4.2 "Solaris / Bugfix / Linux Infotag Pforzheim Edition"
 	* Removed forwarding support via "freenx.<user>", because it was

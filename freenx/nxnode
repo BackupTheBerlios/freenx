@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.73 2005/07/28 21:16:13 fux Exp $
+# CVS: $Id: nxnode,v 1.74 2005/07/28 22:09:43 fux Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -671,7 +671,7 @@ node_startsession()
 	[ "$imagecompressionmethod" = "1" ] && PACK="pack=16m-jpeg-$imagecompressionlevel,"
 	[ "$imagecompressionmethod" = "2" ] && PACK="pack=16m-png-9,"
 	
-	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | md5sum | cut -d" " -f1)
+	proxy_cookie=$(echo $[$RANDOM*$RANDOM] | $COMMAND_MD5SUM | cut -d" " -f1)
 
 	if [ "$ENABLE_1_5_0_BACKEND" = "1" -a "$clientproto" = "1.5.0" ]
 	then
