@@ -11,6 +11,9 @@
 		  backend.
 		* Added RDP highcolor support for !M 1.5.0 client
 		  with !M 1.5.0 backend.
+		* Fixed fullscreen support in nxdesktop (still feels more like
+		  'Available Area', but with Ctrl-Alt-F you can get "real"
+		  fullscreen)
 	* Added secure logging - Passwords are no longer shown in log files.
 	* Security: Certain passwords for VNC/RDP could have been visible via 
 	  `ps aux`.

@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.72 2005/07/27 12:50:54 fabianx Exp $
+# CVS: $Id: nxnode,v 1.73 2005/07/28 21:16:13 fux Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -236,6 +236,7 @@ node_start_agent()
 	[ "$virtualdesktop" = "0" ] && R="-R"
 	vncfullscreen=""
 	[ "$geometry" = "fullscreen" -a "$type" = "vnc" ] && vncfullscreen="-fullscreen" && G=""
+	[ "$geometry" = "fullscreen" -a "$type" = "windows" -a "$ENABLE_1_5_0_BACKEND" = "1" ] && G="-geometry `echo $screeninfo | cut -d"x" -f1,2`"
 
 	if [ "$type" = "windows" ]
 	then
@@ -243,9 +244,11 @@ node_start_agent()
 		[ "$SET_LD_LIBRARY_PATH" = "1" ] && export LD_LIBRARY_PATH="$AGENT_LIBRARY_PATH:$LD_LIBRARY_PATH"
 		U=""
 		P=""
+		D=""
 		[ -n "$agent_user" ] && U="-u $agent_user"
 		[ -n "$agent_password" ] && P="-p -"
-		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $U $P $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
+		[ -n "$agent_domain" ] && D="-d $agent_domain"
+		echo "$agent_password" | $PATH_BIN/nxdesktop -name "NX - $user@$SERVER_NAME:$display - $session (GPL Edition)" -option "$USER_FAKE_HOME/.nx/C-$sess_id/options" $K $G $U $P $D $agent_server $AGENT_EXTRA_OPTIONS_RDP 2>>$USER_FAKE_HOME/.nx/C-$sess_id/session &
 	elif [ "$type" = "vnc" ]
 	then
 		# nxviewer session (VNC RFP)
@@ -629,6 +632,8 @@ node_startsession()
 	agent_server=$(getparam agent_server)
 	agent_user=$(getparam agent_user)
 	agent_password=$(getparam agent_password)
+	agent_domain=$(getparam agent_domain)
+	screeninfo=$(getparam screeninfo)
 
 	if [ "$ENABLE_1_5_0_BACKEND" = "1" ]
 	then
@@ -639,6 +644,9 @@ node_startsession()
 	fi
 	
 	clientproto=$(getparam clientproto)
+
+	fullscreen=""
+	[ "$geometry" = "fullscreen" -a "$ENABLE_1_5_0_BACKEND" = "1" ] && fullscreen="1"
 
 	[ "$EXPORT_USERIP" = "1" ] && export NXUSERIP="$userip"
 
@@ -687,7 +695,7 @@ node_startsession()
 	umask 0077
 
 cat << EOF > $USER_FAKE_HOME/.nx/C-$sess_id/options
-${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}:$display
+${kbtype:+kbtype=$kbtype,}${CACHE}${IMAGES}${PACK}link=$link,type=$type,cleanup=0,${ACCEPT}cookie=$proxy_cookie,id=$sess_id,samba=$samba,media=$media${sync:+,sync=$sync}${cups:+,cups=$cups}${rdpcolors:+,rdpcolors=$rdpcolors}${rdpcache:+,rdpcache=$rdpcache}${fullscreen:+,fullscreen=1}:$display
 EOF
 	umask $OLD_UMASK
 #samba=$samba,
