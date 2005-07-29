@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.74 2005/07/28 22:09:43 fux Exp $
+# CVS: $Id: nxnode,v 1.75 2005/07/29 17:01:39 fux Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -660,7 +660,12 @@ node_startsession()
 	sess_id="$SERVER_NAME-$display-$uniqueid"
 	[ "$EXPORT_SESSIONID" = "1" ] && export NXSESSIONID="$sess_id"
 	
+	OLD_UMASK=$(umask)
+	umask 0022
+	mkdir -p $USER_FAKE_HOME
+	umask 0077
 	mkdir -p $USER_FAKE_HOME/.nx/C-$sess_id
+	umask $OLD_UMASK
 	
 	# cache=8M,images=32M,pack=nopack,link=lan,type=unix-kde,cleanup=0,accept=192.168.1.66,cookie=E38A94A77F975443AF04EC911881B120,id=Knoppix-1000-6A8269CC467264EAEF6349D062689755,samba=1,render=1:1000
 	
