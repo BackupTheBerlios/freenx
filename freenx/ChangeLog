@@ -1,3 +1,11 @@
+06.08.2005 FreeNX 0.4.4 "UKUUG Enterprise Edition"
+	* Added ENABLE_1_5_0_BACKEND configuration directive:
+		* Fixed fullscreen support in nxdesktop (still feels more like
+		  'Available Area', but with Ctrl-Alt-F you can get "real"
+		  fullscreen)
+	* Added COMMAND_MD5SUM directive
+	* Security: $USER_FAKE_HOME/.nx now gets 0700
+
 28.07.2005 FreeNX 0.4.3 "NoMachine 1.5.0 Edition"
 	* Fixed reconnection problems with !M 1.5.0 client.
 	* Fixed reconnection problems with !M 1.5.0 backend.
@@ -11,16 +19,11 @@
 		  backend.
 		* Added RDP highcolor support for !M 1.5.0 client
 		  with !M 1.5.0 backend.
-		* Fixed fullscreen support in nxdesktop (still feels more like
-		  'Available Area', but with Ctrl-Alt-F you can get "real"
-		  fullscreen)
 	* Added secure logging - Passwords are no longer shown in log files.
 	* Security: Certain passwords for VNC/RDP could have been visible via 
 	  `ps aux`.
 	* Added experimental usermode authentication scheme.
 	  (Disabled by default)
-	* Added COMMAND_MD5SUM directive
-	* Security: $USER_FAKE_HOME/.nx now gets 0700
 
 16.07.2005 FreeNX 0.4.2 "Solaris / Bugfix / Linux Infotag Pforzheim Edition"
 	* Removed forwarding support via "freenx.<user>", because it was
