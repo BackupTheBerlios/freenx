@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.75 2005/07/29 17:01:39 fux Exp $
+# CVS: $Id: nxnode,v 1.76 2005/07/31 23:53:43 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -629,6 +629,7 @@ node_startsession()
 	mediahelper=$(getparam mediahelper)
 	sync=$(getparam sync)
 	samba=$(getparam samba)
+	cups=$(getparam cups)
 	agent_server=$(getparam agent_server)
 	agent_user=$(getparam agent_user)
 	agent_password=$(getparam agent_password)
