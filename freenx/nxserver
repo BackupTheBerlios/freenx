@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.70 2005/07/28 22:09:43 fux Exp $
+# CVS: $Id: nxserver,v 1.71 2005/08/01 00:21:27 fabianx Exp $
 #
 
 # Read the config file
@@ -421,13 +421,18 @@ log()
 
 # Log in a way that is secure for passwords / cookies / ...
 
+echo_secure()
+{
+	echo "$@ " | perl -pi -e 's/--cookie=".+?"/--cookie="******"/g; s/--agent_password=".+?"/agent_password="******"/g; s/--password=".+?"/password="******"/g; s/cookie=.+?&/cookie=******&/g; s/agent_password=.+?&/agent_password=******&/g; s/password=.+?&/password=******&/g;'
+}
+
 log_secure()
 {
 	if [ "$NX_LOG_SECURE" = "0" ]
 	then
 		log "$@"
 	else
-		[ "$NX_LOG_LEVEL" -ge "$1" -a -w "$NX_LOGFILE" ] && shift && echo "$@ " | perl -pi -e 's/--cookie=".+?"/--cookie="******"/g; s/--agent_password=".+?"/agent_password="******"/g; s/--password=".+?"/password="******"/g; s/cookie=.+?&/cookie=******&/g; s/agent_password=.+?&/agent_password=******&/g; s/password=.+?&/password=******&/g;' >> "$NX_LOGFILE"
+		[ "$NX_LOG_LEVEL" -ge "$1" -a -w "$NX_LOGFILE" ] && shift && echo_secure "$@" >> "$NX_LOGFILE"
 	fi
 }
 
@@ -895,14 +900,14 @@ do
 	# FIXME?
 	[ "$CMD" = "" ] && CMD="quit"
 	
-	echo "$CMD"
-	
 	# Logging 
 	case "$CMD" in
 		startsession*|restoresession*|addmount*|addprinter*)
+			echo_secure "$CMD"
 			log_secure "4" "$CMD"
 		;;
 		*)
+			echo "$CMD"
 			log "4" "$CMD"
 		;;
 	esac

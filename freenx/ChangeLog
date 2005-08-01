@@ -6,6 +6,7 @@
 	* Added COMMAND_MD5SUM directive
 	* Security: $USER_FAKE_HOME/.nx now gets 0700
 	* Fixed support for CUPS forwarding.
+	* Added secure re-transmitting to client.
 
 28.07.2005 FreeNX 0.4.3 "NoMachine 1.5.0 Edition"
 	* Fixed reconnection problems with !M 1.5.0 client.
