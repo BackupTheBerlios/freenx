@@ -13,7 +13,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxnode,v 1.76 2005/07/31 23:53:43 fabianx Exp $
+# CVS: $Id: nxnode,v 1.77 2005/08/02 15:20:18 fabianx Exp $
 #
 # 21.06.2004: - Full reconnection support
 
@@ -427,9 +427,9 @@ node_start_monitor()
 		if stringinstring "Info: tail -f running with pid" "$line"
 		then
 			TAIL_PID=$(echo $line | cut -d"'" -f2)
-			# now set a timeout of 10 seconds ...
+			# now set a timeout of 60 seconds ...
 			( 
-                          sleep 10
+                          sleep 60
 			  if [ -d "$HOME/.nx/C-$sess_id/" ]
 			  then
 		          	echo "NX> 1004 Error: nxagent failed to start. Session timed out."

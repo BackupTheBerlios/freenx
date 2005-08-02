@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.72 2005/08/02 14:51:43 fabianx Exp $
+# CVS: $Id: nxserver,v 1.73 2005/08/02 15:20:18 fabianx Exp $
 #
 
 # Read the config file
@@ -684,7 +684,8 @@ server_nxnode_start_wait()
 {
 	server_add_usession
 
-	trap server_nxnode_exit_func EXIT
+	# Trap did fire unnecessarily according to Sunil, so removed it again.
+	#trap server_nxnode_exit_func EXIT
 	
 	SERVER_CHANNEL=1
 	KILL_WAIT_PID=1
@@ -871,7 +872,7 @@ server_startrestore_session()
 	fi
 
 	# now start the node
-	(sleep 10; exit 1) &
+	(sleep 60; exit 1) &
 	SERVER_WAIT_PID=$!
 	server_nxnode_start_wait --"$ACTION"session $USER "$FULL_PARAMS" &
 	SERVER_PID=$!
@@ -881,7 +882,7 @@ server_startrestore_session()
 	if [ $? -eq 1 ]
 	then
 		# Something went wrong ...
-		session_fail $uniqueid
+		[ "$ACTION" = "start" ] && session_fail $uniqueid
 		# FIXME: Need correct error code.
 		echo_x "NX> 1004 Error: Session did not start."
 		echo_x "NX> 504 Session startup failed."
