@@ -14,6 +14,9 @@
 	  (Suggestion by "Sunil" <funtoos@yahoo.com>)
 	* Made automatic timeout configurable.
 	  (Patch by "Ed Warnicke" <eaw@cisco.com>)
+	* Made nxsetup more enterprise friendly. Added --localuser
+	  (RedHat only) and --gid. 
+	  (Based on a patch by "Ed Warnicke" <eaw@cisco.com>)
 
 28.07.2005 FreeNX 0.4.3 "NoMachine 1.5.0 Edition"
 	* Fixed reconnection problems with !M 1.5.0 client.

@@ -5,13 +5,18 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.30 2005/08/02 14:51:43 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.31 2005/08/02 17:29:59 fabianx Exp $ 
 #
 
 HELP="no"
 INSTALL="no"
 SETUP_NOMACHINE_KEY="no"
 SETUP_UID=""
+SETUP_GID=""
+LOCAL_USER_OPTION=""
+# luseradd / luserdel are only available on RedHat
+[ -f /etc/redhat-release ] && LOCAL_USER_OPTION="yes"
+SETUP_LOCAL_USER="no"
 CLEAN="no"
 UNINSTALL="no"
 PURGE="no"
@@ -27,6 +32,8 @@ do
 		--ssh2) SETUP_SSH2_KEY="yes"; shift;;
 		--dont-build-known-hosts) BUILD_KNOWN_HOSTS="no"; shift;;
 		--uid) SETUP_UID=$2; shift 2 ;;
+		--gid) SETUP_GID=$2; shift 2 ;;
+		--localuser) SETUP_LOCAL_USER="yes"; shift;;
 		--clean) CLEAN="yes"; shift ;;
 		--uninstall) UNINSTALL="yes"; shift ;;
 		--purge) PURGE="yes"; shift ;;
@@ -36,6 +43,7 @@ do
 done
 
 #Check for invalid combinations:
+[ "$SETUP_LOCAL_USER" = "yes" -a -z "$LOCAL_USER_OPTION" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$UNINSTALL" = "yes" ] && HELP="yes"
 [ "$INSTALL" = "no" -a "$UNINSTALL" = "no" ] && HELP="yes"
 [ "$INSTALL" = "yes" -a "$CLEAN" = "no" -a "$PURGE" = "yes" ] && HELP="yes"
@@ -59,6 +67,8 @@ then
 	echo "  --ssh2		       Additionally create commercial pubkey-support, beware"
 	echo "			       own _commercial_ ssh2-key is not supported!."
 	echo "  --uid <number>         The nx user will be given the uid <number>."
+	echo "  --gid <number>         The nx user will be given the gid <number>."
+	[ -n "$LOCAL_USER_OPTION" ] && echo "  --localuser            The nx user will be created locally using luseradd, for use in NIS and NISplus environments."
 	echo "  --clean                Performs an uninstall prior to the installation"
 	echo "  --uninstall            Remove log and session files, as well as the nx user"
 	echo "  --purge                Uninstall will remove extra configuration files and ssh"
@@ -80,28 +90,52 @@ fi
 # Read the config file
 . $(PATH=$(cd $(dirname $0) && pwd):$PATH which nxloadconfig) --
 
+nx_user_exists()
+{
+	if [ "$SETUP_LOCAL_USER" = "yes" ]
+	then
+		egrep "^nx:" /etc/passwd >/dev/null
+	else
+		getent passwd nx >/dev/null
+	fi
+}	
+
 # Tries to add a system user
 useradd_nx()
 {
 	# In any case create the basedir of the HOME directory before, 
 	# because useradd will fail to make more than one directory
 	mkdir -p $(dirname "$NX_HOME_DIR")
-	
-	# Are uid specified
-	if [ -n "$SETUP_UID" ]
-	then
-		useradd -u $SETUP_UID -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
+
 	# Is it a debian?
-	elif [ -f /etc/debian_version ]
+	if [ -f /etc/debian_version -a -z "$SETUP_UID" ]
 	then
-		adduser --system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver nx
-	# or is it a SuSE?
-	elif [ -f /etc/SuSE-release ]
-	then
-		useradd -r -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
-	# we don't know the system, fallback
+		USERADD_OPTIONS="--system --home $NX_HOME_DIR --shell $PATH_BIN/nxserver"
+		[ -n "$SETUP_GID" ] && USERADD_OPTIONS="--gid $SETUP_GID $USERADD_OPTIONS"
+		adduser $USERADD_OPTIONS nx
+	# no, its a "normal" useradd
 	else
-		useradd -d $NX_HOME_DIR -s $PATH_BIN/nxserver nx
+		USERADD_OPTIONS="-d $NX_HOME_DIR -s $PATH_BIN/nxserver"
+		[ -n $SETUP_GID ] && USERADD_OPTIONS="-g $SETUP_GID $USERADD_OPTIONS"
+		# uid specified?
+		if [ -n "$SETUP_UID" ]
+		then
+			USERADD_OPTIONS="-u $SETUP_UID $USERADD_OPTIONS"
+		# Is it a SuSE?
+		elif [ -f /etc/SuSE-release ]
+		then
+			USERADD_OPTIONS="-r $USERADD_OPTIONS"
+		fi
+
+		if [ "$SETUP_LOCAL_USER" = "yes" ]
+		then
+			[ -n "$SETUP_GID" ] && /usr/sbin/lgroupadd -g $SETUP_GID nx
+			luseradd $USERADD_OPTIONS nx
+		else
+			useradd $USERADD_OPTIONS nx
+		fi
+
+		
 	fi
 }
 
@@ -142,7 +176,7 @@ install_nx()
 	chmod 600 "$NX_LOGFILE"
 	echo "done"
 	
-	if ! { getent passwd nx >/dev/null; }
+	if ! nx_user_exists
 	then
 		echo -n "Setting up user nx ..."
 		useradd_nx
@@ -226,10 +260,17 @@ EOF
 
 uninstall_nx() 
 {
-	if { getent passwd nx >/dev/null; }
+	if nx_user_exists
 	then
 		echo -n "Removing user nx ..."
-		userdel nx
+		
+		if [ "$SETUP_LOCAL_USER" = "yes" ]
+		then
+			luserdel nx
+		else
+			userdel nx
+		fi
+			
 		echo "done"
 	fi
 	
