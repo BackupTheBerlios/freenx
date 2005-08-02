@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.71 2005/08/01 00:21:27 fabianx Exp $
+# CVS: $Id: nxserver,v 1.72 2005/08/02 14:51:43 fabianx Exp $
 #
 
 # Read the config file
@@ -1132,7 +1132,7 @@ cmd_adduser()
 	
 	[ ${#CMD_CHUSER} -ge 32 ] && cmd_abort "Error: User $CMD_CHUSER must be shorter than 32 characters."
 	egrep -q "^$CMD_CHUSER:" $NX_ETC_DIR/passwords && cmd_abort "Error: User $CMD_CHUSER already in database."
-	getent passwd | egrep -q "^$CMD_CHUSER:" || cmd_abort "Error: User $CMD_CHUSER not existing on local system. Can't add."
+	getent passwd "$CMD_CHUSER" >/dev/null || cmd_abort "Error: User $CMD_CHUSER not existing on local system. Can't add."
 	passdb_add_user "$CMD_CHUSER"
 }
 

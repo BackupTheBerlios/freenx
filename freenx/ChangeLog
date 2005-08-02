@@ -7,6 +7,9 @@
 	* Security: $USER_FAKE_HOME/.nx now gets 0700
 	* Fixed support for CUPS forwarding.
 	* Added secure re-transmitting to client.
+	* Removed grep from getent to not search through the whole database.
+	  (Suggestion by "Matthew S. Harris" <mharris@google.com>,
+	                 "Ed Warnicke"       <eaw@cisco.com>)
 
 28.07.2005 FreeNX 0.4.3 "NoMachine 1.5.0 Edition"
 	* Fixed reconnection problems with !M 1.5.0 client.

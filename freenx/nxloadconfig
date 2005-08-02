@@ -5,7 +5,7 @@
 #
 # License: GPL, version 2
 #
-# CVS: $Id: nxloadconfig,v 1.41 2005/07/28 22:09:43 fux Exp $
+# CVS: $Id: nxloadconfig,v 1.42 2005/08/02 14:51:43 fabianx Exp $
 #
 # ========================================================================
 
@@ -326,16 +326,16 @@ then
 	if [ "$ENABLE_PERSISTENT_SESSION" != "all" ]
 	then
 		for USERNAME in $ENABLE_PERSISTENT_SESSION; do
-			[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+			[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd $USERNAME) ] && \
 				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
-			[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group | egrep "^${USERNAME:1}:") ] && \
+			[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group ${USERNAME:1}) ] && \
 				ERROR="yes" && echo "Error: Invalid value \"ENABLE_PERSISTENT_SESSION=$ENABLE_PERSISTENT_SESSION\"" && break ;
 		done
 	fi
 	for USERNAME in $DISABLE_PERSISTENT_SESSION; do
-		[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd | egrep "^$USERNAME:") ] && \
+		[ "${USERNAME:0:1}" != "@" ] && [ -z $(getent passwd $USERNAME) ] && \
 			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
-		[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group | egrep "^${USERNAME:1}:") ] && \
+		[ "${USERNAME:0:1}" = "@" ] && [ -z $(getent group ${USERNAME:1}) ] && \
 			ERROR="yes" && echo "Error: Invalid value \"DISABLE_PERSISTENT_SESSION=$DISABLE_PERSISTENT_SESSION\"" && break ;
 	done
 	IFS=$OLD_IFS

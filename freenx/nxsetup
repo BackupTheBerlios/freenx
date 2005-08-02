@@ -5,7 +5,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxsetup,v 1.29 2005/07/16 15:45:37 fabianx Exp $ 
+# CVS: $Id: nxsetup,v 1.30 2005/08/02 14:51:43 fabianx Exp $ 
 #
 
 HELP="no"
@@ -142,7 +142,7 @@ install_nx()
 	chmod 600 "$NX_LOGFILE"
 	echo "done"
 	
-	if ! { getent passwd | egrep -q "^nx:"; }
+	if ! { getent passwd nx >/dev/null; }
 	then
 		echo -n "Setting up user nx ..."
 		useradd_nx
@@ -226,7 +226,7 @@ EOF
 
 uninstall_nx() 
 {
-	if { getent passwd | egrep -q "^nx:"; }
+	if { getent passwd nx >/dev/null; }
 	then
 		echo -n "Removing user nx ..."
 		userdel nx
