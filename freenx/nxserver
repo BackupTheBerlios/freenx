@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.73 2005/08/02 15:20:18 fabianx Exp $
+# CVS: $Id: nxserver,v 1.74 2005/08/02 15:39:32 fabianx Exp $
 #
 
 # Read the config file
@@ -872,7 +872,7 @@ server_startrestore_session()
 	fi
 
 	# now start the node
-	(sleep 60; exit 1) &
+	(sleep $AGENT_STARTUP_TIMEOUT; exit 1) &
 	SERVER_WAIT_PID=$!
 	server_nxnode_start_wait --"$ACTION"session $USER "$FULL_PARAMS" &
 	SERVER_PID=$!

@@ -37,7 +37,7 @@
 #
 #           https://mail.kde.org/mailman/listinfo/freenx-knx
 #
-# CVS: $Id: node.conf.sample,v 1.34 2005/07/29 17:05:21 fux Exp $
+# CVS: $Id: node.conf.sample,v 1.35 2005/08/02 15:39:32 fabianx Exp $
 
 #########################################################################
 # General FreeNX directives
@@ -351,6 +351,10 @@
 #AGENT_EXTRA_OPTIONS_RFB=""
 #AGENT_EXTRA_OPTIONS_RDP=""
 #AGENT_EXTRA_OPTIONS_X=""
+
+# The number of seconds we wait for the nxagent to start before
+# deciding startup has failed
+#AGENT_STARTUP_TIMEOUT="60"
 
 # The font server the agent will use. If set to "" no font server is used.
 # For this to do any good, the client has to have the same font server set
