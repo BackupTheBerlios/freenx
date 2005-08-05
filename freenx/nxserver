@@ -11,7 +11,7 @@
 #
 # License: GNU GPL, version 2
 #
-# CVS: $Id: nxserver,v 1.74 2005/08/02 15:39:32 fabianx Exp $
+# CVS: $Id: nxserver,v 1.75 2005/08/05 16:38:44 fabianx Exp $
 #
 
 # Read the config file
@@ -249,7 +249,7 @@ session_list_user_suspended()
 			then
 				available="Yes"
 			fi
-			printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s" "$(getparam display)" "$(getparam type)" "$(getparam sessionId)" "$options" "$depth" "$geom" "$available" "$(getparam sessionName)" >> $TMPFILE
+			printf "%-7s %-16s %32s %8s %5s %-14s %-11s %s\n" "$(getparam display)" "$(getparam type)" "$(getparam sessionId)" "$options" "$depth" "$geom" "$available" "$(getparam sessionName)" >> $TMPFILE
 		fi
 		egrep -q "^userName=$1$" $i && let SESSION_COUNT_USER=$SESSION_COUNT_USER+1
 	done
